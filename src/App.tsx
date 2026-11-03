@@ -341,7 +341,7 @@ export default function App() {
                   {selected === plan.id && (
                     <button
                       type="button"
-                      className={`btn ${plan.featured ? 'btn-solid' : 'btn-ghost'}`}
+                      className="btn btn-solid plan-add"
                       onClick={(e) => {
                         e.stopPropagation()
                         openPlan(plan.id)
