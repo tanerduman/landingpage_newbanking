@@ -83,7 +83,7 @@ function Cell({ value }: { value: string | boolean }) {
 
 export default function App() {
   const [cycle, setCycle] = useState<Cycle>('monthly')
-  const [selected, setSelected] = useState<PlanId>('premium')
+  const [selected, setSelected] = useState<PlanId | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
   const [faq, setFaq] = useState<number | null>(0)
   const [menu, setMenu] = useState(false)
@@ -94,7 +94,7 @@ export default function App() {
   const [error, setError] = useState('')
 
   const period = cycle === 'yearly' ? '/yıl' : '/ay'
-  const selectedPlan = useMemo(() => plans.find((p) => p.id === selected)!, [selected])
+  const selectedPlan = useMemo(() => plans.find((p) => p.id === selected), [selected])
 
   function openAccount() {
     setIntent('account')
@@ -145,7 +145,7 @@ export default function App() {
     setToast(
       intent === 'account'
         ? 'Paketsiz hesabın için sıraya alındın.'
-        : `${selectedPlan.name} paketi için sıraya alındın.`,
+        : `${selectedPlan?.name ?? 'Paket'} için sıraya alındın.`,
     )
     setName('')
     setEmail('')
@@ -318,7 +318,7 @@ export default function App() {
 
             <div className="plans">
               {plans.map((plan) => (
-                <button
+                <article
                   key={plan.id}
                   className={`plan-card ${plan.featured ? 'featured' : ''} ${selected === plan.id ? 'selected' : ''}`}
                   onClick={() => setSelected(plan.id)}
@@ -338,16 +338,19 @@ export default function App() {
                       <li key={perk}>{perk}</li>
                     ))}
                   </ul>
-                  <span
-                    className={`btn ${plan.featured ? 'btn-solid' : 'btn-ghost'}`}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openPlan(plan.id)
-                    }}
-                  >
-                    Bu paketi ekle
-                  </span>
-                </button>
+                  {selected === plan.id && (
+                    <button
+                      type="button"
+                      className={`btn ${plan.featured ? 'btn-solid' : 'btn-ghost'}`}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openPlan(plan.id)
+                      }}
+                    >
+                      Bu paketi ekle
+                    </button>
+                  )}
+                </article>
               ))}
             </div>
           </div>
@@ -558,12 +561,12 @@ export default function App() {
               ×
             </button>
             <h3 id="signup-title">
-              {intent === 'account' ? 'Paketsiz hesap aç' : `${selectedPlan.name} paketini ekle`}
+              {intent === 'account' ? 'Paketsiz hesap aç' : `${selectedPlan?.name ?? 'Paket'} paketini ekle`}
             </h3>
             <p>
               {intent === 'account'
                 ? 'Paket seçmeden, 0 ₺’ye hesap için sıraya yazıl. Adını ve e-postanı bırakman yeterli.'
-                : `Adını ve e-postanı bırak; lansmanda ${selectedPlan.name} kotasından yer ayıralım. Hesap yine paketsiz de açılabilir.`}
+                : `Adını ve e-postanı bırak; lansmanda ${selectedPlan?.name ?? 'paket'} kotasından yer ayıralım. Hesap yine paketsiz de açılabilir.`}
             </p>
             <label htmlFor="full-name">Ad soyad</label>
             <input id="full-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Yılmaz" />
