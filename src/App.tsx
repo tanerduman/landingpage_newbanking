@@ -543,7 +543,7 @@ export default function App() {
         <div className="wrap foot">
           <span>© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.</span>
           <span>
-            Paketsiz hesap · Standard · Plus · Premium · <a href="/waitlist">Waiting list</a>
+            Paketsiz hesap · Standard · Plus · Premium
           </span>
         </div>
       </footer>
