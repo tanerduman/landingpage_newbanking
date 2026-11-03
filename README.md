@@ -1,6 +1,6 @@
 # AURE — neo-banka üyelik landing page
 
-Revolut tarzı katmanlı abonelik modeli (Standard, Plus, Premium, Metal) için kurgusal bir pazarlama sayfası.
+Revolut tarzı katmanlı abonelik modeli: paketsiz ücretsiz hesap ve isteğe bağlı Standard, Plus, Premium paketleri.
 
 ```bash
 npm install
