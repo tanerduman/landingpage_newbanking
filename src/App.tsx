@@ -1,6 +1,7 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 
-type PlanId = 'standard' | 'plus' | 'premium' | 'metal'
+type PlanId = 'standard' | 'plus' | 'premium'
+type SignupIntent = 'account' | PlanId
 type Cycle = 'monthly' | 'yearly'
 
 const plans: {
@@ -15,8 +16,8 @@ const plans: {
     id: 'standard',
     name: 'Standard',
     monthly: 49,
-    blurb: 'Günlük harcama için giriş üyeliği.',
-    perks: ['Sanal ve fiziksel kart dahil', 'Anlık bildirimler', '1.000 €/ay ücretsiz ATM', 'Hafta içi piyasa kuruna yakın döviz'],
+    blurb: 'Günlük harcamayı daha rahat yönet.',
+    perks: ['Fiziksel kart dahil', '1.000 €/ay ücretsiz ATM', 'Hafta içi piyasa kuruna yakın döviz', 'Anlık bildirimler'],
   },
   {
     id: 'plus',
@@ -33,42 +34,37 @@ const plans: {
     perks: ['Sınırsız ücretsiz döviz', 'Yurtdışı sağlık sigortası', 'LoungeKey erişimi', 'Kripto ve hisse alımında düşük komisyon'],
     featured: true,
   },
-  {
-    id: 'metal',
-    name: 'Metal',
-    monthly: 449,
-    blurb: 'Nakit iade ve concierge ile tam üyelik.',
-    perks: ['%1 nakit iade', 'Özel metal kart', '24/7 concierge', 'Kiralık araç ve cihaz sigortası'],
-  },
 ]
 
+const compareColumns = ['Paketsiz hesap', ...plans.map((p) => p.name)]
+
 const comparison = [
-  { label: 'Aylık üyelik', values: ['49 ₺', '99 ₺', '249 ₺', '449 ₺'] },
-  { label: 'Fiziksel kart', values: ['Plastik', 'Plus kart', 'Premium kart', 'Metal kart'] },
-  { label: 'Ücretsiz döviz', values: ['1.000 €/ay', '3.000 €/ay', 'Sınırsız', 'Sınırsız'] },
-  { label: 'ATM çekimi', values: ['1.000 €/ay', '3.000 €/ay', '800 €/ay yurtdışı', '2.000 €/ay yurtdışı'] },
-  { label: 'Seyahat sigortası', values: [false, false, true, true] },
-  { label: 'Lounge erişimi', values: [false, false, '2 misafir', '4 misafir'] },
-  { label: 'Nakit iade', values: [false, false, false, '%1'] },
-  { label: 'Concierge', values: [false, false, false, true] },
+  { label: 'Aylık ücret', values: ['0 ₺', '49 ₺', '99 ₺', '249 ₺'] },
+  { label: 'Hesap açılışı', values: [true, true, true, true] },
+  { label: 'Sanal kart', values: [true, true, true, true] },
+  { label: 'Fiziksel kart', values: ['İsteğe bağlı', 'Plastik', 'Plus kart', 'Premium kart'] },
+  { label: 'Ücretsiz döviz', values: ['250 €/ay', '1.000 €/ay', '3.000 €/ay', 'Sınırsız'] },
+  { label: 'ATM çekimi', values: ['200 €/ay', '1.000 €/ay', '3.000 €/ay', '800 €/ay yurtdışı'] },
+  { label: 'Seyahat sigortası', values: [false, false, false, true] },
+  { label: 'Lounge erişimi', values: [false, false, false, '2 misafir'] },
 ]
 
 const faqs = [
+  {
+    q: 'Paket almak zorunda mıyım?',
+    a: 'Hayır. Hesabını herhangi bir paket olmadan, 0 ₺’ye açarsın. IBAN, sanal kart ve temel harcama paketsiz hesaba dahildir. Standard, Plus veya Premium’u yalnızca limiti veya ayrıcalığı yükseltmek istediğinde eklersin.',
+  },
   {
     q: 'AURE bir banka mı?',
     a: 'AURE, elektronik para kuruluşu lisansı modeliyle çalışan kurgusal bir neo-banka deneyimidir. Gerçek para yatırma veya hesap açma işlemi yapılmaz; bu sayfa ürün ve üyelik modelini göstermek için tasarlandı.',
   },
   {
     q: 'İstediğim zaman plan değiştirebilir miyim?',
-    a: 'Evet. Standard’dan Metal’e anında yükseltebilir, dönem sonunda daha düşük bir plana inebilirsin. Yıllık planda kalan günler sonraki faturaya kredi olarak yansır.',
+    a: 'Evet. Paketsiz hesaptan Standard, Plus veya Premium’a anında geçebilir, dönem sonunda paketi iptal edip yine ücretsiz hesaba dönebilirsin. Yıllık planda kalan günler sonraki faturaya kredi olarak yansır.',
   },
   {
     q: 'Döviz ücreti nasıl işler?',
-    a: 'Hafta içi piyasa kuruna yakın fiyatlanır. Standard ve Plus’ta aylık ücretsiz döviz limiti vardır; limiti aşınca küçük bir makas uygulanır. Premium ve Metal’de döviz limitsiz ve ücretsizdir.',
-  },
-  {
-    q: 'Kartımı yurtdışında kullanabilir miyim?',
-    a: 'Tüm planlarda Mastercard/Visa altyapısıyla yurtdışı harcama açıktır. ATM ve döviz limitleri plana göre değişir; seyahat sigortası Premium ve Metal’de dahildir.',
+    a: 'Hafta içi piyasa kuruna yakın fiyatlanır. Paketsiz hesap, Standard ve Plus’ta aylık ücretsiz döviz limiti vardır; limiti aşınca küçük bir makas uygulanır. Premium’da döviz limitsiz ve ücretsizdir.',
   },
 ]
 
@@ -88,6 +84,7 @@ function Cell({ value }: { value: string | boolean }) {
 export default function App() {
   const [cycle, setCycle] = useState<Cycle>('monthly')
   const [selected, setSelected] = useState<PlanId>('premium')
+  const [intent, setIntent] = useState<SignupIntent>('account')
   const [faq, setFaq] = useState<number | null>(0)
   const [menu, setMenu] = useState(false)
   const [modal, setModal] = useState(false)
@@ -99,10 +96,40 @@ export default function App() {
   const period = cycle === 'yearly' ? '/yıl' : '/ay'
   const selectedPlan = useMemo(() => plans.find((p) => p.id === selected)!, [selected])
 
-  function openSignup() {
+  function openAccount() {
+    setIntent('account')
     setError('')
     setModal(true)
   }
+
+  function openPlan(id: PlanId) {
+    setSelected(id)
+    setIntent(id)
+    setError('')
+    setModal(true)
+  }
+
+  function closeModal() {
+    setModal(false)
+    setError('')
+  }
+
+  function closeToast() {
+    setToast(null)
+  }
+
+  useEffect(() => {
+    if (!modal && !toast) return
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return
+      if (modal) closeModal()
+      else closeToast()
+    }
+
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [modal, toast])
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -115,7 +142,11 @@ export default function App() {
       return
     }
     setModal(false)
-    setToast(`${selectedPlan.name} planı için sıraya alındın.`)
+    setToast(
+      intent === 'account'
+        ? 'Paketsiz hesabın için sıraya alındın.'
+        : `${selectedPlan.name} paketi için sıraya alındın.`,
+    )
     setName('')
     setEmail('')
     window.setTimeout(() => setToast(null), 3200)
@@ -130,17 +161,17 @@ export default function App() {
             AURE
           </a>
           <nav className="nav-links">
-            <a href="#plans">Planlar</a>
+            <a href="#plans">Paketler</a>
             <a href="#features">Özellikler</a>
             <a href="#compare">Karşılaştır</a>
             <a href="#faq">SSS</a>
           </nav>
           <div className="nav-cta">
-            <a className="btn btn-ghost" href="#compare">
-              Planları karşılaştır
+            <a className="btn btn-ghost" href="#plans">
+              Paketleri gör
             </a>
-            <button className="btn btn-solid" onClick={openSignup}>
-              Hesap aç
+            <button className="btn btn-solid" onClick={openAccount}>
+              Paketsiz hesap aç
             </button>
             <button className="menu-btn" aria-label="Menü" onClick={() => setMenu((v) => !v)}>
               ☰
@@ -149,7 +180,7 @@ export default function App() {
         </div>
         <div className={`wrap mobile-drawer ${menu ? 'open' : ''}`}>
           <a href="#plans" onClick={() => setMenu(false)}>
-            Planlar
+            Paketler
           </a>
           <a href="#features" onClick={() => setMenu(false)}>
             Özellikler
@@ -167,29 +198,29 @@ export default function App() {
         <div className="wrap hero">
           <div>
             <div className="eyebrow">
-              <span className="dot" /> 40+ para birimi · tek uygulama
+              <span className="dot" /> Paket şart değil · hesap 0 ₺
             </div>
             <h1>Paran, her yerde daha güçlü.</h1>
             <p className="lead">
-              Revolut tarzı üyelik katmanları: ücretli Standard’dan Metal’e. Döviz, kart, birikim, seyahat ve yatırımı
-              tek bakiyede tut; ihtiyacın kadar öde.
+              Hesabını herhangi bir paket olmadan aç. IBAN, sanal kart ve günlük harcama ücretsiz. Standard, Plus veya
+              Premium’u yalnızca daha fazla limit ve ayrıcalık istediğinde ekle.
             </p>
             <div className="hero-actions">
-              <button className="btn btn-solid" onClick={openSignup}>
-                Standard ile başla
+              <button className="btn btn-solid" onClick={openAccount}>
+                Paketsiz hesap aç
               </button>
               <a className="btn btn-ghost" href="#plans">
-                {selectedPlan.name} planını incele
+                İsteğe bağlı paketler
               </a>
             </div>
             <div className="stats">
               <div>
-                <strong>4</strong>
-                <span>üyelik katmanı</span>
+                <strong>0 ₺</strong>
+                <span>paketsiz hesap</span>
               </div>
               <div>
-                <strong>49 ₺</strong>
-                <span>Standard / ay</span>
+                <strong>3</strong>
+                <span>isteğe bağlı paket</span>
               </div>
               <div>
                 <strong>150+</strong>
@@ -198,8 +229,15 @@ export default function App() {
             </div>
           </div>
 
-          <div className={`stage is-${selected}`}>
+          <div className={`stage is-${intent === 'account' ? 'account' : selected}`}>
             <div className="card-stack" aria-hidden="true">
+              <article className="bank-card card-account">
+                <span className="chip" />
+                <div>
+                  <small>AURE Hesap</small>
+                  <b>•••• 2208</b>
+                </div>
+              </article>
               <article className="bank-card card-standard">
                 <span className="chip" />
                 <div>
@@ -221,21 +259,14 @@ export default function App() {
                   <b>•••• 1904</b>
                 </div>
               </article>
-              <article className="bank-card card-metal">
-                <span className="chip" />
-                <div>
-                  <small>AURE Metal</small>
-                  <b>•••• 7740</b>
-                </div>
-              </article>
             </div>
             <div className="float-pill pill-fx">
-              <strong>EUR → TRY</strong>
-              Piyasa kuru · makas yok
+              <strong>Paketsiz</strong>
+              Hesap açılışı ücretsiz
             </div>
             <div className="float-pill pill-atm">
-              <strong>ATM</strong>
-              Plana göre ücretsiz çekim
+              <strong>Sonra paket</strong>
+              İstediğin gün yükselt
             </div>
           </div>
         </div>
@@ -250,12 +281,26 @@ export default function App() {
 
         <section className="section ivory" id="plans">
           <div className="wrap">
+            <div className="account-banner">
+              <div>
+                <span className="badge">Paket şart değil</span>
+                <h2>Önce hesabını aç. Paketi sonra düşün.</h2>
+                <p>
+                  Paketsiz hesap 0 ₺. Transfer, sanal kart ve temel döviz yeter. Limit, sigorta veya lounge istediğinde
+                  Standard, Plus ya da Premium’u tek dokunuşla ekle.
+                </p>
+              </div>
+              <button className="btn btn-dark" onClick={openAccount}>
+                Ücretsiz hesap aç
+              </button>
+            </div>
+
             <div className="section-head">
               <div>
-                <h2>Üyeliğini seç, limiti yükselt.</h2>
+                <h2>İstersen paketi yükselt.</h2>
               </div>
               <div>
-                <p>Aylık öde veya yıllık planda 2 ay bizden olsun. İstediğin an durdur.</p>
+                <p>Paketler isteğe bağlı. Aylık öde veya yıllıkta 2 ay bizden olsun; istediğin an iptal et.</p>
                 <div className="toggle" role="tablist" aria-label="Ödeme dönemi">
                   <button className={cycle === 'monthly' ? 'active' : ''} onClick={() => setCycle('monthly')}>
                     Aylık
@@ -275,7 +320,7 @@ export default function App() {
                   onClick={() => setSelected(plan.id)}
                 >
                   <div className="plan-kicker">
-                    {plan.featured ? 'En çok seçilen' : 'Üyelik'}
+                    {plan.featured ? 'En çok seçilen' : 'İsteğe bağlı paket'}
                     {plan.featured && <span className="badge">Premium</span>}
                   </div>
                   <h3>{plan.name}</h3>
@@ -289,8 +334,14 @@ export default function App() {
                       <li key={perk}>{perk}</li>
                     ))}
                   </ul>
-                  <span className={`btn ${plan.featured ? 'btn-solid' : 'btn-ghost'}`} onClick={openSignup}>
-                    Bu planı seç
+                  <span
+                    className={`btn ${plan.featured ? 'btn-solid' : 'btn-ghost'}`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openPlan(plan.id)
+                    }}
+                  >
+                    Bu paketi ekle
                   </span>
                 </button>
               ))}
@@ -306,30 +357,30 @@ export default function App() {
               </div>
               <h2>Harca, çevir, biriktir, yatırıma geç.</h2>
               <p className="lead">
-                Klasik hesap + kart değil: günlük nakit, döviz cüzdanları, kasa ve yatırım aynı yerde. Üyelik yükseldikçe
-                limitler, sigorta ve lounge gibi yaşam ayrıcalıkları açılır.
+                Paketsiz hesap temel nakit ve kartı açar. Üyelik ekledikçe döviz limiti, sigorta ve lounge gibi yaşam
+                ayrıcalıkları devreye girer — hesap her zaman senin kalır.
               </p>
             </div>
             <div className="feature-grid">
               <article className="feature-tile">
                 <div className="icon">Fx</div>
                 <h3>Döviz</h3>
-                <p>Hafta içi piyasa kuruna yakın çevir. Premium ve Metal’de makas yok.</p>
+                <p>Hafta içi piyasa kuruna yakın çevir. Premium’da makas yok.</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">%</div>
                 <h3>Kasa</h3>
-                <p>Günlük faizlenen kasalar ve turuncu birikim hedefleri.</p>
+                <p>Günlük faizlenen kasalar; paketsiz hesapta da açık.</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">↑</div>
                 <h3>Yatırım</h3>
-                <p>Hisse ve kripto. Üyelikle komisyon düşer, anlık al-sat açılır.</p>
+                <p>Hisse ve kripto. Paketle komisyon düşer, anlık al-sat açılır.</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">✈</div>
                 <h3>Seyahat</h3>
-                <p>Sigorta, lounge ve yurtdışı ATM. Kartını uçağa binmeden önce dondur.</p>
+                <p>Sigorta ve lounge Premium’da. Kartını uçağa binmeden dondur.</p>
               </article>
             </div>
           </div>
@@ -338,17 +389,17 @@ export default function App() {
         <section className="section" id="compare" style={{ paddingTop: 0 }}>
           <div className="wrap">
             <div className="section-head">
-              <h2>Planları yan yana gör.</h2>
-              <p>Revolut’taki Standard / Plus / Premium / Metal mantığının AURE karşılığı.</p>
+              <h2>Paketsiz hesap da bir seçenek.</h2>
+              <p>Soldaki sütun ücretsiz hesap. Diğer üçü, üzerine ekleyebileceğin paketler.</p>
             </div>
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
                     <th>Özellik</th>
-                    {plans.map((p) => (
-                      <th key={p.id} className="center">
-                        {p.name}
+                    {compareColumns.map((name) => (
+                      <th key={name} className="center">
+                        {name}
                       </th>
                     ))}
                   </tr>
@@ -358,7 +409,7 @@ export default function App() {
                     <tr key={row.label}>
                       <td>{row.label}</td>
                       {row.values.map((value, i) => (
-                        <td key={plans[i].id} className="center">
+                        <td key={`${row.label}-${i}`} className="center">
                           <Cell value={value} />
                         </td>
                       ))}
@@ -373,22 +424,22 @@ export default function App() {
         <section className="section" style={{ paddingTop: 12 }}>
           <div className="wrap">
             <div className="section-head">
-              <h2>Üyelik, sadece kart rengi değil.</h2>
-              <p>Premium ve Metal; sigorta, lounge ve concierge ile seyahati hesaba bağlar.</p>
+              <h2>Paket, hesabın üstüne biner.</h2>
+              <p>Hesabı kaybetmezsin. Premium seyahati açar; Plus limiti; Standard günlük konforu.</p>
             </div>
             <div className="lifestyle">
               <article className="life-card a">
-                <span>Metal</span>
-                <h3>%1 nakit iade</h3>
-                <p>Uçuş, restoran ve günlük harcamada. Üst sınır yok, puan değil gerçek bakiye.</p>
+                <span>Paketsiz</span>
+                <h3>Hesap + sanal kart</h3>
+                <p>IBAN ve uygulama ücretsiz. Harcamaya hemen başla, paket sonra.</p>
               </article>
               <article className="life-card b">
                 <span>Premium</span>
                 <h3>LoungeKey</h3>
-                <p>Gidiş-dönüşte salon. Misafir hakkın plana göre artar.</p>
+                <p>Gidiş-dönüşte salon. Misafir hakkın pakete göre artar.</p>
               </article>
               <article className="life-card c">
-                <span>Tüm planlar</span>
+                <span>Tüm hesaplar</span>
                 <h3>Anında dondur</h3>
                 <p>Kart kaybolduysa uygulamadan kapat. Sanal kart 30 saniyede yenilenir.</p>
               </article>
@@ -421,11 +472,11 @@ export default function App() {
         <div className="wrap">
           <div className="cta-band">
             <div>
-              <h2>Önce Standard. Sonra ihtiyacın kadar.</h2>
-              <p>Giriş üyeliği 49 ₺/ay. Kartın dakikalar içinde uygulamada; Metal’e yükseltince fiziksel kart yeniden basılır.</p>
+              <h2>Paket yok. Hesap var.</h2>
+              <p>Önce ücretsiz hesabını aç. Standard, Plus veya Premium’u gerçekten ihtiyaç olunca ekle.</p>
             </div>
-            <button className="btn btn-dark" onClick={openSignup}>
-              Bekleme listesine yazıl
+            <button className="btn btn-dark" onClick={openAccount}>
+              Paketsiz hesap aç
             </button>
           </div>
         </div>
@@ -434,15 +485,32 @@ export default function App() {
       <footer>
         <div className="wrap foot">
           <span>© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.</span>
-          <span>Standard · Plus · Premium · Metal</span>
+          <span>Paketsiz hesap · Standard · Plus · Premium</span>
         </div>
       </footer>
 
       {modal && (
-        <div className="modal" role="dialog" aria-labelledby="signup-title">
+        <div
+          className="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signup-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal()
+          }}
+        >
           <form className="modal-card" onSubmit={submit}>
-            <h3 id="signup-title">{selectedPlan.name} ile başla</h3>
-            <p>Adını ve e-postanı bırak; lansmanda {selectedPlan.name} kotasından yer ayıralım.</p>
+            <button type="button" className="modal-close" onClick={closeModal} aria-label="Kapat">
+              ×
+            </button>
+            <h3 id="signup-title">
+              {intent === 'account' ? 'Paketsiz hesap aç' : `${selectedPlan.name} paketini ekle`}
+            </h3>
+            <p>
+              {intent === 'account'
+                ? 'Paket seçmeden, 0 ₺’ye hesap için sıraya yazıl. Adını ve e-postanı bırakman yeterli.'
+                : `Adını ve e-postanı bırak; lansmanda ${selectedPlan.name} kotasından yer ayıralım. Hesap yine paketsiz de açılabilir.`}
+            </p>
             <label htmlFor="full-name">Ad soyad</label>
             <input id="full-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Yılmaz" />
             <label htmlFor="email">E-posta</label>
@@ -458,7 +526,7 @@ export default function App() {
               <button type="submit" className="btn btn-solid">
                 Kaydı tamamla
               </button>
-              <button type="button" className="btn btn-ghost" onClick={() => setModal(false)}>
+              <button type="button" className="btn btn-ghost" onClick={closeModal}>
                 Vazgeç
               </button>
             </div>
@@ -466,7 +534,14 @@ export default function App() {
         </div>
       )}
 
-      {toast && <div className="toast">{toast}</div>}
+      {toast && (
+        <div className="toast" role="status">
+          <span>{toast}</span>
+          <button type="button" className="toast-close" onClick={closeToast} aria-label="Kapat">
+            ×
+          </button>
+        </div>
+      )}
     </div>
   )
 }

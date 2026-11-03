@@ -291,18 +291,18 @@ h3 {
   transform: rotate(-3deg);
 }
 
-.card-metal {
-  background: linear-gradient(135deg, #8d939a, #eceff3 42%, #6d737a);
+.card-account {
+  background: linear-gradient(145deg, #f4f1ea, #d9d3c6);
   color: #16171a;
   right: 18px;
   top: 250px;
   transform: rotate(11deg);
 }
 
+.stage.is-account .card-account,
 .stage.is-standard .card-standard,
 .stage.is-plus .card-plus,
-.stage.is-premium .card-premium,
-.stage.is-metal .card-metal {
+.stage.is-premium .card-premium {
   z-index: 4;
   transform: rotate(-2deg) scale(1.04);
 }
@@ -429,9 +429,33 @@ h3 {
   border-radius: 999px;
 }
 
+.account-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background: var(--ink);
+  color: var(--text);
+  border-radius: 28px;
+  padding: 28px 32px;
+  margin-bottom: 40px;
+}
+
+.account-banner h2 {
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.04em;
+  margin: 10px 0 8px;
+}
+
+.account-banner p {
+  margin: 0;
+  max-width: 560px;
+  color: #b7b3aa;
+}
+
 .plans {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
 }
 
@@ -736,11 +760,40 @@ footer {
 }
 
 .modal-card {
+  position: relative;
   width: min(440px, 100%);
   background: #fff;
   color: var(--ink);
   border-radius: 24px;
   padding: 28px;
+  padding-top: 52px;
+}
+
+.modal-close,
+.toast-close {
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+  font-size: 28px;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: var(--ink);
+}
+
+.modal-close:hover,
+.toast-close:hover {
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .modal-card h3 {
@@ -775,9 +828,13 @@ footer {
   position: fixed;
   right: 20px;
   bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(420px, calc(100% - 32px));
   background: var(--lime);
   color: var(--ink);
-  padding: 12px 16px;
+  padding: 10px 10px 10px 16px;
   border-radius: 14px;
   z-index: 70;
   font-weight: 600;
@@ -822,7 +879,8 @@ footer {
     display: grid;
   }
 
-  .cta-band {
+  .cta-band,
+  .account-banner {
     display: grid;
   }
 
