@@ -52,12 +52,14 @@ export default function WaitlistPage() {
       return
     }
     setPassword('')
+    setEntries(loadWaitlist())
     setAuthed(true)
   }
 
   function logout() {
     logoutWaitlist()
     setAuthed(false)
+    setEntries([])
     setUsername('')
     setPassword('')
     setFilter('all')
