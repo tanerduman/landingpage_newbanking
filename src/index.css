@@ -906,6 +906,93 @@ footer {
   display: none;
 }
 
+.waitlist-page {
+  min-height: 100vh;
+}
+
+.waitlist-main {
+  padding: 48px 0 80px;
+}
+
+.waitlist-main h1 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(36px, 5vw, 64px);
+  letter-spacing: -0.05em;
+  margin: 16px 0 12px;
+}
+
+.waitlist-stats {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin: 32px 0 24px;
+}
+
+.waitlist-stat {
+  text-align: left;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 18px;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.waitlist-stat strong {
+  display: block;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 32px;
+}
+
+.waitlist-stat span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.waitlist-stat.active {
+  box-shadow: 0 0 0 2px var(--lime);
+  background: #141416;
+}
+
+.pkg-pill {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--bg-soft);
+}
+
+.pkg-account {
+  background: #2a2a22;
+  color: var(--lime);
+}
+
+.pkg-standard {
+  background: #222228;
+}
+
+.pkg-plus {
+  background: #2a2450;
+}
+
+.pkg-premium {
+  background: #3a2a1a;
+  color: var(--gold);
+}
+
+.waitlist-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 36px 18px !important;
+}
+
+.waitlist-note {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 16px;
+}
+
 @media (max-width: 980px) {
   .nav-links,
   .nav-cta .btn-ghost {
@@ -950,7 +1037,8 @@ footer {
   .lifestyle,
   .feature-grid,
   .stats,
-  .phones {
+  .phones,
+  .waitlist-stats {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -970,7 +1058,8 @@ footer {
   .lifestyle,
   .feature-grid,
   .stats,
-  .phones {
+  .phones,
+  .waitlist-stats {
     grid-template-columns: 1fr;
   }
 

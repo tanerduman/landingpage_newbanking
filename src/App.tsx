@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { addWaitlistEntry, type PlanId, type SignupIntent } from './waitlist'
 
-type PlanId = 'standard' | 'plus' | 'premium'
-type SignupIntent = 'account' | PlanId
 type Cycle = 'monthly' | 'yearly'
 
 const plans: {
@@ -141,6 +140,7 @@ export default function App() {
       setError('Geçerli bir e-posta gir.')
       return
     }
+    addWaitlistEntry({ name, email, intent })
     setModal(false)
     setToast(
       intent === 'account'
@@ -542,7 +542,9 @@ export default function App() {
       <footer>
         <div className="wrap foot">
           <span>© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.</span>
-          <span>Paketsiz hesap · Standard · Plus · Premium</span>
+          <span>
+            Paketsiz hesap · Standard · Plus · Premium · <a href="/waitlist">Waiting list</a>
+          </span>
         </div>
       </footer>
 

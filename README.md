@@ -7,4 +7,9 @@ npm install
 npm run dev
 ```
 
+- Landing: `/`
+- Waiting list (pakete göre talepler): `/waitlist`
+
+Kayıtlar tarayıcı `localStorage` içinde tutulur.
+
 Üretim derlemesi: `npm run build`
