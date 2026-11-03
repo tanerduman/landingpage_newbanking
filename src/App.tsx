@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 
 type PlanId = 'standard' | 'plus' | 'premium'
 type SignupIntent = 'account' | PlanId
@@ -108,6 +108,28 @@ export default function App() {
     setError('')
     setModal(true)
   }
+
+  function closeModal() {
+    setModal(false)
+    setError('')
+  }
+
+  function closeToast() {
+    setToast(null)
+  }
+
+  useEffect(() => {
+    if (!modal && !toast) return
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key !== 'Escape') return
+      if (modal) closeModal()
+      else closeToast()
+    }
+
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [modal, toast])
 
   function submit(e: FormEvent) {
     e.preventDefault()
@@ -468,8 +490,19 @@ export default function App() {
       </footer>
 
       {modal && (
-        <div className="modal" role="dialog" aria-labelledby="signup-title">
+        <div
+          className="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="signup-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeModal()
+          }}
+        >
           <form className="modal-card" onSubmit={submit}>
+            <button type="button" className="modal-close" onClick={closeModal} aria-label="Kapat">
+              ×
+            </button>
             <h3 id="signup-title">
               {intent === 'account' ? 'Paketsiz hesap aç' : `${selectedPlan.name} paketini ekle`}
             </h3>
@@ -493,7 +526,7 @@ export default function App() {
               <button type="submit" className="btn btn-solid">
                 Kaydı tamamla
               </button>
-              <button type="button" className="btn btn-ghost" onClick={() => setModal(false)}>
+              <button type="button" className="btn btn-ghost" onClick={closeModal}>
                 Vazgeç
               </button>
             </div>
@@ -501,7 +534,14 @@ export default function App() {
         </div>
       )}
 
-      {toast && <div className="toast">{toast}</div>}
+      {toast && (
+        <div className="toast" role="status">
+          <span>{toast}</span>
+          <button type="button" className="toast-close" onClick={closeToast} aria-label="Kapat">
+            ×
+          </button>
+        </div>
+      )}
     </div>
   )
 }
