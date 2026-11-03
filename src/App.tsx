@@ -163,6 +163,7 @@ export default function App() {
           <nav className="nav-links">
             <a href="#plans">Paketler</a>
             <a href="#features">Özellikler</a>
+            <a href="#app">Uygulama</a>
             <a href="#compare">Karşılaştır</a>
             <a href="#faq">SSS</a>
           </nav>
@@ -184,6 +185,9 @@ export default function App() {
           </a>
           <a href="#features" onClick={() => setMenu(false)}>
             Özellikler
+          </a>
+          <a href="#app" onClick={() => setMenu(false)}>
+            Uygulama
           </a>
           <a href="#compare" onClick={() => setMenu(false)}>
             Karşılaştır
@@ -382,6 +386,56 @@ export default function App() {
                 <h3>Seyahat</h3>
                 <p>Sigorta ve lounge Premium’da. Kartını uçağa binmeden dondur.</p>
               </article>
+            </div>
+          </div>
+        </section>
+
+        <section className="section" id="app">
+          <div className="wrap">
+            <div className="section-head">
+              <h2>Paketli dövizde makas yok.</h2>
+              <p>
+                Uygulamada EUR, USD, GBP alım-satımı piyasa kurundan. Premium’da makas %0; paketsiz hesapta fark kırmızı
+                görünür.
+              </p>
+            </div>
+            <div className="phones">
+              <figure className="phone-shot">
+                <div className="phone">
+                  <img
+                    src="/app/aure-app-wallets.jpg"
+                    alt="AURE uygulamasında çoklu döviz cüzdanları ve Premium aktif rozeti"
+                  />
+                </div>
+                <figcaption>
+                  <strong>Cüzdanlar</strong>
+                  Premium aktifken sınırsız çeviri, makas yok.
+                </figcaption>
+              </figure>
+              <figure className="phone-shot featured-shot">
+                <div className="phone">
+                  <img
+                    src="/app/aure-app-fx-compare.jpg"
+                    alt="Paketsiz hesapta %0,65 makas, Premium’da makas %0 ve 120 TL daha fazla TRY"
+                  />
+                </div>
+                <figcaption>
+                  <strong>Emir özeti</strong>
+                  Aynı 500 EUR: paketsiz makaslı, Premium piyasa kuru.
+                </figcaption>
+              </figure>
+              <figure className="phone-shot">
+                <div className="phone">
+                  <img
+                    src="/app/aure-app-fx-premium.jpg"
+                    alt="Döviz ekranı: 1000 EUR eşittir 36.420 TRY, Premium makas yok"
+                  />
+                </div>
+                <figcaption>
+                  <strong>Al · Sat</strong>
+                  1.000 EUR = 36.420 TRY, ek ücret yok.
+                </figcaption>
+              </figure>
             </div>
           </div>
         </section>
