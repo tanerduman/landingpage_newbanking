@@ -14,9 +14,9 @@ const plans: {
   {
     id: 'standard',
     name: 'Standard',
-    monthly: 0,
-    blurb: 'Günlük harcama için ücretsiz hesap.',
-    perks: ['Ücretsiz sanal ve fiziksel kart', 'Anlık bildirimler', '1.000 €/ay ücretsiz ATM', 'Hafta içi piyasa kuruna yakın döviz'],
+    monthly: 49,
+    blurb: 'Günlük harcama için giriş üyeliği.',
+    perks: ['Sanal ve fiziksel kart dahil', 'Anlık bildirimler', '1.000 €/ay ücretsiz ATM', 'Hafta içi piyasa kuruna yakın döviz'],
   },
   {
     id: 'plus',
@@ -43,6 +43,7 @@ const plans: {
 ]
 
 const comparison = [
+  { label: 'Aylık üyelik', values: ['49 ₺', '99 ₺', '249 ₺', '449 ₺'] },
   { label: 'Fiziksel kart', values: ['Plastik', 'Plus kart', 'Premium kart', 'Metal kart'] },
   { label: 'Ücretsiz döviz', values: ['1.000 €/ay', '3.000 €/ay', 'Sınırsız', 'Sınırsız'] },
   { label: 'ATM çekimi', values: ['1.000 €/ay', '3.000 €/ay', '800 €/ay yurtdışı', '2.000 €/ay yurtdışı'] },
@@ -74,7 +75,6 @@ const faqs = [
 const currencies = ['EUR', 'USD', 'GBP', 'TRY', 'CHF', 'JPY', 'AUD', 'CAD', 'NOK', 'SEK', 'AED', 'PLN']
 
 function formatPrice(amount: number, cycle: Cycle) {
-  if (amount === 0) return '0 ₺'
   const value = cycle === 'yearly' ? Math.round(amount * 10) : amount
   return `${value.toLocaleString('tr-TR')} ₺`
 }
@@ -171,12 +171,12 @@ export default function App() {
             </div>
             <h1>Paran, her yerde daha güçlü.</h1>
             <p className="lead">
-              Revolut tarzı üyelik katmanları: ücretsiz Standard’dan Metal’e. Döviz, kart, birikim, seyahat ve yatırımı
+              Revolut tarzı üyelik katmanları: ücretli Standard’dan Metal’e. Döviz, kart, birikim, seyahat ve yatırımı
               tek bakiyede tut; ihtiyacın kadar öde.
             </p>
             <div className="hero-actions">
               <button className="btn btn-solid" onClick={openSignup}>
-                Ücretsiz başla
+                Standard ile başla
               </button>
               <a className="btn btn-ghost" href="#plans">
                 {selectedPlan.name} planını incele
@@ -188,8 +188,8 @@ export default function App() {
                 <span>üyelik katmanı</span>
               </div>
               <div>
-                <strong>0 ₺</strong>
-                <span>Standard hesap</span>
+                <strong>49 ₺</strong>
+                <span>Standard / ay</span>
               </div>
               <div>
                 <strong>150+</strong>
@@ -290,7 +290,7 @@ export default function App() {
                     ))}
                   </ul>
                   <span className={`btn ${plan.featured ? 'btn-solid' : 'btn-ghost'}`} onClick={openSignup}>
-                    {plan.monthly === 0 ? 'Ücretsiz aç' : 'Bu planı seç'}
+                    Bu planı seç
                   </span>
                 </button>
               ))}
@@ -422,7 +422,7 @@ export default function App() {
           <div className="cta-band">
             <div>
               <h2>Önce Standard. Sonra ihtiyacın kadar.</h2>
-              <p>Kartın dakikalar içinde uygulamada. Fiziksel kartı Metal’e yükseltince yeniden basılır.</p>
+              <p>Giriş üyeliği 49 ₺/ay. Kartın dakikalar içinde uygulamada; Metal’e yükseltince fiziksel kart yeniden basılır.</p>
             </div>
             <button className="btn btn-dark" onClick={openSignup}>
               Bekleme listesine yazıl
