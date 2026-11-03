@@ -18,15 +18,11 @@ export default function WaitlistPage() {
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [entries, setEntries] = useState<WaitlistEntry[]>([])
+  const [entries, setEntries] = useState<WaitlistEntry[]>(() => (isWaitlistAuthed() ? loadWaitlist() : []))
   const [filter, setFilter] = useState<Filter>('all')
 
   useEffect(() => {
-    if (!authed) {
-      setEntries([])
-      return
-    }
-    setEntries(loadWaitlist())
+    if (!authed) return
     function refresh() {
       setEntries(loadWaitlist())
     }
