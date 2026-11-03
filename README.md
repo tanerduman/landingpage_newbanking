@@ -7,4 +7,12 @@ npm install
 npm run dev
 ```
 
+- Landing: `/`
+- Waiting list: `/waitlist` (şifreli)
+
+Giriş: kullanıcı `admin` · şifre `AureWaitlist2026`  
+(İstersen build sırasında `VITE_WAITLIST_PASSWORD` ile değiştir.)
+
+Kayıtlar tarayıcı `localStorage` içinde tutulur. Oturum `sessionStorage` ile sekmeye bağlıdır.
+
 Üretim derlemesi: `npm run build`
