@@ -321,7 +321,7 @@ export default function App() {
               {plans.map((plan) => (
                 <article
                   key={plan.id}
-                  className={`plan-card ${plan.featured ? 'featured' : ''} ${selected === plan.id ? 'selected' : ''}`}
+                  className={`plan-card ${selected === plan.id ? 'selected' : ''}`}
                   onClick={() => setSelected(plan.id)}
                 >
                   <div className="plan-kicker">
