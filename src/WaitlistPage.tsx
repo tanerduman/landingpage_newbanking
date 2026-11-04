@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { withBase } from './base.ts'
 import { isWaitlistAuthed, loginWaitlist, logoutWaitlist } from './waitlistAuth'
 import {
   PACKAGE_FILTERS,
@@ -52,12 +53,14 @@ export default function WaitlistPage() {
       return
     }
     setPassword('')
+    setEntries(loadWaitlist())
     setAuthed(true)
   }
 
   function logout() {
     logoutWaitlist()
     setAuthed(false)
+    setEntries([])
     setUsername('')
     setPassword('')
     setFilter('all')
@@ -67,7 +70,7 @@ export default function WaitlistPage() {
     <div className="page waitlist-page">
       <header className="nav">
         <div className="wrap nav-inner">
-          <a className="logo" href="/">
+          <a className="logo" href={withBase()}>
             <span className="logo-mark">A</span>
             AURE
           </a>
@@ -77,7 +80,7 @@ export default function WaitlistPage() {
                 Çıkış
               </button>
             )}
-            <a className="btn btn-ghost" href="/">
+            <a className="btn btn-ghost" href={withBase()}>
               Siteye dön
             </a>
           </div>

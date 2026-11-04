@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { withBase } from './base.ts'
 import { addWaitlistEntry, type PlanId, type SignupIntent } from './waitlist'
 
 type Cycle = 'monthly' | 'yearly'
@@ -406,7 +407,7 @@ export default function App() {
               <figure className="phone-shot">
                 <div className="phone">
                   <img
-                    src="/app/aure-app-wallets.jpg"
+                    src={withBase('app/aure-app-wallets.jpg')}
                     alt="AURE uygulamasında çoklu döviz cüzdanları ve Premium aktif rozeti"
                   />
                 </div>
@@ -418,7 +419,7 @@ export default function App() {
               <figure className="phone-shot featured-shot">
                 <div className="phone">
                   <img
-                    src="/app/aure-app-fx-compare.jpg"
+                    src={withBase('app/aure-app-fx-compare.jpg')}
                     alt="Paketsiz hesapta %0,65 makas, Premium’da makas %0 ve 120 TL daha fazla TRY"
                   />
                 </div>
@@ -430,7 +431,7 @@ export default function App() {
               <figure className="phone-shot">
                 <div className="phone">
                   <img
-                    src="/app/aure-app-fx-premium.jpg"
+                    src={withBase('app/aure-app-fx-premium.jpg')}
                     alt="Döviz ekranı: 1000 EUR eşittir 36.420 TRY, Premium makas yok"
                   />
                 </div>
