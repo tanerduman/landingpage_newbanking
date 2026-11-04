@@ -7,23 +7,21 @@ npm install
 npm run dev
 ```
 
-- Landing: `/`
-- Waiting list: `/waitlist` (şifreli)
+- Landing: `/landingpage_newbanking/`
+- Waiting list: `/landingpage_newbanking/#/waitlist` (şifreli)
 
-Giriş: kullanıcı `admin` · şifre `AureWaitlist2026`  
-(İstersen build sırasında `VITE_WAITLIST_PASSWORD` ile değiştir.)
-
-Kayıtlar tarayıcı `localStorage` içinde tutulur. Oturum `sessionStorage` ile sekmeye bağlıdır.
+Giriş: kullanıcı `admin` · şifre `AureWaitlist2026`
 
 ## GitHub Pages
 
-`main`’e push sonrası Action siteyi yayınlar.
+Site **mutlaka** bu adreste açılır (kök `tanerduman.github.io` değil):
 
-1. Repo **Settings → Pages → Source:** GitHub Actions
-2. `main`’e merge veya **Actions → Deploy GitHub Pages → Run workflow**
-3. Adres: `https://tanerduman.github.io/landingpage_newbanking/`
-4. Waiting list: `https://tanerduman.github.io/landingpage_newbanking/waitlist`
+https://tanerduman.github.io/landingpage_newbanking/
 
-Yerel derleme `base: '/'` kullanır. Pages derlemesi `GITHUB_PAGES=true` ile `/landingpage_newbanking/` kullanır.
+Waiting list: https://tanerduman.github.io/landingpage_newbanking/#/waitlist
+
+Boş beyaz sayfa görürsen: bu tam URL’yi kullan, hard refresh (Ctrl+Shift+R). **Settings → Pages → Source** GitHub Actions olmalı.
+
+Yerel: `npm run dev` → http://localhost:5173/landingpage_newbanking/
 
 Üretim derlemesi: `npm run build`

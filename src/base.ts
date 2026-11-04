@@ -5,8 +5,7 @@ export function withBase(path = '') {
   return `${base}${clean}`
 }
 
-export function isWaitlistPath(pathname: string) {
-  const waitlist = withBase('waitlist').replace(/\/$/, '')
-  const current = pathname.replace(/\/$/, '') || '/'
-  return current === waitlist
+export function isWaitlistHash(hash = window.location.hash) {
+  const value = hash.replace(/^#/, '')
+  return value === '/waitlist' || value === 'waitlist'
 }
