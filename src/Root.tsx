@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react'
 import App from './App.tsx'
 import WaitlistPage from './WaitlistPage.tsx'
-import { isWaitlistPath } from './base.ts'
+import { isWaitlistHash } from './base.ts'
 
 export default function Root() {
-  const [path, setPath] = useState(window.location.pathname)
+  const [waitlist, setWaitlist] = useState(() => isWaitlistHash())
 
   useEffect(() => {
-    function onPop() {
-      setPath(window.location.pathname)
+    function sync() {
+      setWaitlist(isWaitlistHash())
     }
-    window.addEventListener('popstate', onPop)
-    return () => window.removeEventListener('popstate', onPop)
+    window.addEventListener('hashchange', sync)
+    window.addEventListener('popstate', sync)
+    return () => {
+      window.removeEventListener('hashchange', sync)
+      window.removeEventListener('popstate', sync)
+    }
   }, [])
 
-  if (isWaitlistPath(path)) {
+  if (waitlist) {
     return <WaitlistPage />
   }
   return <App />
