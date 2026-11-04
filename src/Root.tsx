@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import App from './App.tsx'
 import WaitlistPage from './WaitlistPage.tsx'
+import { isWaitlistPath } from './base.ts'
 
 export default function Root() {
   const [path, setPath] = useState(window.location.pathname)
@@ -13,7 +14,7 @@ export default function Root() {
     return () => window.removeEventListener('popstate', onPop)
   }, [])
 
-  if (path === '/waitlist' || path === '/waitlist/') {
+  if (isWaitlistPath(path)) {
     return <WaitlistPage />
   }
   return <App />
