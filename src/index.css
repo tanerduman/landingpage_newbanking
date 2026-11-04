@@ -479,13 +479,11 @@ h3 {
   border-color: #e5dfd2;
 }
 
-.plan-card.featured {
+.ivory .plan-card.selected,
+.plan-card.selected {
   background: var(--ink);
   color: var(--text);
   border-color: transparent;
-}
-
-.plan-card.selected {
   box-shadow: 0 0 0 2px var(--lime);
 }
 
@@ -532,9 +530,9 @@ h3 {
   font-size: 14px;
 }
 
-.plan-card.featured ul,
-.plan-card.featured .price span,
-.plan-card.featured .plan-kicker {
+.plan-card.selected ul,
+.plan-card.selected .price span,
+.plan-card.selected .plan-kicker {
   color: #b7b3aa;
 }
 
@@ -553,7 +551,7 @@ h3 {
   font-weight: 700;
 }
 
-.plan-card.featured .plan-add {
+.plan-card.selected .plan-add {
   background: var(--lime);
   color: var(--ink);
 }
