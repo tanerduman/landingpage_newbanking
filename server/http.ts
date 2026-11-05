@@ -75,8 +75,16 @@ function requireAdmin(request: Request) {
   return tokenValid(bearerToken(request))
 }
 
+function canReadAdmin(request: Request) {
+  return !adminConfigured() || requireAdmin(request)
+}
+
 async function handleHealth(request: Request) {
-  return json({ ok: true, store: getStore().kind }, 200, request)
+  return json(
+    { ok: true, store: getStore().kind, authRequired: adminConfigured() },
+    200,
+    request,
+  )
 }
 
 async function handleLogin(request: Request) {
@@ -100,7 +108,7 @@ async function handleLogin(request: Request) {
 async function handleVisits(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    if (!requireAdmin(request)) return json({ error: 'Yetkisiz.' }, 401, request)
+    if (!canReadAdmin(request)) return json({ error: 'Yetkisiz.' }, 401, request)
     const stats = await store.getStats()
     return json({ ...stats, store: store.kind }, 200, request)
   }
@@ -120,7 +128,7 @@ async function handleVisits(request: Request) {
 async function handleWaitlist(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    if (!requireAdmin(request)) return json({ error: 'Yetkisiz.' }, 401, request)
+    if (!canReadAdmin(request)) return json({ error: 'Yetkisiz.' }, 401, request)
     const entries = await store.listWaitlist()
     return json({ entries, store: store.kind }, 200, request)
   }

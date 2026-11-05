@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { fetchApiHealth } from './api.ts'
 import { withBase } from './base.ts'
 import { isWaitlistAuthed, loginWaitlist, logoutWaitlist } from './waitlistAuth'
 import {
@@ -7,7 +8,6 @@ import {
   countByIntent,
   formatRequestTime,
   fetchWaitlist,
-  loadWaitlist,
   downloadWaitlistExcel,
   type SignupIntent,
   type WaitlistEntry,
@@ -17,15 +17,33 @@ import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 type Filter = 'all' | SignupIntent
 
 export default function WaitlistPage() {
-  const [authed, setAuthed] = useState(() => isWaitlistAuthed())
+  const [authed, setAuthed] = useState(false)
+  const [locked, setLocked] = useState(false)
+  const [ready, setReady] = useState(false)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [entries, setEntries] = useState<WaitlistEntry[]>(() => (isWaitlistAuthed() ? loadWaitlist() : []))
+  const [entries, setEntries] = useState<WaitlistEntry[]>([])
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [remote, setRemote] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
+
+  useEffect(() => {
+    async function boot() {
+      const health = await fetchApiHealth()
+      if (health?.authRequired && !isWaitlistAuthed()) {
+        setLocked(true)
+        setAuthed(false)
+        setReady(true)
+        return
+      }
+      setLocked(false)
+      setAuthed(true)
+      setReady(true)
+    }
+    void boot()
+  }, [])
 
   useEffect(() => {
     if (!authed) return
@@ -73,11 +91,13 @@ export default function WaitlistPage() {
     setEntries(list.entries)
     setRemote(list.remote)
     setVisits(stats)
+    setLocked(false)
     setAuthed(true)
   }
 
   function logout() {
     logoutWaitlist()
+    setLocked(true)
     setAuthed(false)
     setEntries([])
     setUsername('')
@@ -109,7 +129,7 @@ export default function WaitlistPage() {
                 Excel’e aktar
               </button>
             )}
-            {authed && (
+            {authed && isWaitlistAuthed() && (
               <button type="button" className="btn btn-ghost" onClick={logout}>
                 Çıkış
               </button>
@@ -121,7 +141,11 @@ export default function WaitlistPage() {
         </div>
       </header>
 
-      {!authed ? (
+      {!ready ? (
+        <main className="wrap waitlist-main">
+          <p className="lead">Yükleniyor…</p>
+        </main>
+      ) : locked ? (
         <main className="wrap waitlist-main waitlist-login-wrap">
           <form className="login-card" onSubmit={submitLogin}>
             <div className="eyebrow">

@@ -31,6 +31,11 @@ export async function apiFetch(path: string, init?: RequestInit) {
   }
 }
 
+export async function fetchApiHealth() {
+  const res = await apiFetch('/api/health')
+  return readApiJson<{ ok?: boolean; store?: DataSource; authRequired?: boolean }>(res)
+}
+
 export async function readApiJson<T>(res: Response | null): Promise<T | null> {
   if (!res) return null
   try {
