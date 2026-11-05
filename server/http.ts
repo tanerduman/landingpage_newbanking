@@ -42,9 +42,19 @@ function json(data: unknown, status = 200, request?: Request) {
   return new Response(JSON.stringify(data), { status, headers })
 }
 
+function originAllowed(origin: string) {
+  if (ALLOWED_ORIGINS.has(origin)) return true
+  try {
+    const host = new URL(origin).hostname
+    return host === 'vercel.app' || host.endsWith('.vercel.app')
+  } catch {
+    return false
+  }
+}
+
 function applyCors(request: Request, headers: Headers) {
   const origin = request.headers.get('origin')
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
+  if (origin && originAllowed(origin)) {
     headers.set('access-control-allow-origin', origin)
     headers.set('vary', 'Origin')
     headers.set('access-control-allow-headers', 'Authorization, Content-Type')

@@ -1,6 +1,3 @@
-import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { randomUUID } from 'node:crypto'
 import pg from 'pg'
 import { isIntent, type VisitStats, type WaitlistRow } from './types.ts'
@@ -71,20 +68,48 @@ function memoryStore(): Store {
   }
 }
 
-function schemaSql() {
-  const here = dirname(fileURLToPath(import.meta.url))
-  return readFileSync(join(here, '../migrations/001_init.sql'), 'utf8')
+const SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS visitors (
+  id TEXT PRIMARY KEY,
+  first_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
+  visitor_id TEXT NOT NULL REFERENCES visitors (id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS waitlist (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  intent TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS waitlist_created_at_idx ON waitlist (created_at DESC);
+CREATE INDEX IF NOT EXISTS sessions_created_at_idx ON sessions (created_at DESC);
+`
+
+function databaseUrl() {
+  return (
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_URL_NON_BLOCKING ||
+    process.env.DATABASE_URL ||
+    ''
+  )
 }
 
 function postgresStore(url: string): Store {
-  const pool = new Pool({ connectionString: url, max: 4 })
+  const pool = new Pool({
+    connectionString: url,
+    max: 1,
+  })
   let ready: Promise<void> | null = null
 
   async function ensure() {
     if (!ready) {
       ready = (async () => {
-        const statements = schemaSql()
-          .split(';')
+        const statements = SCHEMA_SQL.split(';')
           .map((part) => part.trim())
           .filter(Boolean)
         for (const statement of statements) {
@@ -173,7 +198,7 @@ function postgresStore(url: string): Store {
 
 export function getStore(): Store {
   if (!globalStore.__aureStore) {
-    const url = process.env.DATABASE_URL
+    const url = databaseUrl()
     globalStore.__aureStore = url ? postgresStore(url) : memoryStore()
   }
   return globalStore.__aureStore
