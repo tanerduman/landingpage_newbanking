@@ -10,20 +10,27 @@ const SLICES: { id: SignupIntent; color: string }[] = [
 type Counts = Record<SignupIntent, number>
 
 export default function WaitlistPie({
+  kicker,
+  title,
   counts,
   total,
   active,
   onSelect,
+  hideAccount = false,
 }: {
+  kicker: string
+  title: string
   counts: Counts
   total: number
   active: 'all' | SignupIntent
   onSelect: (id: SignupIntent) => void
+  hideAccount?: boolean
 }) {
+  const slices = hideAccount ? SLICES.filter((slice) => slice.id !== 'account') : SLICES
   const r = 62
   const c = 2 * Math.PI * r
-  const dashes = SLICES.map((slice) => (total === 0 ? 0 : (counts[slice.id] / total) * c))
-  const arcs = SLICES.map((slice, index) => ({
+  const dashes = slices.map((slice) => (total === 0 ? 0 : (counts[slice.id] / total) * c))
+  const arcs = slices.map((slice, index) => ({
     ...slice,
     value: counts[slice.id],
     dash: dashes[index],
@@ -31,10 +38,10 @@ export default function WaitlistPie({
   }))
 
   return (
-    <section className="waitlist-pie-card" aria-label="Paket talep oranları">
+    <section className="waitlist-pie-card" aria-label={title}>
       <div>
-        <p className="waitlist-pie-kicker">Paket dağılımı</p>
-        <h2>Talep edilen paketlerin oranı</h2>
+        <p className="waitlist-pie-kicker">{kicker}</p>
+        <h2>{title}</h2>
       </div>
       <div className="waitlist-pie-body">
         <div className="waitlist-pie-chart">

@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { withBase } from './base.ts'
 import {
+  CYCLE_FILTERS,
+  CYCLE_LABELS,
   PACKAGE_FILTERS,
   PACKAGE_LABELS,
+  countByCycle,
   countByIntent,
   formatRequestTime,
   fetchWaitlist,
   downloadWaitlistExcel,
+  type BillingCycle,
   type SignupIntent,
   type WaitlistEntry,
 } from './waitlist'
@@ -14,6 +18,7 @@ import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 import WaitlistPie from './WaitlistPie.tsx'
 
 type Filter = 'all' | SignupIntent
+type CycleFilter = 'all' | BillingCycle
 
 const PAGE_SIZE = 10
 
@@ -22,6 +27,7 @@ export default function WaitlistPage() {
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [remote, setRemote] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
+  const [cycleFilter, setCycleFilter] = useState<CycleFilter>('all')
   const [page, setPage] = useState(1)
 
   useEffect(() => {
@@ -48,9 +54,17 @@ export default function WaitlistPage() {
   }, [])
 
   const counts = useMemo(() => countByIntent(entries), [entries])
+  const cycleCounts = useMemo(() => countByCycle(entries), [entries])
+  const monthlyEntries = useMemo(() => entries.filter((e) => e.cycle === 'monthly'), [entries])
+  const yearlyEntries = useMemo(() => entries.filter((e) => e.cycle === 'yearly'), [entries])
   const visible = useMemo(
-    () => (filter === 'all' ? entries : entries.filter((e) => e.intent === filter)),
-    [entries, filter],
+    () =>
+      entries.filter((e) => {
+        if (filter !== 'all' && e.intent !== filter) return false
+        if (cycleFilter !== 'all' && e.cycle !== cycleFilter) return false
+        return true
+      }),
+    [entries, filter, cycleFilter],
   )
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount)
@@ -58,6 +72,11 @@ export default function WaitlistPage() {
 
   function changeFilter(next: Filter) {
     setFilter(next)
+    setPage(1)
+  }
+
+  function changeCycle(next: CycleFilter) {
+    setCycleFilter(next)
     setPage(1)
   }
 
@@ -139,12 +158,40 @@ export default function WaitlistPage() {
           ))}
         </div>
 
-        <WaitlistPie
-          counts={counts}
-          total={entries.length}
-          active={filter}
-          onSelect={changeFilter}
-        />
+        <div className="waitlist-stats waitlist-cycle-stats">
+          {CYCLE_FILTERS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`waitlist-stat ${cycleFilter === item.id ? 'active' : ''}`}
+              onClick={() => changeCycle(item.id)}
+            >
+              <strong>{cycleCounts[item.id]}</strong>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="waitlist-pies">
+          <WaitlistPie
+            kicker="Aylık"
+            title="Aylık paket dağılımı"
+            counts={countByIntent(monthlyEntries)}
+            total={monthlyEntries.length}
+            active={filter}
+            onSelect={changeFilter}
+            hideAccount
+          />
+          <WaitlistPie
+            kicker="Yıllık"
+            title="Yıllık paket dağılımı"
+            counts={countByIntent(yearlyEntries)}
+            total={yearlyEntries.length}
+            active={filter}
+            onSelect={changeFilter}
+            hideAccount
+          />
+        </div>
 
         <div className="table-wrap">
           <table>
@@ -154,12 +201,13 @@ export default function WaitlistPage() {
                 <th>Ad soyad</th>
                 <th>E-posta</th>
                 <th>Paket</th>
+                <th>Dönem</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="waitlist-empty">
+                  <td colSpan={5} className="waitlist-empty">
                     Bu filtrede henüz talep yok. Landing’den hesap veya paket kaydı oluşturunca burada listelenir.
                   </td>
                 </tr>
@@ -171,6 +219,11 @@ export default function WaitlistPage() {
                     <td>{row.email}</td>
                     <td>
                       <span className={`pkg-pill pkg-${row.intent}`}>{PACKAGE_LABELS[row.intent]}</span>
+                    </td>
+                    <td>
+                      <span className={`pkg-pill cycle-${row.cycle ?? 'monthly'}`}>
+                        {CYCLE_LABELS[row.cycle] ?? 'Aylık'}
+                      </span>
                     </td>
                   </tr>
                 ))

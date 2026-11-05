@@ -1,8 +1,16 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { plans } from './plans.ts'
-import { addWaitlistEntry, confirmWaitlist, type SignupIntent } from './waitlist'
+import { addWaitlistEntry, confirmWaitlist, type BillingCycle, type SignupIntent } from './waitlist'
 
-export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose: (toast?: string) => void }) {
+export function SignupModal({
+  intent,
+  cycle = 'monthly',
+  onClose,
+}: {
+  intent: SignupIntent
+  cycle?: BillingCycle
+  onClose: (toast?: string) => void
+}) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -10,6 +18,7 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
   const [phase, setPhase] = useState<'form' | 'code'>('form')
   const [code, setCode] = useState('')
   const [devCode, setDevCode] = useState('')
+  const [billing, setBilling] = useState<BillingCycle>(intent === 'account' ? 'none' : cycle)
   const plan = plans.find((p) => p.id === intent)
 
   useEffect(() => {
@@ -54,7 +63,12 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
     setBusy(true)
     setError('')
     try {
-      const result = await addWaitlistEntry({ name, email, intent })
+      const result = await addWaitlistEntry({
+        name,
+        email,
+        intent,
+        cycle: intent === 'account' ? 'none' : billing === 'yearly' ? 'yearly' : 'monthly',
+      })
       if (result.status === 'updated') {
         onClose('Bu e-posta zaten onaylı; paket tercihin güncellendi.')
         return
@@ -106,6 +120,27 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ada@email.com"
             />
+            {intent !== 'account' && (
+              <>
+                <label>Ödeme dönemi</label>
+                <div className="toggle" role="tablist" aria-label="Ödeme dönemi">
+                  <button
+                    type="button"
+                    className={billing !== 'yearly' ? 'active' : ''}
+                    onClick={() => setBilling('monthly')}
+                  >
+                    Aylık
+                  </button>
+                  <button
+                    type="button"
+                    className={billing === 'yearly' ? 'active' : ''}
+                    onClick={() => setBilling('yearly')}
+                  >
+                    Yıllık <span className="save-tag">2 ay bedava</span>
+                  </button>
+                </div>
+              </>
+            )}
           </>
         ) : (
           <>
