@@ -7,7 +7,6 @@ function apiPlugin(env: Record<string, string>) {
   if (env.RESEND_API_KEY) process.env.RESEND_API_KEY = env.RESEND_API_KEY
   if (env.MAIL_FROM) process.env.MAIL_FROM = env.MAIL_FROM
   if (env.APP_URL) process.env.APP_URL = env.APP_URL
-  if (env.CAPTCHA_SECRET) process.env.CAPTCHA_SECRET = env.CAPTCHA_SECRET
   async function attach(server: ViteDevServer | PreviewServer) {
     server.middlewares.use(async (req, res, next) => {
       if (!req.url?.startsWith('/api')) {
