@@ -1,53 +1,9 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
+import { comparisonRows, planColumns, plans } from './plans.ts'
 import { addWaitlistEntry, type PlanId, type SignupIntent } from './waitlist'
 
 type Cycle = 'monthly' | 'yearly'
-
-const plans: {
-  id: PlanId
-  name: string
-  monthly: number
-  blurb: string
-  perks: string[]
-  featured?: boolean
-}[] = [
-  {
-    id: 'standard',
-    name: 'Standard',
-    monthly: 49,
-    blurb: 'Günlük harcamayı daha rahat yönet.',
-    perks: ['Fiziksel kart dahil', '1.000 €/ay ücretsiz ATM', 'Hafta içi piyasa kuruna yakın döviz', 'Anlık bildirimler'],
-  },
-  {
-    id: 'plus',
-    name: 'Plus',
-    monthly: 99,
-    blurb: 'Daha yüksek limit, daha az sürpriz.',
-    perks: ['Sınırsız yerel transfer', '3.000 €/ay ücretsiz ATM', 'Alışveriş koruması', 'Öncelikli destek'],
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
-    monthly: 249,
-    blurb: 'Seyahat ve döviz için en dengeli plan.',
-    perks: ['Sınırsız ücretsiz döviz', 'Yurtdışı sağlık sigortası', 'LoungeKey erişimi', 'Kripto ve hisse alımında düşük komisyon'],
-    featured: true,
-  },
-]
-
-const compareColumns = ['Paketsiz hesap', ...plans.map((p) => p.name)]
-
-const comparison = [
-  { label: 'Aylık ücret', values: ['0 ₺', '49 ₺', '99 ₺', '249 ₺'] },
-  { label: 'Hesap açılışı', values: [true, true, true, true] },
-  { label: 'Sanal kart', values: [true, true, true, true] },
-  { label: 'Fiziksel kart', values: ['İsteğe bağlı', 'Plastik', 'Plus kart', 'Premium kart'] },
-  { label: 'Ücretsiz döviz', values: ['250 €/ay', '1.000 €/ay', '3.000 €/ay', 'Sınırsız'] },
-  { label: 'ATM çekimi', values: ['200 €/ay', '1.000 €/ay', '3.000 €/ay', '800 €/ay yurtdışı'] },
-  { label: 'Seyahat sigortası', values: [false, false, false, true] },
-  { label: 'Lounge erişimi', values: [false, false, false, '2 misafir'] },
-]
 
 const faqs = [
   {
@@ -165,7 +121,7 @@ export default function App() {
             <a href="#plans">Paketler</a>
             <a href="#features">Özellikler</a>
             <a href="#app">Uygulama</a>
-            <a href="#compare">Karşılaştır</a>
+            <a href="#/compare">Karşılaştır</a>
             <a href="#faq">SSS</a>
           </nav>
           <div className="nav-cta">
@@ -190,7 +146,7 @@ export default function App() {
           <a href="#app" onClick={() => setMenu(false)}>
             Uygulama
           </a>
-          <a href="#compare" onClick={() => setMenu(false)}>
+          <a href="#/compare" onClick={() => setMenu(false)}>
             Karşılaştır
           </a>
           <a href="#faq" onClick={() => setMenu(false)}>
@@ -448,27 +404,27 @@ export default function App() {
           <div className="wrap">
             <div className="section-head">
               <h2>Paketsiz hesap da bir seçenek.</h2>
-              <p>Soldaki sütun ücretsiz hesap. Diğer üçü, üzerine ekleyebileceğin paketler.</p>
+              <p>Tüm özellikleri yan yana görmek için Compare plans sayfasına geç.</p>
             </div>
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
                     <th>Özellik</th>
-                    {compareColumns.map((name) => (
-                      <th key={name} className="center">
-                        {name}
+                    {planColumns.map((col) => (
+                      <th key={col.id} className="center">
+                        {col.name}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {comparison.map((row) => (
+                  {comparisonRows.slice(0, 8).map((row) => (
                     <tr key={row.label}>
                       <td>{row.label}</td>
-                      {row.values.map((value, i) => (
-                        <td key={`${row.label}-${i}`} className="center">
-                          <Cell value={value} />
+                      {planColumns.map((col) => (
+                        <td key={`${row.label}-${col.id}`} className="center">
+                          <Cell value={row.values[col.id]} />
                         </td>
                       ))}
                     </tr>
@@ -476,6 +432,11 @@ export default function App() {
                 </tbody>
               </table>
             </div>
+            <p style={{ marginTop: 18 }}>
+              <a className="btn btn-solid" href="#/compare">
+                Tüm özellikleri karşılaştır
+              </a>
+            </p>
           </div>
         </section>
 
