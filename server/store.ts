@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomInt, randomUUID } from 'node:crypto'
 import pg from 'pg'
 import { normalizeEmail } from './email.ts'
-import { isIntent, type VisitStats, type WaitlistRow } from './types.ts'
+import { isBillingCycle, isIntent, type BillingCycle, type VisitStats, type WaitlistRow } from './types.ts'
 
 const { Pool } = pg
 
@@ -18,7 +18,13 @@ type Store = {
   kind: StoreKind
   recordVisit(visitorId: string, sessionId: string): Promise<VisitStats>
   getStats(): Promise<VisitStats>
-  requestWaitlist(input: { name: string; email: string; emailNorm: string; intent: string }): Promise<WaitlistRequest>
+  requestWaitlist(input: {
+    name: string
+    email: string
+    emailNorm: string
+    intent: string
+    cycle: BillingCycle
+  }): Promise<WaitlistRequest>
   confirmWaitlist(input: { token?: string; email?: string; code?: string }): Promise<WaitlistRow | string>
   listWaitlist(): Promise<WaitlistRow[]>
 }
@@ -56,7 +62,14 @@ function issueChallenge() {
 }
 
 function publicRow(row: WaitlistRecord): WaitlistRow {
-  return { id: row.id, name: row.name, email: row.email, intent: row.intent, createdAt: row.createdAt }
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    intent: row.intent,
+    cycle: row.cycle,
+    createdAt: row.createdAt,
+  }
 }
 
 const globalStore = globalThis as typeof globalThis & { __aureStore?: Store }
@@ -96,6 +109,7 @@ function memoryStore(): Store {
         existing.name = input.name
         existing.email = input.email
         existing.intent = input.intent
+        existing.cycle = input.cycle
         return { status: 'updated', email: existing.email }
       }
       const challenge = issueChallenge()
@@ -103,6 +117,7 @@ function memoryStore(): Store {
         existing.name = input.name
         existing.email = input.email
         existing.intent = input.intent
+        existing.cycle = input.cycle
         existing.confirmTokenHash = challenge.tokenHash
         existing.confirmCodeHash = challenge.codeHash
         existing.confirmExpires = challenge.expires
@@ -114,6 +129,7 @@ function memoryStore(): Store {
         email: input.email,
         emailNorm: input.emailNorm,
         intent: input.intent,
+        cycle: input.cycle,
         createdAt: new Date().toISOString(),
         confirmed: false,
         confirmTokenHash: challenge.tokenHash,
@@ -165,6 +181,7 @@ CREATE TABLE IF NOT EXISTS waitlist (
   email TEXT NOT NULL,
   email_norm TEXT,
   intent TEXT NOT NULL,
+  cycle TEXT NOT NULL DEFAULT 'monthly',
   confirmed BOOLEAN NOT NULL DEFAULT FALSE,
   confirm_token_hash TEXT,
   confirm_code_hash TEXT,
@@ -183,7 +200,12 @@ ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS confirm_token_hash TEXT;
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS confirm_code_hash TEXT;
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS confirm_expires TIMESTAMPTZ;
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;
+ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS cycle TEXT;
 UPDATE waitlist SET email_norm = LOWER(email) WHERE email_norm IS NULL OR email_norm = '';
+UPDATE waitlist SET cycle = 'none' WHERE intent = 'account' AND (cycle IS NULL OR cycle = '');
+UPDATE waitlist SET cycle = 'monthly' WHERE cycle IS NULL OR cycle = '';
+ALTER TABLE waitlist ALTER COLUMN cycle SET DEFAULT 'monthly';
+ALTER TABLE waitlist ALTER COLUMN cycle SET NOT NULL;
 UPDATE waitlist SET confirmed = TRUE WHERE confirmed IS NULL;
 ALTER TABLE waitlist ALTER COLUMN confirmed SET DEFAULT FALSE;
 ALTER TABLE waitlist ALTER COLUMN confirmed SET NOT NULL;
@@ -275,9 +297,9 @@ function postgresStore(url: string): Store {
       if (existing?.confirmed) {
         await pool.query(
           `UPDATE waitlist
-           SET name = $2, email = $3, intent = $4, updated_at = NOW()
+           SET name = $2, email = $3, intent = $4, cycle = $5, updated_at = NOW()
            WHERE id = $1`,
-          [existing.id, input.name, input.email, input.intent],
+          [existing.id, input.name, input.email, input.intent, input.cycle],
         )
         return { status: 'updated', email: input.email }
       }
@@ -285,14 +307,15 @@ function postgresStore(url: string): Store {
       if (existing) {
         await pool.query(
           `UPDATE waitlist
-           SET name = $2, email = $3, intent = $4, confirm_token_hash = $5, confirm_code_hash = $6,
-               confirm_expires = $7, updated_at = NOW()
+           SET name = $2, email = $3, intent = $4, cycle = $5, confirm_token_hash = $6, confirm_code_hash = $7,
+               confirm_expires = $8, updated_at = NOW()
            WHERE id = $1`,
           [
             existing.id,
             input.name,
             input.email,
             input.intent,
+            input.cycle,
             challenge.tokenHash,
             challenge.codeHash,
             challenge.expires,
@@ -302,14 +325,15 @@ function postgresStore(url: string): Store {
       }
       await pool.query(
         `INSERT INTO waitlist
-           (id, name, email, email_norm, intent, confirmed, confirm_token_hash, confirm_code_hash, confirm_expires)
-         VALUES ($1, $2, $3, $4, $5, FALSE, $6, $7, $8)`,
+           (id, name, email, email_norm, intent, cycle, confirmed, confirm_token_hash, confirm_code_hash, confirm_expires)
+         VALUES ($1, $2, $3, $4, $5, $6, FALSE, $7, $8, $9)`,
         [
           randomUUID(),
           input.name,
           input.email,
           input.emailNorm,
           input.intent,
+          input.cycle,
           challenge.tokenHash,
           challenge.codeHash,
           challenge.expires,
@@ -327,6 +351,7 @@ function postgresStore(url: string): Store {
         name: string
         email: string
         intent: string
+        cycle: string
         created_at: Date
       }>(
         `UPDATE waitlist SET
@@ -341,7 +366,7 @@ function postgresStore(url: string): Store {
              ($1::text IS NOT NULL AND confirm_token_hash = $1)
              OR ($2::text IS NOT NULL AND $3::text <> '' AND email_norm = $3 AND confirm_code_hash = $2)
            )
-         RETURNING id, name, email, intent, created_at`,
+         RETURNING id, name, email, intent, COALESCE(cycle, 'monthly') AS cycle, created_at`,
         [tokenHash, codeHash, emailNorm],
       )
       const row = result.rows[0]
@@ -351,6 +376,7 @@ function postgresStore(url: string): Store {
         name: row.name,
         email: row.email,
         intent: row.intent,
+        cycle: isBillingCycle(row.cycle) ? row.cycle : 'monthly',
         createdAt: new Date(row.created_at).toISOString(),
       }
     },
@@ -361,9 +387,10 @@ function postgresStore(url: string): Store {
         name: string
         email: string
         intent: string
+        cycle: string
         created_at: Date
       }>(
-        `SELECT id, name, email, intent, created_at
+        `SELECT id, name, email, intent, COALESCE(cycle, 'monthly') AS cycle, created_at
          FROM waitlist
          WHERE confirmed = TRUE
          ORDER BY created_at DESC
@@ -374,6 +401,7 @@ function postgresStore(url: string): Store {
         name: row.name,
         email: row.email,
         intent: row.intent,
+        cycle: isBillingCycle(row.cycle) ? row.cycle : 'monthly',
         createdAt: new Date(row.created_at).toISOString(),
       }))
     },
@@ -390,13 +418,18 @@ export function getStore(): Store {
 
 export function validateWaitlistInput(body: unknown) {
   if (!body || typeof body !== 'object') return 'Geçersiz istek.'
-  const data = body as { name?: unknown; email?: unknown; intent?: unknown }
+  const data = body as { name?: unknown; email?: unknown; intent?: unknown; cycle?: unknown }
   const name = typeof data.name === 'string' ? data.name.trim() : ''
   const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : ''
   const intent = typeof data.intent === 'string' ? data.intent : ''
+  const rawCycle = typeof data.cycle === 'string' ? data.cycle : ''
   if (name.length < 2 || name.length > 80) return 'Lütfen adını yaz.'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return 'Geçerli bir e-posta gir.'
   if (!isIntent(intent)) return 'Geçersiz paket.'
-  return { name, email, emailNorm: normalizeEmail(email), intent }
+  let cycle: BillingCycle = 'monthly'
+  if (intent === 'account') cycle = 'none'
+  else if (isBillingCycle(rawCycle) && rawCycle !== 'none') cycle = rawCycle
+  else if (rawCycle && rawCycle !== 'monthly' && rawCycle !== 'yearly') return 'Geçersiz ödeme dönemi.'
+  return { name, email, emailNorm: normalizeEmail(email), intent, cycle }
 }
 

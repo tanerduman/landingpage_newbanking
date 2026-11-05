@@ -937,6 +937,10 @@ footer {
   margin: 14px 0 6px;
 }
 
+.modal-card .toggle {
+  background: #e7e1d4;
+}
+
 .modal-card input {
   width: 100%;
   border: 1px solid #e5dfd2;
@@ -1034,6 +1038,18 @@ footer {
 .waitlist-stat.traffic {
   cursor: default;
   background: #101012;
+}
+
+.waitlist-pies {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 0 0 24px;
+}
+
+.waitlist-cycle-stats {
+  grid-template-columns: repeat(4, 1fr);
+  margin-bottom: 16px;
 }
 
 .waitlist-pie-card {
@@ -1163,6 +1179,19 @@ footer {
 .pkg-premium {
   background: #3a2a1a;
   color: var(--gold);
+}
+
+.cycle-monthly {
+  background: #1d2a22;
+  color: var(--lime);
+}
+
+.cycle-yearly {
+  background: #2a2450;
+}
+
+.cycle-none {
+  background: #222228;
 }
 
 .waitlist-empty {
@@ -1653,7 +1682,8 @@ footer {
   .traffic-stats,
   .fx-grid,
   .campaign-card,
-  .waitlist-pie-body {
+  .waitlist-pie-body,
+  .waitlist-pies {
     grid-template-columns: 1fr;
   }
 

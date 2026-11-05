@@ -2,12 +2,14 @@ import { apiFetch, readApiJson } from './api.ts'
 
 export type PlanId = 'standard' | 'plus' | 'premium'
 export type SignupIntent = 'account' | PlanId
+export type BillingCycle = 'none' | 'monthly' | 'yearly'
 
 export type WaitlistEntry = {
   id: string
   name: string
   email: string
   intent: SignupIntent
+  cycle: BillingCycle
   createdAt: string
 }
 
@@ -26,7 +28,30 @@ export const PACKAGE_FILTERS: { id: 'all' | SignupIntent; label: string }[] = [
   { id: 'premium', label: 'Premium' },
 ]
 
+export const CYCLE_LABELS: Record<BillingCycle, string> = {
+  none: 'Paketsiz',
+  monthly: 'Aylık',
+  yearly: 'Yıllık',
+}
+
+export const CYCLE_FILTERS: { id: 'all' | BillingCycle; label: string }[] = [
+  { id: 'all', label: 'Tüm dönemler' },
+  { id: 'monthly', label: 'Aylık' },
+  { id: 'yearly', label: 'Yıllık' },
+  { id: 'none', label: 'Paketsiz' },
+]
+
 const KEY = 'aure-waitlist'
+
+function normalizeEntry(row: WaitlistEntry): WaitlistEntry {
+  const cycle: BillingCycle =
+    row.cycle === 'yearly' || row.cycle === 'monthly' || row.cycle === 'none'
+      ? row.cycle
+      : row.intent === 'account'
+        ? 'none'
+        : 'monthly'
+  return { ...row, cycle }
+}
 
 export function loadWaitlist(): WaitlistEntry[] {
   try {
@@ -40,11 +65,17 @@ export function loadWaitlist(): WaitlistEntry[] {
   }
 }
 
-export async function addWaitlistEntry(input: { name: string; email: string; intent: SignupIntent }) {
+export async function addWaitlistEntry(input: {
+  name: string
+  email: string
+  intent: SignupIntent
+  cycle: BillingCycle
+}) {
   const payload = {
     name: input.name.trim(),
     email: input.email.trim().toLowerCase(),
     intent: input.intent,
+    cycle: input.intent === 'account' ? 'none' : input.cycle,
   }
   const res = await apiFetch('/api/waitlist', {
     method: 'POST',
@@ -83,8 +114,10 @@ export async function confirmWaitlist(input: { token?: string; email?: string; c
 export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean }> {
   const res = await apiFetch('/api/waitlist')
   const remote = await readApiJson<{ entries: WaitlistEntry[] }>(res)
-  if (res?.ok && remote?.entries) return { entries: remote.entries, remote: true }
-  return { entries: loadWaitlist(), remote: false }
+  if (res?.ok && remote?.entries) {
+    return { entries: remote.entries.map(normalizeEntry), remote: true }
+  }
+  return { entries: loadWaitlist().map(normalizeEntry), remote: false }
 }
 
 export function countByIntent(entries: WaitlistEntry[]) {
@@ -94,6 +127,15 @@ export function countByIntent(entries: WaitlistEntry[]) {
     standard: entries.filter((e) => e.intent === 'standard').length,
     plus: entries.filter((e) => e.intent === 'plus').length,
     premium: entries.filter((e) => e.intent === 'premium').length,
+  }
+}
+
+export function countByCycle(entries: WaitlistEntry[]) {
+  return {
+    all: entries.length,
+    none: entries.filter((e) => e.cycle === 'none').length,
+    monthly: entries.filter((e) => e.cycle === 'monthly').length,
+    yearly: entries.filter((e) => e.cycle === 'yearly').length,
   }
 }
 
@@ -113,12 +155,13 @@ function xmlCell(value: string) {
 }
 
 export function downloadWaitlistExcel(rows: WaitlistEntry[], filterLabel: string) {
-  const header = ['Tarih', 'Ad soyad', 'E-posta', 'Paket']
+  const header = ['Tarih', 'Ad soyad', 'E-posta', 'Paket', 'Dönem']
   const body = rows.map((row) => [
     formatRequestTime(row.createdAt),
     row.name,
     row.email,
     PACKAGE_LABELS[row.intent],
+    CYCLE_LABELS[row.cycle] ?? row.cycle,
   ])
   const xml = `<?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
