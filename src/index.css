@@ -1278,11 +1278,14 @@ footer {
   justify-content: center;
   min-width: 88px;
   padding: 10px 18px;
+  border: 0;
   border-radius: 999px;
   background: #111;
   color: #fff;
+  font: inherit;
   font-weight: 700;
   letter-spacing: 0.02em;
+  cursor: pointer;
 }
 
 .rev-section {

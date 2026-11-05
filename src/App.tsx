@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useState } from 'react'
 import { withBase } from './base.ts'
 import { comparisonRows, planColumns, plans } from './plans.ts'
 import { apiFetch, readApiJson } from './api.ts'
-import { addWaitlistEntry, type PlanId, type SignupIntent } from './waitlist'
+import { SignupModal, SignupToast } from './SignupModal.tsx'
+import { type PlanId, type SignupIntent } from './waitlist'
 
 type Cycle = 'monthly' | 'yearly'
 
@@ -56,35 +57,24 @@ export default function App() {
   const [menu, setMenu] = useState(false)
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [error, setError] = useState('')
   const [fx, setFx] = useState<FxQuote[]>([])
   const [fxError, setFxError] = useState('')
 
   const period = cycle === 'yearly' ? '/yıl' : '/ay'
-  const selectedPlan = useMemo(() => plans.find((p) => p.id === selected), [selected])
 
   function openAccount() {
     setIntent('account')
-    setError('')
     setModal(true)
   }
 
   function openPlan(id: PlanId) {
     setSelected(id)
     setIntent(id)
-    setError('')
     setModal(true)
   }
 
   function closeModal() {
     setModal(false)
-    setError('')
-  }
-
-  function closeToast() {
-    setToast(null)
   }
 
   useEffect(() => {
@@ -105,41 +95,6 @@ export default function App() {
       cancelled = true
     }
   }, [])
-
-  useEffect(() => {
-    if (!modal && !toast) return
-
-    function onKey(e: KeyboardEvent) {
-      if (e.key !== 'Escape') return
-      if (modal) closeModal()
-      else closeToast()
-    }
-
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [modal, toast])
-
-  async function submit(e: FormEvent) {
-    e.preventDefault()
-    if (name.trim().length < 2) {
-      setError('Lütfen adını yaz.')
-      return
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Geçerli bir e-posta gir.')
-      return
-    }
-    await addWaitlistEntry({ name, email, intent })
-    setModal(false)
-    setToast(
-      intent === 'account'
-        ? 'Paketsiz hesabın için sıraya alındın.'
-        : `${selectedPlan?.name ?? 'Paket'} için sıraya alındın.`,
-    )
-    setName('')
-    setEmail('')
-    window.setTimeout(() => setToast(null), 3200)
-  }
 
   return (
     <div className="page">
@@ -590,58 +545,15 @@ export default function App() {
       </footer>
 
       {modal && (
-        <div
-          className="modal"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="signup-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) closeModal()
+        <SignupModal
+          intent={intent}
+          onClose={(msg) => {
+            closeModal()
+            if (msg) setToast(msg)
           }}
-        >
-          <form className="modal-card" onSubmit={submit}>
-            <button type="button" className="modal-close" onClick={closeModal} aria-label="Kapat">
-              ×
-            </button>
-            <h3 id="signup-title">
-              {intent === 'account' ? 'Paketsiz hesap aç' : `${selectedPlan?.name ?? 'Paket'} paketini ekle`}
-            </h3>
-            <p>
-              {intent === 'account'
-                ? 'Paket seçmeden, 0 ₺’ye hesap için sıraya yazıl. Adını ve e-postanı bırakman yeterli.'
-                : `Adını ve e-postanı bırak; lansmanda ${selectedPlan?.name ?? 'paket'} kotasından yer ayıralım. Hesap yine paketsiz de açılabilir.`}
-            </p>
-            <label htmlFor="full-name">Ad soyad</label>
-            <input id="full-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Yılmaz" />
-            <label htmlFor="email">E-posta</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="ada@email.com"
-            />
-            {error && <p style={{ color: '#b42318', marginBottom: 0 }}>{error}</p>}
-            <div className="modal-actions">
-              <button type="submit" className="btn btn-solid">
-                Kaydı tamamla
-              </button>
-              <button type="button" className="btn btn-ghost" onClick={closeModal}>
-                Vazgeç
-              </button>
-            </div>
-          </form>
-        </div>
+        />
       )}
-
-      {toast && (
-        <div className="toast" role="status">
-          <span>{toast}</span>
-          <button type="button" className="toast-close" onClick={closeToast} aria-label="Kapat">
-            ×
-          </button>
-        </div>
-      )}
+      {toast && <SignupToast message={toast} onClose={() => setToast(null)} />}
     </div>
   )
 }

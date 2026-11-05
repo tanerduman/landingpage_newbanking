@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { withBase } from './base.ts'
 import { comparisonRows, planColumns, type FeatureValue } from './plans.ts'
+import { SignupModal, SignupToast } from './SignupModal.tsx'
+import type { SignupIntent } from './waitlist'
 
 const ICONS: Record<string, string> = {
   atm: '₺',
@@ -22,6 +25,8 @@ function Cell({ value }: { value: FeatureValue }) {
 
 export default function ComparePage() {
   const groups = [...new Set(comparisonRows.map((row) => row.group))]
+  const [intent, setIntent] = useState<SignupIntent | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
 
   return (
     <div className="page compare-shell">
@@ -49,9 +54,9 @@ export default function ComparePage() {
               <div key={col.id} className="rev-plan">
                 <h2>{col.name}</h2>
                 <p>{col.price}</p>
-                <a className="rev-get" href={`${withBase()}#plans`}>
+                <button type="button" className="rev-get" onClick={() => setIntent(col.id)}>
                   Seç
-                </a>
+                </button>
               </div>
             ))}
           </div>
@@ -80,6 +85,17 @@ export default function ComparePage() {
           ))}
         </div>
       </main>
+
+      {intent && (
+        <SignupModal
+          intent={intent}
+          onClose={(msg) => {
+            setIntent(null)
+            if (msg) setToast(msg)
+          }}
+        />
+      )}
+      {toast && <SignupToast message={toast} onClose={() => setToast(null)} />}
     </div>
   )
 }
