@@ -24,7 +24,7 @@ const faqs = [
   },
   {
     q: 'Kampanyalar nasıl kullanılır?',
-    a: 'Paket kampanyaları kartınla Migros, Migros Sanal Market, Koç Ailem, Divan Pastanesi ve Setur’da geçer. İndirim oranı paketine göredir; paketsiz hesapta bu kampanyalar kapalıdır.',
+    a: 'Paket kampanyaları kartınla Migros, Migros Sanal Market, Divan Pastanesi ve Setur’da geçer. İndirim oranı paketine göredir; paketsiz hesapta bu kampanyalar kapalıdır.',
   },
 ]
 
@@ -355,7 +355,7 @@ export default function App() {
               <article className="feature-tile">
                 <div className="icon">🛒</div>
                 <h3>Kampanya</h3>
-                <p>Migros, Koç Ailem, Divan Pastanesi ve Setur indirimleri.</p>
+                <p>Migros, Divan Pastanesi ve Setur indirimleri.</p>
               </article>
             </div>
           </div>

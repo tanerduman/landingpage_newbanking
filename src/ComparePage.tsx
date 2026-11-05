@@ -61,8 +61,7 @@ export default function ComparePage() {
             </div>
             <h1>Paketleri karşılaştır.</h1>
             <p className="lead">
-              Özellikler iki blokta: Banka / Saving (ATM, döviz, hisse, mevduat, EFT) ve Kampanya (Migros, Koç Ailem,
-              Divan, Setur).
+              Özellikler iki blokta: Banka / Saving (ATM, döviz, hisse, mevduat, EFT) ve Kampanya (Migros, Divan, Setur).
             </p>
           </div>
         </div>

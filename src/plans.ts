@@ -26,7 +26,7 @@ export const plans: {
     monthly: 99,
     blurb: 'Daha yüksek limit, daha iyi faiz, daha fazla kampanya.',
     banking: ['ATM 500 €/gün', 'Döviz 5.000 €/ay · %0,35', 'Hisse %0,08', 'Mevduat %36', '20 ücretsiz EFT/ay'],
-    campaigns: ['Migros %4', 'Koç Ailem üye', 'Divan Pastanesi %10', 'Setur %5'],
+    campaigns: ['Migros %4', 'Divan Pastanesi %10', 'Setur %5'],
     featured: false,
   },
   {
@@ -35,7 +35,7 @@ export const plans: {
     monthly: 249,
     blurb: 'Sınırsız döviz, en yüksek faiz ve tam kampanya paketi.',
     banking: ['ATM 1.000 €/gün', 'Döviz sınırsız · %0', 'Hisse %0,04', 'Mevduat %38', 'Sınırsız ücretsiz EFT'],
-    campaigns: ['Migros %7', 'Koç Ailem ekstra', 'Divan Pastanesi %15', 'Setur %10'],
+    campaigns: ['Migros %7', 'Divan Pastanesi %15', 'Setur %10'],
     featured: true,
   },
 ]
@@ -88,11 +88,6 @@ export const comparisonRows: { label: string; group: string; values: Record<Plan
     label: 'Migros Sanal Market',
     group: 'Kampanya',
     values: { account: false, standard: '%2 indirim', plus: '%5 indirim', premium: '%8 indirim' },
-  },
-  {
-    label: 'Koç Ailem',
-    group: 'Kampanya',
-    values: { account: false, standard: false, plus: 'Üyelik', premium: 'Üyelik + ekstra puan' },
   },
   {
     label: 'Divan Pastanesi',
