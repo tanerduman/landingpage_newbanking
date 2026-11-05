@@ -27,7 +27,7 @@ jobs:
       - run: npm run build
         env:
           GITHUB_PAGES: '1'
-          VITE_API_BASE: ${{ vars.VITE_API_BASE }}
+          VITE_API_BASE: https://landingpage-newbanking.vercel.app
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

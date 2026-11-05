@@ -9,6 +9,7 @@ const LIMITS: Record<string, number> = {
 
 const ALLOWED_ORIGINS = new Set([
   'https://tanerduman.github.io',
+  'https://landingpage-newbanking.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:4173',
