@@ -1,4 +1,5 @@
-import { adminConfigured, bearerToken, issueToken, passwordMatches, tokenValid } from './auth.ts'
+import { requireIdentity } from '../cursor/identity.ts'
+import { adminConfigured, issueToken, passwordMatches } from './auth.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
 const buckets = new Map<string, { count: number; start: number }>()
@@ -10,7 +11,6 @@ const LIMITS: Record<string, number> = {
 }
 
 const ALLOWED_ORIGINS = new Set([
-  'https://tanerduman.github.io',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:4173',
@@ -71,20 +71,12 @@ async function readJson(request: Request) {
   }
 }
 
-function requireAdmin(request: Request) {
-  return tokenValid(bearerToken(request))
-}
-
-function canReadAdmin(request: Request) {
-  return !adminConfigured() || requireAdmin(request)
+async function requireViewer(request: Request) {
+  return requireIdentity(request)
 }
 
 async function handleHealth(request: Request) {
-  return json(
-    { ok: true, store: getStore().kind, authRequired: adminConfigured() },
-    200,
-    request,
-  )
+  return json({ ok: true, store: getStore().kind }, 200, request)
 }
 
 async function handleLogin(request: Request) {
@@ -108,7 +100,8 @@ async function handleLogin(request: Request) {
 async function handleVisits(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    if (!canReadAdmin(request)) return json({ error: 'Yetkisiz.' }, 401, request)
+    const viewer = await requireViewer(request)
+    if (viewer instanceof Response) return viewer
     const stats = await store.getStats()
     return json({ ...stats, store: store.kind }, 200, request)
   }
@@ -128,7 +121,8 @@ async function handleVisits(request: Request) {
 async function handleWaitlist(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    if (!canReadAdmin(request)) return json({ error: 'Yetkisiz.' }, 401, request)
+    const viewer = await requireViewer(request)
+    if (viewer instanceof Response) return viewer
     const entries = await store.listWaitlist()
     return json({ entries, store: store.kind }, 200, request)
   }
@@ -194,7 +188,11 @@ export async function nodeToWebRequest(req: {
           req.on('end', () => resolve(Buffer.concat(chunks)))
           req.on('error', reject)
         })
-  return new Request(url, { method, headers, body })
+  return new Request(url, {
+    method,
+    headers,
+    body: body && body.length > 0 ? new Uint8Array(body) : undefined,
+  })
 }
 
 function headerValue(value: string | string[] | undefined) {
