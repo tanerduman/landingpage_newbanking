@@ -1,32 +1,16 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { plans } from './plans.ts'
-import { addWaitlistEntry, confirmWaitlist, fetchCaptcha, type SignupIntent } from './waitlist'
+import { addWaitlistEntry, confirmWaitlist, type SignupIntent } from './waitlist'
 
 export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose: (toast?: string) => void }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
-  const [captchaToken, setCaptchaToken] = useState('')
-  const [captchaQuestion, setCaptchaQuestion] = useState('')
-  const [captchaAnswer, setCaptchaAnswer] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [phase, setPhase] = useState<'form' | 'code'>('form')
   const [code, setCode] = useState('')
   const [devCode, setDevCode] = useState('')
   const plan = plans.find((p) => p.id === intent)
-
-  async function loadCaptcha() {
-    setCaptchaAnswer('')
-    try {
-      const next = await fetchCaptcha()
-      setCaptchaToken(next.token)
-      setCaptchaQuestion(next.question)
-    } catch (err) {
-      setCaptchaToken('')
-      setCaptchaQuestion('')
-      setError(err instanceof Error ? err.message : 'Güvenlik sorusu yüklenemedi.')
-    }
-  }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -35,10 +19,6 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
-
-  useEffect(() => {
-    void loadCaptcha()
-  }, [])
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -71,14 +51,10 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
       setError('Geçerli bir e-posta gir.')
       return
     }
-    if (!captchaToken || !captchaAnswer.trim()) {
-      setError('Güvenlik sorusunu yanıtla.')
-      return
-    }
     setBusy(true)
     setError('')
     try {
-      const result = await addWaitlistEntry({ name, email, intent, captchaToken, captchaAnswer })
+      const result = await addWaitlistEntry({ name, email, intent })
       if (result.status === 'updated') {
         onClose('Bu e-posta zaten onaylı; paket tercihin güncellendi.')
         return
@@ -87,7 +63,6 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
       setPhase('code')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Kayıt alınamadı.')
-      if (phase === 'form') await loadCaptcha()
     } finally {
       setBusy(false)
     }
@@ -131,24 +106,6 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ada@email.com"
             />
-            <label htmlFor="captcha-answer">Güvenlik sorusu</label>
-            <div className="captcha-row">
-              <span className="captcha-q" aria-hidden="true">
-                {captchaQuestion || '…'} = ?
-              </span>
-              <input
-                id="captcha-answer"
-                inputMode="numeric"
-                autoComplete="off"
-                value={captchaAnswer}
-                onChange={(e) => setCaptchaAnswer(e.target.value)}
-                placeholder="Sonuç"
-                aria-label={captchaQuestion ? `${captchaQuestion} kaç eder?` : 'Güvenlik sorusu'}
-              />
-              <button type="button" className="btn btn-ghost captcha-refresh" onClick={() => void loadCaptcha()}>
-                Yenile
-              </button>
-            </div>
           </>
         ) : (
           <>
@@ -164,7 +121,7 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
               onChange={(e) => setCode(e.target.value)}
               placeholder="123456"
             />
-            {devCode ? <p className="captcha-dev">Geliştirme kodu: {devCode}</p> : null}
+            {devCode ? <p className="confirm-dev">Geliştirme kodu: {devCode}</p> : null}
           </>
         )}
         {error && (
@@ -173,7 +130,7 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
           </p>
         )}
         <div className="modal-actions">
-          <button type="submit" className="btn btn-solid" disabled={busy || (phase === 'form' && !captchaToken)}>
+          <button type="submit" className="btn btn-solid" disabled={busy}>
             {phase === 'code' ? 'Onayla' : 'Kodu gönder'}
           </button>
           <button type="button" className="btn btn-ghost" onClick={() => onClose()}>
