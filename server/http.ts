@@ -1,4 +1,5 @@
 import { issueCaptcha, verifyCaptcha } from './captcha.ts'
+import { isProduction, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
@@ -8,11 +9,14 @@ const LIMITS: Record<string, number> = {
   'POST /api/visits': 40,
   'POST /api/waitlist': 12,
   'GET /api/captcha': 40,
+  'POST /api/confirm': 20,
 }
 
 const ALLOWED_ORIGINS = new Set([
   'https://tanerduman.github.io',
   'https://landingpage-newbanking.vercel.app',
+  'https://getaure.org',
+  'https://www.getaure.org',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:4173',
@@ -133,8 +137,46 @@ async function handleWaitlist(request: Request) {
   if (captcha !== true) return json({ error: captcha }, 400, request)
   const valid = validateWaitlistInput(parsed.value)
   if (typeof valid === 'string') return json({ error: valid }, 400, request)
-  const entry = await store.addWaitlist(valid)
-  return json({ entry, store: store.kind }, 201, request)
+  const result = await store.requestWaitlist(valid)
+  if (result.status === 'updated') {
+    return json({ updated: true, store: store.kind }, 200, request)
+  }
+  const link = `${publicAppUrl(request)}/confirm?token=${result.token}`
+  const sent = await sendWaitlistConfirm({ to: result.email, code: result.code || '', link })
+  if (!sent.ok && isProduction() && !sent.skipped) {
+    return json({ error: 'Onay e-postası gönderilemedi. Az sonra tekrar dene.' }, 503, request)
+  }
+  if (!sent.ok && sent.skipped && isProduction()) {
+    return json({ error: 'E-posta servisi henüz bağlanmadı.' }, 503, request)
+  }
+  return json(
+    {
+      pending: true,
+      delivered: sent.ok,
+      store: store.kind,
+      ...(!isProduction() && !sent.ok ? { devCode: result.code } : {}),
+    },
+    201,
+    request,
+  )
+}
+
+async function handleConfirm(request: Request) {
+  if (limited(request, 'POST /api/confirm')) return json({ error: 'Çok fazla istek.' }, 429, request)
+  const parsed = await readJson(request)
+  if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
+  const body = parsed.value as { token?: unknown; email?: unknown; code?: unknown } | null
+  const token = typeof body?.token === 'string' ? body.token.trim() : ''
+  const email = typeof body?.email === 'string' ? body.email.trim() : ''
+  const code = typeof body?.code === 'string' ? body.code.trim() : ''
+  if (!token && !(email && code)) return json({ error: 'Onay kodu veya bağlantı gerekli.' }, 400, request)
+  const result = await getStore().confirmWaitlist({
+    token: token || undefined,
+    email: email || undefined,
+    code: code || undefined,
+  })
+  if (typeof result === 'string') return json({ error: result }, 400, request)
+  return json({ confirmed: true, store: getStore().kind }, 200, request)
 }
 
 export async function handleApiRequest(request: Request): Promise<Response | null> {
@@ -157,6 +199,7 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
     if (path === '/api/waitlist' && (request.method === 'GET' || request.method === 'POST')) {
       return handleWaitlist(request)
     }
+    if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)
   } catch {
     return json({ error: 'Sunucu hatası.' }, 500, request)
   }

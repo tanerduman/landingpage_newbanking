@@ -969,6 +969,12 @@ footer {
   padding: 12px 14px;
 }
 
+.captcha-dev {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #5c574d;
+}
+
 .modal-actions {
   display: flex;
   gap: 10px;
