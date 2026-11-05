@@ -2,8 +2,8 @@ import { withBase } from './base.ts'
 import { comparisonRows, planColumns, type FeatureValue } from './plans.ts'
 
 const ICONS: Record<string, string> = {
-  atm: 'ATM',
-  fx: 'Fx',
+  atm: '₺',
+  fx: '€',
   stock: '↑',
   save: '%',
   send: '→',
@@ -62,7 +62,7 @@ export default function ComparePage() {
                 <h2>{col.name}</h2>
                 <p>{col.price}</p>
                 <a className="rev-get" href={`${withBase()}#plans`}>
-                  Al
+                  Seç
                 </a>
               </div>
             ))}

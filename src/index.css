@@ -1160,7 +1160,6 @@ footer {
 .rev-board {
   background: #fff;
   border-radius: 28px;
-  overflow: hidden;
   border: 1px solid #eceae4;
 }
 
@@ -1168,25 +1167,27 @@ footer {
 .rev-row,
 .rev-section {
   display: grid;
-  grid-template-columns: minmax(220px, 1.15fr) repeat(4, 1fr);
+  grid-template-columns: minmax(240px, 1.2fr) repeat(4, minmax(140px, 1fr));
 }
 
 .rev-head {
   position: sticky;
   top: 72px;
-  z-index: 6;
+  z-index: 8;
   background: #fff;
   border-bottom: 1px solid #eceae4;
+  box-shadow: 0 8px 16px rgba(17, 17, 17, 0.04);
 }
 
 .rev-corner {
-  border-right: 1px solid #f0eeea;
+  background: #fff;
 }
 
 .rev-plan {
   padding: 22px 14px 18px;
   text-align: center;
   border-left: 1px solid #f0eeea;
+  background: #fff;
 }
 
 .rev-plan h2 {
@@ -1210,6 +1211,7 @@ footer {
   background: #111;
   color: #fff;
   font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .rev-section {
@@ -1232,20 +1234,24 @@ footer {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 18px;
+  padding: 16px 18px;
   font-weight: 600;
   font-size: 14px;
+  line-height: 1.35;
+  background: #fff;
 }
 
 .rev-ico {
   flex: 0 0 28px;
+  width: 28px;
   height: 28px;
+  overflow: hidden;
   border-radius: 8px;
   display: grid;
   place-items: center;
   background: #efece6;
   color: #111;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -1276,10 +1282,15 @@ footer {
     overflow-x: auto;
   }
 
+  .rev-head {
+    position: static;
+    box-shadow: none;
+  }
+
   .rev-head,
   .rev-row,
   .rev-section {
-    min-width: 860px;
+    min-width: 880px;
   }
 }
 
