@@ -29,7 +29,7 @@ const faqs = [
   },
 ]
 
-const currencies = ['EUR', 'USD', 'GBP', 'TRY', 'CHF', 'JPY', 'AUD', 'CAD', 'NOK', 'SEK', 'AED', 'PLN']
+const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
 
 type FxQuote = { base: string; quote: string; rate: number }
 
@@ -272,7 +272,10 @@ export default function App() {
             <p>USD, EUR, GBP ve CHF — TRY karşılığı. Makas Premium’da kapanır.</p>
           </div>
           <div className="fx-grid">
-            {(fx.length ? fx : ['USD', 'EUR', 'GBP', 'CHF'].map((base) => ({ base, quote: 'TRY', rate: 0 }))).map(
+            {(fx.length
+              ? fx.filter((row) => (fxBases as readonly string[]).includes(row.base))
+              : fxBases.map((base) => ({ base, quote: 'TRY', rate: 0 }))
+            ).map(
               (row) => (
                 <div key={row.base} className="fx-card">
                   <span>
@@ -289,8 +292,10 @@ export default function App() {
         <div className="marquee" aria-hidden="true">
           <div className="marquee-track">
             {(fx.length
-              ? [...fx, ...fx].map((row) => `${row.base}/${row.quote} ${formatFx(row.rate)}`)
-              : [...currencies, ...currencies].map((c) => `${c} · anlık kur`)
+              ? [...fx, ...fx]
+                  .filter((row) => (fxBases as readonly string[]).includes(row.base))
+                  .map((row) => `${row.base}/${row.quote} ${formatFx(row.rate)}`)
+              : [...fxBases, ...fxBases].map((c) => `${c}/TRY`)
             ).map((label, i) => (
               <span key={`${label}-${i}`}>{label}</span>
             ))}
