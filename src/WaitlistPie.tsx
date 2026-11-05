@@ -39,7 +39,7 @@ export default function WaitlistPie({
       <div className="waitlist-pie-body">
         <div className="waitlist-pie-chart">
           <svg viewBox="0 0 180 180" role="img" aria-label="Paket taleplerinin pasta grafiği">
-            <circle className="waitlist-pie-track" cx="90" cy="90" r={r} fill="none" strokeWidth="28" />
+            <circle cx="90" cy="90" r={r} fill="none" stroke="#1c1c20" strokeWidth="28" />
             {arcs
               .filter((slice) => slice.dash > 0)
               .map((slice) => (

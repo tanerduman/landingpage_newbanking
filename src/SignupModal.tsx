@@ -66,7 +66,7 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
           onChange={(e) => setEmail(e.target.value)}
           placeholder="ada@email.com"
         />
-        {error && <p className="login-error" style={{ marginBottom: 0 }}>{error}</p>}
+        {error && <p style={{ color: '#b42318', marginBottom: 0 }}>{error}</p>}
         <div className="modal-actions">
           <button type="submit" className="btn btn-solid">
             Kaydı tamamla

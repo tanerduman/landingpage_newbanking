@@ -3,7 +3,6 @@ import { withBase } from './base.ts'
 import { comparisonRows, planColumns, plans } from './plans.ts'
 import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
-import ThemeToggle from './ThemeToggle.tsx'
 import { type PlanId, type SignupIntent } from './waitlist'
 
 type Cycle = 'monthly' | 'yearly'
@@ -120,7 +119,6 @@ export default function App() {
             <button className="btn btn-ghost" onClick={openAccount}>
               Paketsiz hesap aç
             </button>
-            <ThemeToggle />
             <button className="menu-btn" aria-label="Menü" onClick={() => setMenu((v) => !v)}>
               ☰
             </button>
