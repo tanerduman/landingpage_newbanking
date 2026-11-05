@@ -1058,6 +1058,12 @@ footer {
   gap: 10px;
 }
 
+.waitlist-nav-actions .btn-solid:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .compare-toolbar {
   display: flex;
   flex-wrap: wrap;

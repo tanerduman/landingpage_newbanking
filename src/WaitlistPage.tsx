@@ -7,6 +7,7 @@ import {
   countByIntent,
   formatRequestTime,
   loadWaitlist,
+  downloadWaitlistExcel,
   type SignupIntent,
   type WaitlistEntry,
 } from './waitlist'
@@ -75,6 +76,21 @@ export default function WaitlistPage() {
             AURE
           </a>
           <div className="waitlist-nav-actions">
+            {authed && (
+              <button
+                type="button"
+                className="btn btn-solid"
+                disabled={visible.length === 0}
+                onClick={() =>
+                  downloadWaitlistExcel(
+                    visible,
+                    PACKAGE_FILTERS.find((item) => item.id === filter)?.label ?? 'Tumu',
+                  )
+                }
+              >
+                Excel’e aktar
+              </button>
+            )}
             {authed && (
               <button type="button" className="btn btn-ghost" onClick={logout}>
                 Çıkış

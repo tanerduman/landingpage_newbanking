@@ -69,3 +69,39 @@ export function formatRequestTime(iso: string) {
     timeStyle: 'short',
   }).format(new Date(iso))
 }
+
+function xmlCell(value: string) {
+  return `<Cell><Data ss:Type="String">${value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')}</Data></Cell>`
+}
+
+export function downloadWaitlistExcel(rows: WaitlistEntry[], filterLabel: string) {
+  const header = ['Tarih', 'Ad soyad', 'E-posta', 'Paket']
+  const body = rows.map((row) => [
+    formatRequestTime(row.createdAt),
+    row.name,
+    row.email,
+    PACKAGE_LABELS[row.intent],
+  ])
+  const xml = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Talepler">
+  <Table>
+   <Row>${header.map(xmlCell).join('')}</Row>
+   ${body.map((line) => `<Row>${line.map(xmlCell).join('')}</Row>`).join('\n   ')}
+  </Table>
+ </Worksheet>
+</Workbook>`
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel' })
+  const stamp = new Date().toISOString().slice(0, 10)
+  const safeFilter = filterLabel.toLowerCase().replaceAll(' ', '-')
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `aure-talepler-${safeFilter}-${stamp}.xls`
+  link.click()
+  URL.revokeObjectURL(link.href)
+}
