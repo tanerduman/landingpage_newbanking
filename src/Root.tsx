@@ -3,6 +3,7 @@ import App from './App.tsx'
 import ComparePage from './ComparePage.tsx'
 import WaitlistPage from './WaitlistPage.tsx'
 import { isCompareHash, isWaitlistHash } from './base.ts'
+import { recordVisit } from './visits.ts'
 
 function pageFromLocation() {
   if (isWaitlistHash()) return 'waitlist'
@@ -14,6 +15,7 @@ export default function Root() {
   const [page, setPage] = useState(pageFromLocation)
 
   useEffect(() => {
+    recordVisit()
     function sync() {
       setPage(pageFromLocation())
     }

@@ -11,6 +11,7 @@ import {
   type SignupIntent,
   type WaitlistEntry,
 } from './waitlist'
+import { loadVisitStats, type VisitStats } from './visits.ts'
 
 type Filter = 'all' | SignupIntent
 
@@ -21,17 +22,21 @@ export default function WaitlistPage() {
   const [loginError, setLoginError] = useState('')
   const [busy, setBusy] = useState(false)
   const [entries, setEntries] = useState<WaitlistEntry[]>(() => (isWaitlistAuthed() ? loadWaitlist() : []))
+  const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [filter, setFilter] = useState<Filter>('all')
 
   useEffect(() => {
     if (!authed) return
     function refresh() {
       setEntries(loadWaitlist())
+      setVisits(loadVisitStats())
     }
     window.addEventListener('aure-waitlist', refresh)
+    window.addEventListener('aure-visits', refresh)
     window.addEventListener('storage', refresh)
     return () => {
       window.removeEventListener('aure-waitlist', refresh)
+      window.removeEventListener('aure-visits', refresh)
       window.removeEventListener('storage', refresh)
     }
   }, [authed])
@@ -55,6 +60,7 @@ export default function WaitlistPage() {
     }
     setPassword('')
     setEntries(loadWaitlist())
+    setVisits(loadVisitStats())
     setAuthed(true)
   }
 
@@ -143,9 +149,30 @@ export default function WaitlistPage() {
               </div>
               <h1>Gelen talepler</h1>
               <p className="lead">
-                Landing’den gelen her kayıt paketine göre burada durur. Filtreleyerek hangi paketin talep gördüğünü
-                görürsün.
+                Landing’den gelen her kayıt paketine göre burada durur. Üstte siteye giren kişi sayısı, altta paket
+                talepleri var.
               </p>
+            </div>
+          </div>
+
+          <div className="traffic-stats">
+            <div className="waitlist-stat traffic">
+              <strong>{visits.unique}</strong>
+              <span>Tekil ziyaretçi</span>
+            </div>
+            <div className="waitlist-stat traffic">
+              <strong>{visits.views}</strong>
+              <span>Site girişi (oturum)</span>
+            </div>
+            <div className="waitlist-stat traffic">
+              <strong>{entries.length}</strong>
+              <span>Paket / hesap talebi</span>
+            </div>
+            <div className="waitlist-stat traffic">
+              <strong>
+                {visits.unique === 0 ? '—' : `${Math.round((entries.length / visits.unique) * 100)}%`}
+              </strong>
+              <span>Talebe dönüşüm</span>
             </div>
           </div>
 
@@ -195,7 +222,9 @@ export default function WaitlistPage() {
               </tbody>
             </table>
           </div>
-          <p className="waitlist-note">Kayıtlar bu tarayıcıda tutulur (demo). Oturum sekme kapanınca biter.</p>
+          <p className="waitlist-note">
+            Ziyaretçi sayısı ve talepler bu tarayıcıda tutulur. Yeni sekme bir giriş, ilk ziyaret tekil ziyaretçi sayar.
+          </p>
         </main>
       )}
     </div>
