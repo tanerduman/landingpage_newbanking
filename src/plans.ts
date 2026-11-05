@@ -8,34 +8,34 @@ export const plans: {
   name: string
   monthly: number
   blurb: string
-  perks: string[]
+  banking: string[]
+  campaigns: string[]
   featured?: boolean
 }[] = [
   {
     id: 'standard',
     name: 'Standard',
     monthly: 49,
-    blurb: 'Günlük harcamayı daha rahat yönet.',
-    perks: ['Fiziksel kart dahil', '1.000 €/ay ücretsiz ATM', 'Hafta içi piyasa kuruna yakın döviz', 'Anlık bildirimler'],
+    blurb: 'Günlük bankacılık + ilk market indirimleri.',
+    banking: ['ATM 250 €/gün', 'Döviz 1.500 €/ay · %0,75', 'Hisse %0,12', 'Mevduat %34', '8 ücretsiz EFT/ay'],
+    campaigns: ['Migros %2', 'Migros Sanal Market %2'],
   },
   {
     id: 'plus',
     name: 'Plus',
     monthly: 99,
-    blurb: 'Daha yüksek limit, daha az sürpriz.',
-    perks: ['Sınırsız yerel transfer', '3.000 €/ay ücretsiz ATM', 'Alışveriş koruması', 'Öncelikli destek'],
+    blurb: 'Daha yüksek limit, daha iyi faiz, daha fazla kampanya.',
+    banking: ['ATM 500 €/gün', 'Döviz 5.000 €/ay · %0,35', 'Hisse %0,08', 'Mevduat %36', '20 ücretsiz EFT/ay'],
+    campaigns: ['Migros %4', 'Koç Ailem üye', 'Divan Pastanesi %10', 'Setur %5'],
+    featured: false,
   },
   {
     id: 'premium',
     name: 'Premium',
     monthly: 249,
-    blurb: 'Seyahat ve döviz için en dengeli plan.',
-    perks: [
-      'Sınırsız ücretsiz döviz',
-      'Yurtdışı sağlık sigortası',
-      'LoungeKey erişimi',
-      'Kripto ve hisse alımında düşük komisyon',
-    ],
+    blurb: 'Sınırsız döviz, en yüksek faiz ve tam kampanya paketi.',
+    banking: ['ATM 1.000 €/gün', 'Döviz sınırsız · %0', 'Hisse %0,04', 'Mevduat %38', 'Sınırsız ücretsiz EFT'],
+    campaigns: ['Migros %7', 'Koç Ailem ekstra', 'Divan Pastanesi %15', 'Setur %10'],
     featured: true,
   },
 ]
@@ -48,38 +48,60 @@ export const planColumns: { id: PlanColumnId; name: string }[] = [
 ]
 
 export const comparisonRows: { label: string; group: string; values: Record<PlanColumnId, FeatureValue> }[] = [
-  { label: 'Aylık ücret', group: 'Fiyat', values: { account: '0 ₺', standard: '49 ₺', plus: '99 ₺', premium: '249 ₺' } },
-  { label: 'Hesap açılışı', group: 'Hesap', values: { account: true, standard: true, plus: true, premium: true } },
-  { label: 'Sanal kart', group: 'Kart', values: { account: true, standard: true, plus: true, premium: true } },
+  { label: 'Aylık ücret', group: 'Banka / Saving', values: { account: '0 ₺', standard: '49 ₺', plus: '99 ₺', premium: '249 ₺' } },
   {
-    label: 'Fiziksel kart',
-    group: 'Kart',
-    values: { account: 'İsteğe bağlı', standard: 'Plastik', plus: 'Plus kart', premium: 'Premium kart' },
-  },
-  { label: 'Anlık bildirimler', group: 'Kart', values: { account: true, standard: true, plus: true, premium: true } },
-  {
-    label: 'Ücretsiz döviz',
-    group: 'Döviz',
-    values: { account: '250 €/ay', standard: '1.000 €/ay', plus: '3.000 €/ay', premium: 'Sınırsız' },
+    label: 'Günlük ATM döviz çekimi',
+    group: 'Banka / Saving',
+    values: { account: '100 €/gün', standard: '250 €/gün', plus: '500 €/gün', premium: '1.000 €/gün' },
   },
   {
-    label: 'Döviz makası',
-    group: 'Döviz',
-    values: { account: 'Limit üstü var', standard: 'Limit üstü var', plus: 'Limit üstü var', premium: '%0' },
+    label: 'Aylık döviz alım-satım (indirimli komisyon)',
+    group: 'Banka / Saving',
+    values: { account: '250 €/ay', standard: '1.500 €/ay', plus: '5.000 €/ay', premium: 'Sınırsız' },
   },
   {
-    label: 'ATM çekimi',
-    group: 'Nakit',
-    values: { account: '200 €/ay', standard: '1.000 €/ay', plus: '3.000 €/ay', premium: '800 €/ay yurtdışı' },
+    label: 'Döviz komisyonu (limit içi)',
+    group: 'Banka / Saving',
+    values: { account: '%1,49', standard: '%0,75', plus: '%0,35', premium: '%0' },
   },
-  { label: 'Sınırsız yerel transfer', group: 'Transfer', values: { account: false, standard: false, plus: true, premium: true } },
-  { label: 'Alışveriş koruması', group: 'Koruma', values: { account: false, standard: false, plus: true, premium: true } },
-  { label: 'Öncelikli destek', group: 'Destek', values: { account: false, standard: false, plus: true, premium: true } },
-  { label: 'Seyahat sigortası', group: 'Seyahat', values: { account: false, standard: false, plus: false, premium: true } },
-  { label: 'Lounge erişimi', group: 'Seyahat', values: { account: false, standard: false, plus: false, premium: '2 misafir' } },
   {
-    label: 'Yatırım komisyonu',
-    group: 'Yatırım',
-    values: { account: 'Standart', standard: 'Standart', plus: 'İndirimli', premium: 'Düşük' },
+    label: 'Hisse senedi alım-satım komisyonu',
+    group: 'Banka / Saving',
+    values: { account: '%0,20', standard: '%0,12', plus: '%0,08', premium: '%0,04' },
+  },
+  {
+    label: 'Mevduat faizi (örnek TL)',
+    group: 'Banka / Saving',
+    values: { account: '%32', standard: '%34', plus: '%36', premium: '%38' },
+  },
+  {
+    label: 'Ücretsiz EFT / havale',
+    group: 'Banka / Saving',
+    values: { account: '2 adet/ay', standard: '8 adet/ay', plus: '20 adet/ay', premium: 'Sınırsız' },
+  },
+  {
+    label: 'Migros mağaza',
+    group: 'Kampanya',
+    values: { account: false, standard: '%2 indirim', plus: '%4 indirim', premium: '%7 indirim' },
+  },
+  {
+    label: 'Migros Sanal Market',
+    group: 'Kampanya',
+    values: { account: false, standard: '%2 indirim', plus: '%5 indirim', premium: '%8 indirim' },
+  },
+  {
+    label: 'Koç Ailem',
+    group: 'Kampanya',
+    values: { account: false, standard: false, plus: 'Üyelik', premium: 'Üyelik + ekstra puan' },
+  },
+  {
+    label: 'Divan Pastanesi',
+    group: 'Kampanya',
+    values: { account: false, standard: false, plus: '%10', premium: '%15' },
+  },
+  {
+    label: 'Setur',
+    group: 'Kampanya',
+    values: { account: false, standard: false, plus: '%5 tur', premium: '%10 tur + otel' },
   },
 ]
