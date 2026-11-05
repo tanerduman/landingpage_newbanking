@@ -14,11 +14,14 @@ import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 
 type Filter = 'all' | SignupIntent
 
+const PAGE_SIZE = 10
+
 export default function WaitlistPage() {
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [remote, setRemote] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     async function refresh() {
@@ -48,6 +51,14 @@ export default function WaitlistPage() {
     () => (filter === 'all' ? entries : entries.filter((e) => e.intent === filter)),
     [entries, filter],
   )
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const paged = visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  function changeFilter(next: Filter) {
+    setFilter(next)
+    setPage(1)
+  }
 
   return (
     <div className="page waitlist-page">
@@ -119,7 +130,7 @@ export default function WaitlistPage() {
               key={item.id}
               type="button"
               className={`waitlist-stat ${filter === item.id ? 'active' : ''}`}
-              onClick={() => setFilter(item.id)}
+              onClick={() => changeFilter(item.id)}
             >
               <strong>{counts[item.id]}</strong>
               <span>{item.label}</span>
@@ -145,7 +156,7 @@ export default function WaitlistPage() {
                   </td>
                 </tr>
               ) : (
-                visible.map((row) => (
+                paged.map((row) => (
                   <tr key={row.id}>
                     <td>{formatRequestTime(row.createdAt)}</td>
                     <td>{row.name}</td>
@@ -159,6 +170,31 @@ export default function WaitlistPage() {
             </tbody>
           </table>
         </div>
+        {visible.length > PAGE_SIZE && (
+          <div className="waitlist-pager">
+            <span>
+              {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visible.length)} / {visible.length}
+            </span>
+            <div className="waitlist-pager-btns">
+              <button type="button" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+                Önceki
+              </button>
+              {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={n === currentPage ? 'active' : ''}
+                  onClick={() => setPage(n)}
+                >
+                  {n}
+                </button>
+              ))}
+              <button type="button" disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>
+                Sonraki
+              </button>
+            </div>
+          </div>
+        )}
         <p className="waitlist-note">
           {remote
             ? 'Ziyaretçi sayısı ve talepler ortak veritabanında durur; başka bilgisayarlardan gelen tıklamalar da burada görünür.'
