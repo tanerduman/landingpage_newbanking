@@ -1,3 +1,5 @@
+import { apiFetch, readApiJson } from './api.ts'
+
 export type PlanId = 'standard' | 'plus' | 'premium'
 export type SignupIntent = 'account' | PlanId
 
@@ -38,18 +40,41 @@ export function loadWaitlist(): WaitlistEntry[] {
   }
 }
 
-export function addWaitlistEntry(input: { name: string; email: string; intent: SignupIntent }): WaitlistEntry {
-  const item: WaitlistEntry = {
-    id: crypto.randomUUID(),
+function saveLocal(entries: WaitlistEntry[]) {
+  localStorage.setItem(KEY, JSON.stringify(entries))
+  window.dispatchEvent(new Event('aure-waitlist'))
+}
+
+export async function addWaitlistEntry(input: { name: string; email: string; intent: SignupIntent }) {
+  const payload = {
     name: input.name.trim(),
     email: input.email.trim().toLowerCase(),
     intent: input.intent,
+  }
+  const res = await apiFetch('/api/waitlist', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+  const remote = await readApiJson<{ entry: WaitlistEntry }>(res)
+  if (res?.ok && remote?.entry) {
+    window.dispatchEvent(new Event('aure-waitlist'))
+    return remote.entry
+  }
+
+  const item: WaitlistEntry = {
+    id: crypto.randomUUID(),
+    ...payload,
     createdAt: new Date().toISOString(),
   }
-  const next = [item, ...loadWaitlist()]
-  localStorage.setItem(KEY, JSON.stringify(next))
-  window.dispatchEvent(new Event('aure-waitlist'))
+  saveLocal([item, ...loadWaitlist()])
   return item
+}
+
+export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean }> {
+  const res = await apiFetch('/api/waitlist')
+  const remote = await readApiJson<{ entries: WaitlistEntry[] }>(res)
+  if (res?.ok && remote?.entries) return { entries: remote.entries, remote: true }
+  return { entries: loadWaitlist(), remote: false }
 }
 
 export function countByIntent(entries: WaitlistEntry[]) {

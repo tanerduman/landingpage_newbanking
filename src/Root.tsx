@@ -15,7 +15,7 @@ export default function Root() {
   const [page, setPage] = useState(pageFromLocation)
 
   useEffect(() => {
-    recordVisit()
+    void recordVisit()
     function sync() {
       setPage(pageFromLocation())
     }

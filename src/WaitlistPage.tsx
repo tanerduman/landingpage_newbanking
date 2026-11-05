@@ -6,12 +6,13 @@ import {
   PACKAGE_LABELS,
   countByIntent,
   formatRequestTime,
+  fetchWaitlist,
   loadWaitlist,
   downloadWaitlistExcel,
   type SignupIntent,
   type WaitlistEntry,
 } from './waitlist'
-import { loadVisitStats, type VisitStats } from './visits.ts'
+import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 
 type Filter = 'all' | SignupIntent
 
@@ -23,21 +24,30 @@ export default function WaitlistPage() {
   const [busy, setBusy] = useState(false)
   const [entries, setEntries] = useState<WaitlistEntry[]>(() => (isWaitlistAuthed() ? loadWaitlist() : []))
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
+  const [remote, setRemote] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
 
   useEffect(() => {
     if (!authed) return
-    function refresh() {
-      setEntries(loadWaitlist())
-      setVisits(loadVisitStats())
+    async function refresh() {
+      const [list, stats] = await Promise.all([fetchWaitlist(), fetchVisitStats()])
+      setEntries(list.entries)
+      setRemote(list.remote)
+      setVisits(stats)
     }
-    window.addEventListener('aure-waitlist', refresh)
-    window.addEventListener('aure-visits', refresh)
-    window.addEventListener('storage', refresh)
+    function onRefresh() {
+      void refresh()
+    }
+    void refresh()
+    window.addEventListener('aure-waitlist', onRefresh)
+    window.addEventListener('aure-visits', onRefresh)
+    window.addEventListener('storage', onRefresh)
+    const timer = window.setInterval(onRefresh, 15_000)
     return () => {
-      window.removeEventListener('aure-waitlist', refresh)
-      window.removeEventListener('aure-visits', refresh)
-      window.removeEventListener('storage', refresh)
+      window.removeEventListener('aure-waitlist', onRefresh)
+      window.removeEventListener('aure-visits', onRefresh)
+      window.removeEventListener('storage', onRefresh)
+      window.clearInterval(timer)
     }
   }, [authed])
 
@@ -59,8 +69,10 @@ export default function WaitlistPage() {
       return
     }
     setPassword('')
-    setEntries(loadWaitlist())
-    setVisits(loadVisitStats())
+    const [list, stats] = await Promise.all([fetchWaitlist(), fetchVisitStats()])
+    setEntries(list.entries)
+    setRemote(list.remote)
+    setVisits(stats)
     setAuthed(true)
   }
 
@@ -223,7 +235,9 @@ export default function WaitlistPage() {
             </table>
           </div>
           <p className="waitlist-note">
-            Ziyaretçi sayısı ve talepler bu tarayıcıda tutulur. Yeni sekme bir giriş, ilk ziyaret tekil ziyaretçi sayar.
+            {remote
+              ? 'Ziyaretçi sayısı ve talepler ortak veritabanında durur; başka bilgisayarlardan gelen tıklamalar da burada görünür.'
+              : 'Sunucuya bağlanılamadı. Bu ekran yalnızca bu tarayıcıdaki kayıtları gösteriyor.'}
           </p>
         </main>
       )}

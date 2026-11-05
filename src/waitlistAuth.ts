@@ -1,3 +1,5 @@
+import { apiFetch, readApiJson, setAdminToken } from './api.ts'
+
 const SESSION_KEY = 'aure-waitlist-auth'
 const USERNAME = 'admin'
 const PASSWORD_SHA256 = '1c88f121522221bd8bb119a09ffee582fe3b0b1d49a6b9bb01c56620663f3509'
@@ -14,9 +16,22 @@ export function isWaitlistAuthed() {
 
 export function logoutWaitlist() {
   sessionStorage.removeItem(SESSION_KEY)
+  setAdminToken(null)
 }
 
 export async function loginWaitlist(username: string, password: string) {
+  const res = await apiFetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  })
+  const remote = await readApiJson<{ token?: string; error?: string }>(res)
+  if (res?.ok && remote?.token) {
+    setAdminToken(remote.token)
+    sessionStorage.setItem(SESSION_KEY, 'ok')
+    return true
+  }
+  if (res && (res.status === 401 || res.status === 429)) return false
+
   const userOk = username.trim().toLowerCase() === USERNAME
   const envPassword = import.meta.env.VITE_WAITLIST_PASSWORD
   const passwordOk =

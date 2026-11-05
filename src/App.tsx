@@ -91,7 +91,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [modal, toast])
 
-  function submit(e: FormEvent) {
+  async function submit(e: FormEvent) {
     e.preventDefault()
     if (name.trim().length < 2) {
       setError('Lütfen adını yaz.')
@@ -101,7 +101,7 @@ export default function App() {
       setError('Geçerli bir e-posta gir.')
       return
     }
-    addWaitlistEntry({ name, email, intent })
+    await addWaitlistEntry({ name, email, intent })
     setModal(false)
     setToast(
       intent === 'account'
