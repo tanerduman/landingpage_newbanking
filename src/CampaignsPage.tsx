@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { withBase } from './base.ts'
 import { campaignDetails, planColumns, type PlanColumnId } from './plans.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
+import ThemeToggle from './ThemeToggle.tsx'
 import type { SignupIntent } from './waitlist'
 
 function rateLabel(value: string | boolean) {
@@ -30,6 +31,7 @@ export default function CampaignsPage() {
             AURE
           </a>
           <div className="waitlist-nav-actions">
+            <ThemeToggle />
             <a className="btn btn-ghost" href={withBase('compare')}>
               Karşılaştır
             </a>
