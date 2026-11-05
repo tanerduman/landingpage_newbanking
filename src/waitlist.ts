@@ -40,28 +40,11 @@ export function loadWaitlist(): WaitlistEntry[] {
   }
 }
 
-export async function fetchCaptcha() {
-  const res = await apiFetch('/api/captcha')
-  const data = await readApiJson<{ token: string; question: string; error?: string }>(res)
-  if (!res?.ok || !data?.token || !data.question) {
-    throw new Error(data?.error || 'Güvenlik sorusu yüklenemedi.')
-  }
-  return { token: data.token, question: data.question }
-}
-
-export async function addWaitlistEntry(input: {
-  name: string
-  email: string
-  intent: SignupIntent
-  captchaToken: string
-  captchaAnswer: string
-}) {
+export async function addWaitlistEntry(input: { name: string; email: string; intent: SignupIntent }) {
   const payload = {
     name: input.name.trim(),
     email: input.email.trim().toLowerCase(),
     intent: input.intent,
-    captchaToken: input.captchaToken,
-    captchaAnswer: input.captchaAnswer.trim(),
   }
   const res = await apiFetch('/api/waitlist', {
     method: 'POST',

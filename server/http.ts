@@ -1,4 +1,3 @@
-import { issueCaptcha, verifyCaptcha } from './captcha.ts'
 import { isProduction, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
@@ -8,7 +7,6 @@ const WINDOW_MS = 60_000
 const LIMITS: Record<string, number> = {
   'POST /api/visits': 40,
   'POST /api/waitlist': 12,
-  'GET /api/captcha': 40,
   'POST /api/confirm': 20,
 }
 
@@ -118,11 +116,6 @@ async function handleVisits(request: Request) {
   return json({ ok: true, store: store.kind }, 200, request)
 }
 
-async function handleCaptcha(request: Request) {
-  if (limited(request, 'GET /api/captcha')) return json({ error: 'Çok fazla istek.' }, 429, request)
-  return json(issueCaptcha(), 200, request)
-}
-
 async function handleWaitlist(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
@@ -132,9 +125,6 @@ async function handleWaitlist(request: Request) {
   if (limited(request, 'POST /api/waitlist')) return json({ error: 'Çok fazla istek.' }, 429, request)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
-  const body = parsed.value as { captchaToken?: unknown; captchaAnswer?: unknown } | null
-  const captcha = verifyCaptcha(body?.captchaToken, body?.captchaAnswer)
-  if (captcha !== true) return json({ error: captcha }, 400, request)
   const valid = validateWaitlistInput(parsed.value)
   if (typeof valid === 'string') return json({ error: valid }, 400, request)
   const result = await store.requestWaitlist(valid)
@@ -195,7 +185,6 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
     if (path === '/api/visits' && (request.method === 'GET' || request.method === 'POST')) {
       return handleVisits(request)
     }
-    if (path === '/api/captcha' && request.method === 'GET') return handleCaptcha(request)
     if (path === '/api/waitlist' && (request.method === 'GET' || request.method === 'POST')) {
       return handleWaitlist(request)
     }
