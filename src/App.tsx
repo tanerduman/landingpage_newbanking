@@ -157,10 +157,10 @@ export default function App() {
             <a href="#faq">SSS</a>
           </nav>
           <div className="nav-cta">
-            <a className="btn btn-ghost" href="#plans">
+            <a className="btn btn-solid" href="#plans">
               Paketleri gör
             </a>
-            <button className="btn btn-solid" onClick={openAccount}>
+            <button className="btn btn-ghost" onClick={openAccount}>
               Paketsiz hesap aç
             </button>
             <button className="menu-btn" aria-label="Menü" onClick={() => setMenu((v) => !v)}>
