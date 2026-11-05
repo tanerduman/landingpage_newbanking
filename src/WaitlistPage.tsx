@@ -98,8 +98,8 @@ export default function WaitlistPage() {
             </div>
             <h1>Gelen talepler</h1>
             <p className="lead">
-              Landing’den gelen her kayıt paketine göre burada durur. Üstte siteye giren kişi sayısı, altta paket
-              talepleri var.
+              Yalnızca e-postası onaylanmış talepler burada ve Excel’de durur. Üstte siteye giren kişi sayısı, altta
+              paket talepleri var.
             </p>
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function WaitlistPage() {
         )}
         <p className="waitlist-note">
           {remote
-            ? 'Ziyaretçi sayısı ve talepler ortak veritabanında durur; başka bilgisayarlardan gelen tıklamalar da burada görünür.'
+            ? 'Onaylanmamış kayıtlar listede yok. Aynı e-posta (Gmail nokta/+ varyantları dahil) tek satırdır; paket değişince güncellenir.'
             : 'Sunucuya bağlanılamadı. Bu ekran yalnızca bu tarayıcıdaki kayıtları gösteriyor.'}
         </p>
       </main>

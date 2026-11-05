@@ -67,12 +67,34 @@ export async function addWaitlistEntry(input: {
     method: 'POST',
     body: JSON.stringify(payload),
   })
-  const remote = await readApiJson<{ entry: WaitlistEntry; error?: string }>(res)
-  if (res?.ok && remote?.entry) {
+  const remote = await readApiJson<{
+    pending?: boolean
+    updated?: boolean
+    delivered?: boolean
+    devCode?: string
+    error?: string
+  }>(res)
+  if (res?.ok && remote?.updated) {
     window.dispatchEvent(new Event('aure-waitlist'))
-    return remote.entry
+    return { status: 'updated' as const }
+  }
+  if (res?.ok && remote?.pending) {
+    return { status: 'pending' as const, delivered: Boolean(remote.delivered), devCode: remote.devCode }
   }
   throw new Error(remote?.error || (res ? 'Kayıt alınamadı.' : 'Sunucuya bağlanılamadı.'))
+}
+
+export async function confirmWaitlist(input: { token?: string; email?: string; code?: string }) {
+  const res = await apiFetch('/api/confirm', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+  const remote = await readApiJson<{ confirmed?: boolean; error?: string }>(res)
+  if (res?.ok && remote?.confirmed) {
+    window.dispatchEvent(new Event('aure-waitlist'))
+    return true
+  }
+  throw new Error(remote?.error || (res ? 'Onay başarısız.' : 'Sunucuya bağlanılamadı.'))
 }
 
 export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean }> {

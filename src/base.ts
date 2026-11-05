@@ -43,3 +43,12 @@ export function isCampaignsLocation() {
   const page = pathPage()
   return page === 'campaigns' || page === 'kampanyalar' || isCampaignsHash()
 }
+
+export function isConfirmHash(hash = window.location.hash) {
+  const value = hashValue(hash).split('?')[0]
+  return value === '/confirm' || value === 'confirm'
+}
+
+export function isConfirmLocation() {
+  return pathPage() === 'confirm' || isConfirmHash()
+}

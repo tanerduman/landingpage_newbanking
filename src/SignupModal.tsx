@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { plans } from './plans.ts'
-import { addWaitlistEntry, fetchCaptcha, type SignupIntent } from './waitlist'
+import { addWaitlistEntry, confirmWaitlist, fetchCaptcha, type SignupIntent } from './waitlist'
 
 export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose: (toast?: string) => void }) {
   const [name, setName] = useState('')
@@ -10,6 +10,9 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
   const [captchaAnswer, setCaptchaAnswer] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [phase, setPhase] = useState<'form' | 'code'>('form')
+  const [code, setCode] = useState('')
+  const [devCode, setDevCode] = useState('')
   const plan = plans.find((p) => p.id === intent)
 
   async function loadCaptcha() {
@@ -39,6 +42,27 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
 
   async function submit(e: FormEvent) {
     e.preventDefault()
+    if (phase === 'code') {
+      if (!/^\d{6}$/.test(code.trim())) {
+        setError('E-postadaki 6 haneli kodu yaz.')
+        return
+      }
+      setBusy(true)
+      setError('')
+      try {
+        await confirmWaitlist({ email, code })
+        onClose(
+          intent === 'account'
+            ? 'E-posta onaylandı. Paketsiz hesabın sırada.'
+            : `E-posta onaylandı. ${plan?.name ?? 'Paket'} sırada.`,
+        )
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Onay başarısız.')
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
     if (name.trim().length < 2) {
       setError('Lütfen adını yaz.')
       return
@@ -54,15 +78,16 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
     setBusy(true)
     setError('')
     try {
-      await addWaitlistEntry({ name, email, intent, captchaToken, captchaAnswer })
-      onClose(
-        intent === 'account'
-          ? 'Paketsiz hesabın için sıraya alındın.'
-          : `${plan?.name ?? 'Paket'} için sıraya alındın.`,
-      )
+      const result = await addWaitlistEntry({ name, email, intent, captchaToken, captchaAnswer })
+      if (result.status === 'updated') {
+        onClose('Bu e-posta zaten onaylı; paket tercihin güncellendi.')
+        return
+      }
+      setDevCode(result.devCode || '')
+      setPhase('code')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Kayıt alınamadı.')
-      await loadCaptcha()
+      if (phase === 'form') await loadCaptcha()
     } finally {
       setBusy(false)
     }
@@ -83,49 +108,73 @@ export function SignupModal({ intent, onClose }: { intent: SignupIntent; onClose
           ×
         </button>
         <h3 id="signup-title">
-          {intent === 'account' ? 'Paketsiz hesap aç' : `${plan?.name ?? 'Paket'} paketini ekle`}
+          {phase === 'code'
+            ? 'E-postanı onayla'
+            : intent === 'account'
+              ? 'Paketsiz hesap aç'
+              : `${plan?.name ?? 'Paket'} paketini ekle`}
         </h3>
-        <p>
-          {intent === 'account'
-            ? 'Paket seçmeden, 0 ₺’ye hesap için sıraya yazıl. Adını ve e-postanı bırakman yeterli.'
-            : `Adını ve e-postanı bırak; lansmanda ${plan?.name ?? 'paket'} kotasından yer ayıralım. Hesap yine paketsiz de açılabilir.`}
-        </p>
-        <label htmlFor="full-name">Ad soyad</label>
-        <input id="full-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Yılmaz" />
-        <label htmlFor="email">E-posta</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="ada@email.com"
-        />
-        <label htmlFor="captcha-answer">Güvenlik sorusu</label>
-        <div className="captcha-row">
-          <span className="captcha-q" aria-hidden="true">
-            {captchaQuestion || '…'} = ?
-          </span>
-          <input
-            id="captcha-answer"
-            inputMode="numeric"
-            autoComplete="off"
-            value={captchaAnswer}
-            onChange={(e) => setCaptchaAnswer(e.target.value)}
-            placeholder="Sonuç"
-            aria-label={captchaQuestion ? `${captchaQuestion} kaç eder?` : 'Güvenlik sorusu'}
-          />
-          <button type="button" className="btn btn-ghost captcha-refresh" onClick={() => void loadCaptcha()}>
-            Yenile
-          </button>
-        </div>
+        {phase === 'form' ? (
+          <>
+            <p>
+              {intent === 'account'
+                ? 'Kayıt e-posta onayından sonra waitlist’e düşer. Adını ve e-postanı bırak.'
+                : `Adını ve e-postanı bırak. Onay linki veya kod gelmeden ${plan?.name ?? 'paket'} talebi listeye yazılmaz.`}
+            </p>
+            <label htmlFor="full-name">Ad soyad</label>
+            <input id="full-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Yılmaz" />
+            <label htmlFor="email">E-posta</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="ada@email.com"
+            />
+            <label htmlFor="captcha-answer">Güvenlik sorusu</label>
+            <div className="captcha-row">
+              <span className="captcha-q" aria-hidden="true">
+                {captchaQuestion || '…'} = ?
+              </span>
+              <input
+                id="captcha-answer"
+                inputMode="numeric"
+                autoComplete="off"
+                value={captchaAnswer}
+                onChange={(e) => setCaptchaAnswer(e.target.value)}
+                placeholder="Sonuç"
+                aria-label={captchaQuestion ? `${captchaQuestion} kaç eder?` : 'Güvenlik sorusu'}
+              />
+              <button type="button" className="btn btn-ghost captcha-refresh" onClick={() => void loadCaptcha()}>
+                Yenile
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>
+              {email} adresine 6 haneli kod ve onay bağlantısı gönderdik. Listeye ancak onaydan sonra düşersin.
+            </p>
+            <label htmlFor="confirm-code">Onay kodu</label>
+            <input
+              id="confirm-code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="123456"
+            />
+            {devCode ? <p className="captcha-dev">Geliştirme kodu: {devCode}</p> : null}
+          </>
+        )}
         {error && (
           <p className="login-error" style={{ marginBottom: 0 }}>
             {error}
           </p>
         )}
         <div className="modal-actions">
-          <button type="submit" className="btn btn-solid" disabled={busy || !captchaToken}>
-            Kaydı tamamla
+          <button type="submit" className="btn btn-solid" disabled={busy || (phase === 'form' && !captchaToken)}>
+            {phase === 'code' ? 'Onayla' : 'Kodu gönder'}
           </button>
           <button type="button" className="btn btn-ghost" onClick={() => onClose()}>
             Vazgeç
