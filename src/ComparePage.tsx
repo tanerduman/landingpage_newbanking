@@ -61,8 +61,8 @@ export default function ComparePage() {
             </div>
             <h1>Paketleri karşılaştır.</h1>
             <p className="lead">
-              Paketsiz hesap, Standard, Plus ve Premium özelliklerini yan yana gör. Sütunları kapatıp yalnızca farklara
-              inebilirsin.
+              Özellikler iki blokta: Banka / Saving (ATM, döviz, hisse, mevduat, EFT) ve Kampanya (Migros, Koç Ailem,
+              Divan, Setur).
             </p>
           </div>
         </div>

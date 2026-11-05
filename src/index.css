@@ -467,7 +467,7 @@ h3 {
   border-radius: 24px;
   padding: 22px;
   cursor: pointer;
-  min-height: 430px;
+  min-height: 520px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -520,12 +520,25 @@ h3 {
   font-family: Figtree, sans-serif;
 }
 
+.perk-heading {
+  margin: 10px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lime);
+}
+
+.plan-card.selected .perk-heading {
+  color: var(--lime);
+}
+
 .plan-card ul {
-  margin: 8px 0 0;
+  margin: 4px 0 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 8px;
+  gap: 6px;
   color: var(--muted);
   font-size: 14px;
 }

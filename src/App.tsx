@@ -19,8 +19,12 @@ const faqs = [
     a: 'Evet. Paketsiz hesaptan Standard, Plus veya Premium’a anında geçebilir, dönem sonunda paketi iptal edip yine ücretsiz hesaba dönebilirsin. Yıllık planda kalan günler sonraki faturaya kredi olarak yansır.',
   },
   {
-    q: 'Döviz ücreti nasıl işler?',
-    a: 'Hafta içi piyasa kuruna yakın fiyatlanır. Paketsiz hesap, Standard ve Plus’ta aylık ücretsiz döviz limiti vardır; limiti aşınca küçük bir makas uygulanır. Premium’da döviz limitsiz ve ücretsizdir.',
+    q: 'Döviz ve ATM limitleri nasıl işler?',
+    a: 'Her pakette günlük ATM döviz çekimi ve aylık indirimli döviz alım-satım limiti vardır. Limit içinde komisyon düşer; Premium’da döviz komisyonu %0 ve limit sınırsızdır. Limit üstünde standart tarife uygulanır.',
+  },
+  {
+    q: 'Kampanyalar nasıl kullanılır?',
+    a: 'Paket kampanyaları kartınla Migros, Migros Sanal Market, Koç Ailem, Divan Pastanesi ve Setur’da geçer. İndirim oranı paketine göredir; paketsiz hesapta bu kampanyalar kapalıdır.',
   },
 ]
 
@@ -247,8 +251,8 @@ export default function App() {
                 <span className="badge">Paket şart değil</span>
                 <h2>Önce hesabını aç. Paketi sonra düşün.</h2>
                 <p>
-                  Paketsiz hesap 0 ₺. Transfer, sanal kart ve temel döviz yeter. Limit, sigorta veya lounge istediğinde
-                  Standard, Plus ya da Premium’u tek dokunuşla ekle.
+                  Paketsiz hesap 0 ₺. Limit, faiz ve kampanya (Migros, Divan, Setur) istediğinde Standard, Plus veya
+                  Premium ekle.
                 </p>
               </div>
               <button className="btn btn-dark" onClick={openAccount}>
@@ -290,8 +294,15 @@ export default function App() {
                     <span> {period}</span>
                   </div>
                   <p style={{ margin: 0, color: 'inherit', opacity: 0.75 }}>{plan.blurb}</p>
+                  <p className="perk-heading">Banka / Saving</p>
                   <ul>
-                    {plan.perks.map((perk) => (
+                    {plan.banking.map((perk) => (
+                      <li key={perk}>{perk}</li>
+                    ))}
+                  </ul>
+                  <p className="perk-heading">Kampanya</p>
+                  <ul>
+                    {plan.campaigns.map((perk) => (
                       <li key={perk}>{perk}</li>
                     ))}
                   </ul>
@@ -321,30 +332,30 @@ export default function App() {
               </div>
               <h2>Harca, çevir, biriktir, yatırıma geç.</h2>
               <p className="lead">
-                Paketsiz hesap temel nakit ve kartı açar. Üyelik ekledikçe döviz limiti, sigorta ve lounge gibi yaşam
-                ayrıcalıkları devreye girer — hesap her zaman senin kalır.
+                Paketsiz hesap temel nakit ve kartı açar. Üyelik ekledikçe ATM ve döviz limitleri, mevduat faizi, hisse
+                komisyonu ve Migros–Setur kampanyaları açılır.
               </p>
             </div>
             <div className="feature-grid">
               <article className="feature-tile">
                 <div className="icon">Fx</div>
                 <h3>Döviz</h3>
-                <p>Hafta içi piyasa kuruna yakın çevir. Premium’da makas yok.</p>
+                <p>Aylık indirimli döviz kotası. Premium’da komisyon %0.</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">%</div>
-                <h3>Kasa</h3>
-                <p>Günlük faizlenen kasalar; paketsiz hesapta da açık.</p>
+                <h3>Mevduat</h3>
+                <p>Paket yükseldikçe TL mevduat faizi artar.</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">↑</div>
-                <h3>Yatırım</h3>
-                <p>Hisse ve kripto. Paketle komisyon düşer, anlık al-sat açılır.</p>
+                <h3>Hisse</h3>
+                <p>Alım-satım komisyonu Standard’dan Premium’a kademeli düşer.</p>
               </article>
               <article className="feature-tile">
-                <div className="icon">✈</div>
-                <h3>Seyahat</h3>
-                <p>Sigorta ve lounge Premium’da. Kartını uçağa binmeden dondur.</p>
+                <div className="icon">🛒</div>
+                <h3>Kampanya</h3>
+                <p>Migros, Koç Ailem, Divan Pastanesi ve Setur indirimleri.</p>
               </article>
             </div>
           </div>
@@ -404,7 +415,7 @@ export default function App() {
           <div className="wrap">
             <div className="section-head">
               <h2>Paketsiz hesap da bir seçenek.</h2>
-              <p>Tüm özellikleri yan yana görmek için Compare plans sayfasına geç.</p>
+              <p>Banka / Saving ve Kampanya satırlarını Compare plans’te yan yana gör.</p>
             </div>
             <div className="table-wrap">
               <table>
@@ -419,7 +430,7 @@ export default function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {comparisonRows.slice(0, 8).map((row) => (
+                  {comparisonRows.map((row) => (
                     <tr key={row.label}>
                       <td>{row.label}</td>
                       {planColumns.map((col) => (
@@ -444,23 +455,23 @@ export default function App() {
           <div className="wrap">
             <div className="section-head">
               <h2>Paket, hesabın üstüne biner.</h2>
-              <p>Hesabı kaybetmezsin. Premium seyahati açar; Plus limiti; Standard günlük konforu.</p>
+              <p>Banka tarafında limit ve faiz; kampanyada Migros, Divan ve Setur.</p>
             </div>
             <div className="lifestyle">
               <article className="life-card a">
-                <span>Paketsiz</span>
-                <h3>Hesap + sanal kart</h3>
-                <p>IBAN ve uygulama ücretsiz. Harcamaya hemen başla, paket sonra.</p>
+                <span>Banka / Saving</span>
+                <h3>ATM, döviz, faiz</h3>
+                <p>Günlük döviz ATM, indirimli kur kotası, hisse komisyonu ve daha yüksek mevduat.</p>
               </article>
               <article className="life-card b">
-                <span>Premium</span>
-                <h3>LoungeKey</h3>
-                <p>Gidiş-dönüşte salon. Misafir hakkın pakete göre artar.</p>
+                <span>Kampanya</span>
+                <h3>Migros · Divan · Setur</h3>
+                <p>Market, pastane ve tatil indirimleri paketine göre açılır.</p>
               </article>
               <article className="life-card c">
-                <span>Tüm hesaplar</span>
-                <h3>Anında dondur</h3>
-                <p>Kart kaybolduysa uygulamadan kapat. Sanal kart 30 saniyede yenilenir.</p>
+                <span>Transfer</span>
+                <h3>Ücretsiz EFT hakkı</h3>
+                <p>Paketsiz 2 adet/ay; Premium’da sayı sınırsız.</p>
               </article>
             </div>
           </div>
