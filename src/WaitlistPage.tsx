@@ -10,6 +10,7 @@ import {
   type SignupIntent,
   type WaitlistEntry,
 } from './waitlist'
+import ThemeToggle from './ThemeToggle.tsx'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 import WaitlistPie from './WaitlistPie.tsx'
 
@@ -83,6 +84,7 @@ export default function WaitlistPage() {
             >
               Excel’e aktar
             </button>
+            <ThemeToggle />
             <a className="btn btn-ghost" href={withBase()}>
               Siteye dön
             </a>

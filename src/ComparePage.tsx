@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { withBase } from './base.ts'
 import { comparisonRows, planColumns, type FeatureValue } from './plans.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
+import ThemeToggle from './ThemeToggle.tsx'
 import type { SignupIntent } from './waitlist'
 
 const ICONS: Record<string, string> = {
@@ -37,6 +38,7 @@ export default function ComparePage() {
             AURE
           </a>
           <div className="waitlist-nav-actions">
+            <ThemeToggle />
             <a className="btn btn-ghost" href={withBase('campaigns')}>
               Kampanyalar
             </a>

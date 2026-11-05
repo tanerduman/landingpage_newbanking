@@ -4,6 +4,7 @@ import CampaignsPage from './CampaignsPage.tsx'
 import ComparePage from './ComparePage.tsx'
 import WaitlistPage from './WaitlistPage.tsx'
 import { isCampaignsLocation, isCompareLocation, isWaitlistLocation } from './base.ts'
+import { ThemeProvider } from './theme-context.tsx'
 import { recordVisit } from './visits.ts'
 
 function pageFromLocation() {
@@ -29,8 +30,16 @@ export default function Root() {
     }
   }, [])
 
-  if (page === 'waitlist') return <WaitlistPage />
-  if (page === 'compare') return <ComparePage />
-  if (page === 'campaigns') return <CampaignsPage />
-  return <App />
+  const view =
+    page === 'waitlist' ? (
+      <WaitlistPage />
+    ) : page === 'compare' ? (
+      <ComparePage />
+    ) : page === 'campaigns' ? (
+      <CampaignsPage />
+    ) : (
+      <App />
+    )
+
+  return <ThemeProvider>{view}</ThemeProvider>
 }
