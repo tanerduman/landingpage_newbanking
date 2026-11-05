@@ -125,7 +125,7 @@ export default function App() {
             <a href="#plans">Paketler</a>
             <a href="#features">Özellikler</a>
             <a href="#app">Uygulama</a>
-            <a href="#/compare">Karşılaştır</a>
+            <a href={withBase('compare')}>Karşılaştır</a>
             <a href="#faq">SSS</a>
           </nav>
           <div className="nav-cta">
@@ -150,7 +150,7 @@ export default function App() {
           <a href="#app" onClick={() => setMenu(false)}>
             Uygulama
           </a>
-          <a href="#/compare" onClick={() => setMenu(false)}>
+          <a href={withBase('compare')} onClick={() => setMenu(false)}>
             Karşılaştır
           </a>
           <a href="#faq" onClick={() => setMenu(false)}>
@@ -450,7 +450,7 @@ export default function App() {
               </table>
             </div>
             <p style={{ marginTop: 18 }}>
-              <a className="btn btn-solid" href="#/compare">
+              <a className="btn btn-solid" href={withBase('compare')}>
                 Tüm özellikleri karşılaştır
               </a>
             </p>
@@ -522,7 +522,8 @@ export default function App() {
         <div className="wrap foot">
           <span>© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.</span>
           <span>
-            Paketsiz hesap · Standard · Plus · Premium
+            Paketsiz hesap · Standard · Plus · Premium ·{' '}
+            <a href={withBase('waitlist')}>Waiting list</a>
           </span>
         </div>
       </footer>

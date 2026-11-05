@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react'
 import App from './App.tsx'
 import ComparePage from './ComparePage.tsx'
 import WaitlistPage from './WaitlistPage.tsx'
-import { isCompareHash, isWaitlistHash } from './base.ts'
+import { isCompareLocation, isWaitlistLocation } from './base.ts'
 import { recordVisit } from './visits.ts'
 
 function pageFromLocation() {
-  if (isWaitlistHash()) return 'waitlist'
-  if (isCompareHash()) return 'compare'
+  if (isWaitlistLocation()) return 'waitlist'
+  if (isCompareLocation()) return 'compare'
   return 'home'
 }
 

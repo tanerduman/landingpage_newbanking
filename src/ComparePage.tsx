@@ -27,23 +27,11 @@ export default function ComparePage() {
     <div className="page compare-shell">
       <header className="nav compare-nav">
         <div className="wrap nav-inner">
-          <a
-            className="logo"
-            href={withBase()}
-            onClick={() => {
-              window.location.hash = ''
-            }}
-          >
+          <a className="logo" href={withBase()}>
             <span className="logo-mark">A</span>
             AURE
           </a>
-          <a
-            className="btn btn-ghost"
-            href={withBase()}
-            onClick={() => {
-              window.location.hash = ''
-            }}
-          >
+          <a className="btn btn-ghost" href={withBase()}>
             Siteye dön
           </a>
         </div>

@@ -89,7 +89,7 @@ export default function WaitlistPage() {
     <div className="page waitlist-page">
       <header className="nav">
         <div className="wrap nav-inner">
-          <a className="logo" href={withBase()} onClick={() => { window.location.hash = '' }}>
+          <a className="logo" href={withBase()}>
             <span className="logo-mark">A</span>
             AURE
           </a>
@@ -114,7 +114,7 @@ export default function WaitlistPage() {
                 Çıkış
               </button>
             )}
-            <a className="btn btn-ghost" href={withBase()} onClick={() => { window.location.hash = '' }}>
+            <a className="btn btn-ghost" href={withBase()}>
               Siteye dön
             </a>
           </div>
