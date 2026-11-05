@@ -300,7 +300,13 @@ export default function App() {
                       <li key={perk}>{perk}</li>
                     ))}
                   </ul>
-                  <p className="perk-heading">Kampanya</p>
+                  <p className="perk-heading">Seyahat</p>
+                  <ul>
+                    {plan.travel.map((perk) => (
+                      <li key={perk}>{perk}</li>
+                    ))}
+                  </ul>
+                  <p className="perk-heading">Marka işbirlikleri</p>
                   <ul>
                     {plan.campaigns.map((perk) => (
                       <li key={perk}>{perk}</li>
