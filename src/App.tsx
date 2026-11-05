@@ -316,7 +316,7 @@ export default function App() {
                   Premium ekle.
                 </p>
               </div>
-              <button className="btn btn-dark" onClick={openAccount}>
+              <button className="btn btn-solid" onClick={openAccount}>
                 Ücretsiz hesap aç
               </button>
             </div>
