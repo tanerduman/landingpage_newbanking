@@ -1030,6 +1030,108 @@ footer {
   background: #101012;
 }
 
+.waitlist-pie-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 22px 24px;
+  margin: 0 0 24px;
+}
+
+.waitlist-pie-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lime);
+}
+
+.waitlist-pie-card h2 {
+  margin: 0 0 18px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.waitlist-pie-body {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: center;
+}
+
+.waitlist-pie-chart {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+}
+
+.waitlist-pie-chart svg {
+  width: 180px;
+  height: 180px;
+}
+
+.waitlist-pie-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.waitlist-pie-center strong {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.waitlist-pie-center span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.waitlist-pie-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.waitlist-pie-legend button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: #101012;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.waitlist-pie-legend button.active {
+  box-shadow: 0 0 0 2px var(--lime);
+}
+
+.waitlist-pie-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 99px;
+}
+
+.waitlist-pie-legend b {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
 .pkg-pill {
   display: inline-flex;
   padding: 4px 10px;
@@ -1544,7 +1646,8 @@ footer {
   .waitlist-stats,
   .traffic-stats,
   .fx-grid,
-  .campaign-card {
+  .campaign-card,
+  .waitlist-pie-body {
     grid-template-columns: 1fr;
   }
 

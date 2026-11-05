@@ -11,6 +11,7 @@ import {
   type WaitlistEntry,
 } from './waitlist'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
+import WaitlistPie from './WaitlistPie.tsx'
 
 type Filter = 'all' | SignupIntent
 
@@ -137,6 +138,13 @@ export default function WaitlistPage() {
             </button>
           ))}
         </div>
+
+        <WaitlistPie
+          counts={counts}
+          total={entries.length}
+          active={filter}
+          onSelect={changeFilter}
+        />
 
         <div className="table-wrap">
           <table>
