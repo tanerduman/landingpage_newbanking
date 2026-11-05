@@ -1,5 +1,3 @@
-import { requireIdentity } from '../cursor/identity.ts'
-import { adminConfigured, issueToken, passwordMatches } from './auth.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
 const buckets = new Map<string, { count: number; start: number }>()
@@ -7,10 +5,10 @@ const WINDOW_MS = 60_000
 const LIMITS: Record<string, number> = {
   'POST /api/visits': 40,
   'POST /api/waitlist': 12,
-  'POST /api/login': 20,
 }
 
 const ALLOWED_ORIGINS = new Set([
+  'https://tanerduman.github.io',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:4173',
@@ -71,37 +69,13 @@ async function readJson(request: Request) {
   }
 }
 
-async function requireViewer(request: Request) {
-  return requireIdentity(request)
-}
-
 async function handleHealth(request: Request) {
   return json({ ok: true, store: getStore().kind }, 200, request)
-}
-
-async function handleLogin(request: Request) {
-  if (limited(request, 'POST /api/login')) return json({ error: 'Çok fazla deneme.' }, 429, request)
-  if (!adminConfigured()) {
-    return json({ error: 'Yönetici girişi yapılandırılmamış.' }, 503, request)
-  }
-  const parsed = await readJson(request)
-  if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
-  const body = parsed.value as { username?: unknown; password?: unknown } | null
-  const username = typeof body?.username === 'string' ? body.username : ''
-  const password = typeof body?.password === 'string' ? body.password : ''
-  if (!passwordMatches(username, password)) {
-    return json({ error: 'Kullanıcı adı veya şifre hatalı.' }, 401, request)
-  }
-  const token = issueToken()
-  if (!token) return json({ error: 'Yönetici girişi yapılandırılmamış.' }, 503, request)
-  return json({ token, store: getStore().kind }, 200, request)
 }
 
 async function handleVisits(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    const viewer = await requireViewer(request)
-    if (viewer instanceof Response) return viewer
     const stats = await store.getStats()
     return json({ ...stats, store: store.kind }, 200, request)
   }
@@ -121,8 +95,6 @@ async function handleVisits(request: Request) {
 async function handleWaitlist(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    const viewer = await requireViewer(request)
-    if (viewer instanceof Response) return viewer
     const entries = await store.listWaitlist()
     return json({ entries, store: store.kind }, 200, request)
   }
@@ -147,7 +119,6 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
 
   try {
     if (path === '/api/health' && request.method === 'GET') return handleHealth(request)
-    if (path === '/api/login' && request.method === 'POST') return handleLogin(request)
     if (path === '/api/visits' && (request.method === 'GET' || request.method === 'POST')) {
       return handleVisits(request)
     }

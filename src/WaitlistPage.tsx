@@ -161,7 +161,7 @@ export default function WaitlistPage() {
         </div>
         <p className="waitlist-note">
           {remote
-            ? 'Ziyaretçi sayısı ve talepler ortak veritabanında durur. Listeyi yalnızca bu uygulamayı açabilen hesap görür.'
+            ? 'Ziyaretçi sayısı ve talepler ortak veritabanında durur; başka bilgisayarlardan gelen tıklamalar da burada görünür.'
             : 'Sunucuya bağlanılamadı. Bu ekran yalnızca bu tarayıcıdaki kayıtları gösteriyor.'}
         </p>
       </main>
