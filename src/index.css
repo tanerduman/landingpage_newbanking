@@ -396,7 +396,7 @@ h3 {
   gap: 42px;
   width: max-content;
   min-width: 200%;
-  animation: slide 10s linear infinite;
+  animation: slide 14s linear infinite;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
