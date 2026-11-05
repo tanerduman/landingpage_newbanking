@@ -40,34 +40,39 @@ export function loadWaitlist(): WaitlistEntry[] {
   }
 }
 
-function saveLocal(entries: WaitlistEntry[]) {
-  localStorage.setItem(KEY, JSON.stringify(entries))
-  window.dispatchEvent(new Event('aure-waitlist'))
+export async function fetchCaptcha() {
+  const res = await apiFetch('/api/captcha')
+  const data = await readApiJson<{ token: string; question: string; error?: string }>(res)
+  if (!res?.ok || !data?.token || !data.question) {
+    throw new Error(data?.error || 'Güvenlik sorusu yüklenemedi.')
+  }
+  return { token: data.token, question: data.question }
 }
 
-export async function addWaitlistEntry(input: { name: string; email: string; intent: SignupIntent }) {
+export async function addWaitlistEntry(input: {
+  name: string
+  email: string
+  intent: SignupIntent
+  captchaToken: string
+  captchaAnswer: string
+}) {
   const payload = {
     name: input.name.trim(),
     email: input.email.trim().toLowerCase(),
     intent: input.intent,
+    captchaToken: input.captchaToken,
+    captchaAnswer: input.captchaAnswer.trim(),
   }
   const res = await apiFetch('/api/waitlist', {
     method: 'POST',
     body: JSON.stringify(payload),
   })
-  const remote = await readApiJson<{ entry: WaitlistEntry }>(res)
+  const remote = await readApiJson<{ entry: WaitlistEntry; error?: string }>(res)
   if (res?.ok && remote?.entry) {
     window.dispatchEvent(new Event('aure-waitlist'))
     return remote.entry
   }
-
-  const item: WaitlistEntry = {
-    id: crypto.randomUUID(),
-    ...payload,
-    createdAt: new Date().toISOString(),
-  }
-  saveLocal([item, ...loadWaitlist()])
-  return item
+  throw new Error(remote?.error || (res ? 'Kayıt alınamadı.' : 'Sunucuya bağlanılamadı.'))
 }
 
 export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean }> {

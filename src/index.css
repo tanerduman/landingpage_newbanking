@@ -944,6 +944,31 @@ footer {
   padding: 12px 14px;
 }
 
+.captcha-row {
+  display: grid;
+  grid-template-columns: minmax(92px, auto) 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.captcha-q {
+  display: grid;
+  place-items: center;
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--lime);
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+}
+
+.captcha-refresh {
+  padding: 12px 14px;
+}
+
 .modal-actions {
   display: flex;
   gap: 10px;
@@ -1663,6 +1688,14 @@ footer {
 }
 
 @media (max-width: 640px) {
+  .captcha-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .captcha-q {
+    grid-column: 1 / -1;
+  }
+
   .plans,
   .lifestyle,
   .feature-grid,
