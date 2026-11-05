@@ -27,6 +27,7 @@ type Store = {
   }): Promise<WaitlistRequest>
   confirmWaitlist(input: { token?: string; email?: string; code?: string }): Promise<WaitlistRow | string>
   listWaitlist(): Promise<WaitlistRow[]>
+  isConfirmed(emailNorm: string): Promise<boolean>
 }
 
 type WaitlistRecord = WaitlistRow & {
@@ -160,6 +161,9 @@ function memoryStore(): Store {
     },
     async listWaitlist() {
       return data.waitlist.filter((row) => row.confirmed).map(publicRow)
+    },
+    async isConfirmed(emailNorm) {
+      return data.waitlist.some((row) => row.emailNorm === emailNorm && row.confirmed)
     },
   }
 }
@@ -404,6 +408,14 @@ function postgresStore(url: string): Store {
         cycle: isBillingCycle(row.cycle) ? row.cycle : 'monthly',
         createdAt: new Date(row.created_at).toISOString(),
       }))
+    },
+    async isConfirmed(emailNorm) {
+      await ensure()
+      const result = await pool.query<{ n: string }>(
+        'SELECT COUNT(*)::text AS n FROM waitlist WHERE email_norm = $1 AND confirmed = TRUE',
+        [emailNorm],
+      )
+      return Number(result.rows[0]?.n ?? 0) > 0
     },
   }
 }
