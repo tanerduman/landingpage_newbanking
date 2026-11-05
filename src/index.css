@@ -395,7 +395,8 @@ h3 {
   display: flex;
   gap: 42px;
   width: max-content;
-  animation: slide 28s linear infinite;
+  min-width: 200%;
+  animation: slide 10s linear infinite;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;

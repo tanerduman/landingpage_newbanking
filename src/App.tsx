@@ -291,14 +291,17 @@ export default function App() {
 
         <div className="marquee" aria-hidden="true">
           <div className="marquee-track">
-            {(fx.length
-              ? [...fx, ...fx]
-                  .filter((row) => (fxBases as readonly string[]).includes(row.base))
-                  .map((row) => `${row.base}/${row.quote} ${formatFx(row.rate)}`)
-              : [...fxBases, ...fxBases].map((c) => `${c}/TRY`)
-            ).map((label, i) => (
-              <span key={`${label}-${i}`}>{label}</span>
-            ))}
+            {Array.from({ length: 10 }, () =>
+              fx.length
+                ? fx
+                    .filter((row) => (fxBases as readonly string[]).includes(row.base))
+                    .map((row) => `${row.base}/${row.quote} ${formatFx(row.rate)}`)
+                : fxBases.map((c) => `${c}/TRY`),
+            )
+              .flat()
+              .map((label, i) => (
+                <span key={`${label}-${i}`}>{label}</span>
+              ))}
           </div>
         </div>
 
