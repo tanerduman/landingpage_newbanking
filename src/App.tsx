@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import { comparisonRows, planColumns, plans } from './plans.ts'
+import { apiFetch, readApiJson } from './api.ts'
 import { addWaitlistEntry, type PlanId, type SignupIntent } from './waitlist'
 
 type Cycle = 'monthly' | 'yearly'
@@ -30,6 +31,12 @@ const faqs = [
 
 const currencies = ['EUR', 'USD', 'GBP', 'TRY', 'CHF', 'JPY', 'AUD', 'CAD', 'NOK', 'SEK', 'AED', 'PLN']
 
+type FxQuote = { base: string; quote: string; rate: number }
+
+function formatFx(rate: number) {
+  return rate.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })
+}
+
 function formatPrice(amount: number, cycle: Cycle) {
   const value = cycle === 'yearly' ? Math.round(amount * 10) : amount
   return `${value.toLocaleString('tr-TR')} ₺`
@@ -52,6 +59,8 @@ export default function App() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
+  const [fx, setFx] = useState<FxQuote[]>([])
+  const [fxError, setFxError] = useState('')
 
   const period = cycle === 'yearly' ? '/yıl' : '/ay'
   const selectedPlan = useMemo(() => plans.find((p) => p.id === selected), [selected])
@@ -77,6 +86,25 @@ export default function App() {
   function closeToast() {
     setToast(null)
   }
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadFx() {
+      const res = await apiFetch('/api/rates')
+      const data = await readApiJson<{ quotes?: FxQuote[]; error?: string }>(res)
+      if (cancelled) return
+      if (res?.ok && data?.quotes?.length) {
+        setFx(data.quotes)
+        setFxError('')
+        return
+      }
+      setFxError(data?.error || 'unavailable')
+    }
+    void loadFx()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (!modal && !toast) return
@@ -236,10 +264,35 @@ export default function App() {
           </div>
         </div>
 
+        <div className="fx-board wrap">
+          <div className="fx-head">
+            <span className="eyebrow">
+              <span className="dot" /> Anlık kur
+            </span>
+            <p>USD, EUR, GBP ve CHF — TRY karşılığı. Makas Premium’da kapanır.</p>
+          </div>
+          <div className="fx-grid">
+            {(fx.length ? fx : ['USD', 'EUR', 'GBP', 'CHF'].map((base) => ({ base, quote: 'TRY', rate: 0 }))).map(
+              (row) => (
+                <div key={row.base} className="fx-card">
+                  <span>
+                    {row.base}/{row.quote}
+                  </span>
+                  <strong>{row.rate ? formatFx(row.rate) : '—'}</strong>
+                </div>
+              ),
+            )}
+          </div>
+          {fxError && <p className="fx-error">Kurlar alınamadı ({fxError}).</p>}
+        </div>
+
         <div className="marquee" aria-hidden="true">
           <div className="marquee-track">
-            {[...currencies, ...currencies].map((c, i) => (
-              <span key={`${c}-${i}`}>{c} · anlık kur</span>
+            {(fx.length
+              ? [...fx, ...fx].map((row) => `${row.base}/${row.quote} ${formatFx(row.rate)}`)
+              : [...currencies, ...currencies].map((c) => `${c} · anlık kur`)
+            ).map((label, i) => (
+              <span key={`${label}-${i}`}>{label}</span>
             ))}
           </div>
         </div>

@@ -1,8 +1,9 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig, type PreviewServer, type ViteDevServer } from 'vite'
+import { defineConfig, loadEnv, type PreviewServer, type ViteDevServer } from 'vite'
 import { handleApiRequest, nodeToWebRequest, writeNodeResponse } from './server/http.ts'
 
-function apiPlugin() {
+function apiPlugin(env: Record<string, string>) {
+  if (env.FREECURRENCYAPI_KEY) process.env.FREECURRENCYAPI_KEY = env.FREECURRENCYAPI_KEY
   async function attach(server: ViteDevServer | PreviewServer) {
     server.middlewares.use(async (req, res, next) => {
       if (!req.url?.startsWith('/api')) {
@@ -32,8 +33,10 @@ function apiPlugin() {
   }
 }
 
-export default defineConfig({
-  plugins: [react(), apiPlugin()],
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  return {
+  plugins: [react(), apiPlugin(env)],
   base: process.env.GITHUB_PAGES === '1' ? '/landingpage_newbanking/' : '/',
   server: {
     host: true,
@@ -43,4 +46,5 @@ export default defineConfig({
     host: true,
     port: 4173,
   },
+}
 })

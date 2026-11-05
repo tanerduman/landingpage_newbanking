@@ -332,6 +332,58 @@ h3 {
   bottom: 64px;
 }
 
+.fx-board {
+  padding: 28px 0 8px;
+}
+
+.fx-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.fx-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.fx-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.fx-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+
+.fx-card span {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fx-card strong {
+  display: block;
+  margin-top: 6px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 28px;
+}
+
+.fx-error {
+  color: #ffb4a8;
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
 .marquee {
   border-block: 1px solid var(--line);
   overflow: hidden;
@@ -1358,7 +1410,8 @@ footer {
   .stats,
   .phones,
   .waitlist-stats,
-  .traffic-stats {
+  .traffic-stats,
+  .fx-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -1380,7 +1433,8 @@ footer {
   .stats,
   .phones,
   .waitlist-stats,
-  .traffic-stats {
+  .traffic-stats,
+  .fx-grid {
     grid-template-columns: 1fr;
   }
 

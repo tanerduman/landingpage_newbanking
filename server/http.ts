@@ -1,3 +1,4 @@
+import { getFxRates } from './fx.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
 const buckets = new Map<string, { count: number; start: number }>()
@@ -84,6 +85,14 @@ async function handleHealth(request: Request) {
   return json({ ok: true, store: getStore().kind }, 200, request)
 }
 
+async function handleRates(request: Request) {
+  const result = await getFxRates()
+  if (!result.ok) {
+    return json({ error: result.code }, result.status, request)
+  }
+  return json(result.payload, 200, request)
+}
+
 async function handleVisits(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
@@ -130,6 +139,7 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
 
   try {
     if (path === '/api/health' && request.method === 'GET') return handleHealth(request)
+    if (path === '/api/rates' && request.method === 'GET') return handleRates(request)
     if (path === '/api/visits' && (request.method === 'GET' || request.method === 'POST')) {
       return handleVisits(request)
     }
