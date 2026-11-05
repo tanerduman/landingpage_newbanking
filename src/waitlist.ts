@@ -98,15 +98,75 @@ export async function addWaitlistEntry(input: {
   throw new Error(remote?.error || (res ? 'Kayıt alınamadı.' : 'Sunucuya bağlanılamadı.'))
 }
 
+const CONFIRMED_KEY = 'aure-waitlist-confirmed'
+const CONFIRMED_CHANNEL = 'aure-waitlist'
+
+export function announceConfirmed(email: string) {
+  const normalized = email.trim().toLowerCase()
+  try {
+    localStorage.setItem(CONFIRMED_KEY, JSON.stringify({ email: normalized, at: Date.now() }))
+  } catch {
+    /* ignore */
+  }
+  window.dispatchEvent(new Event('aure-waitlist'))
+  try {
+    const channel = new BroadcastChannel(CONFIRMED_CHANNEL)
+    channel.postMessage({ type: 'confirmed', email: normalized })
+    channel.close()
+  } catch {
+    /* ignore */
+  }
+}
+
+export function onWaitlistConfirmed(email: string, callback: () => void) {
+  const wanted = email.trim().toLowerCase()
+  function matches(value: string) {
+    return value.trim().toLowerCase() === wanted
+  }
+  function onStorage(event: StorageEvent) {
+    if (event.key !== CONFIRMED_KEY || !event.newValue) return
+    try {
+      const payload = JSON.parse(event.newValue) as { email?: string }
+      if (payload.email && matches(payload.email)) callback()
+    } catch {
+      /* ignore */
+    }
+  }
+  let channel: BroadcastChannel | null = null
+  try {
+    channel = new BroadcastChannel(CONFIRMED_CHANNEL)
+    channel.onmessage = (event: MessageEvent<{ type?: string; email?: string }>) => {
+      if (event.data?.type === 'confirmed' && event.data.email && matches(event.data.email)) callback()
+    }
+  } catch {
+    channel = null
+  }
+  window.addEventListener('storage', onStorage)
+  return () => {
+    window.removeEventListener('storage', onStorage)
+    channel?.close()
+  }
+}
+
+export async function fetchConfirmStatus(email: string) {
+  const res = await apiFetch('/api/confirm-status', {
+    method: 'POST',
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  })
+  const remote = await readApiJson<{ confirmed?: boolean }>(res)
+  return Boolean(res?.ok && remote?.confirmed)
+}
+
 export async function confirmWaitlist(input: { token?: string; email?: string; code?: string }) {
   const res = await apiFetch('/api/confirm', {
     method: 'POST',
     body: JSON.stringify(input),
   })
-  const remote = await readApiJson<{ confirmed?: boolean; error?: string }>(res)
+  const remote = await readApiJson<{ confirmed?: boolean; email?: string; error?: string }>(res)
   if (res?.ok && remote?.confirmed) {
-    window.dispatchEvent(new Event('aure-waitlist'))
-    return true
+    if (remote.email) announceConfirmed(remote.email)
+    else window.dispatchEvent(new Event('aure-waitlist'))
+    return remote
   }
   throw new Error(remote?.error || (res ? 'Onay başarısız.' : 'Sunucuya bağlanılamadı.'))
 }

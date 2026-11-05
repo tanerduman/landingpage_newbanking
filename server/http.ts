@@ -1,4 +1,4 @@
-import { isProduction, publicAppUrl, sendWaitlistConfirm } from './email.ts'
+import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
@@ -8,6 +8,7 @@ const LIMITS: Record<string, number> = {
   'POST /api/visits': 40,
   'POST /api/waitlist': 12,
   'POST /api/confirm': 20,
+  'POST /api/confirm-status': 60,
 }
 
 const ALLOWED_ORIGINS = new Set([
@@ -166,7 +167,19 @@ async function handleConfirm(request: Request) {
     code: code || undefined,
   })
   if (typeof result === 'string') return json({ error: result }, 400, request)
-  return json({ confirmed: true, store: getStore().kind }, 200, request)
+  return json({ confirmed: true, email: result.email, intent: result.intent, store: getStore().kind }, 200, request)
+}
+
+async function handleConfirmStatus(request: Request) {
+  if (limited(request, 'POST /api/confirm-status')) return json({ error: 'Çok fazla istek.' }, 429, request)
+  const parsed = await readJson(request)
+  if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
+  const email = typeof (parsed.value as { email?: unknown } | null)?.email === 'string'
+    ? (parsed.value as { email: string }).email
+    : ''
+  if (!email) return json({ error: 'E-posta gerekli.' }, 400, request)
+  const confirmed = await getStore().isConfirmed(normalizeEmail(email))
+  return json({ confirmed, store: getStore().kind }, 200, request)
 }
 
 export async function handleApiRequest(request: Request): Promise<Response | null> {
@@ -189,6 +202,7 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
       return handleWaitlist(request)
     }
     if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)
+    if (path === '/api/confirm-status' && request.method === 'POST') return handleConfirmStatus(request)
   } catch {
     return json({ error: 'Sunucu hatası.' }, 500, request)
   }

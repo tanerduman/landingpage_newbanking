@@ -25,7 +25,7 @@ export default function ConfirmPage() {
     void confirmWaitlist({ token })
       .then(() => {
         setStatus('ok')
-        setMessage('E-postan doğrulandı. Talebin waitlist’te.')
+        setMessage('Talebiniz onaylandı. Waitlist’e eklendiniz.')
       })
       .catch((err: unknown) => {
         setStatus('error')

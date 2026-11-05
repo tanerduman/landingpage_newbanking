@@ -1,6 +1,13 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { plans } from './plans.ts'
-import { addWaitlistEntry, confirmWaitlist, type BillingCycle, type SignupIntent } from './waitlist'
+import {
+  addWaitlistEntry,
+  confirmWaitlist,
+  fetchConfirmStatus,
+  onWaitlistConfirmed,
+  type BillingCycle,
+  type SignupIntent,
+} from './waitlist'
 
 export function SignupModal({
   intent,
@@ -20,14 +27,48 @@ export function SignupModal({
   const [devCode, setDevCode] = useState('')
   const [billing, setBilling] = useState<BillingCycle>(intent === 'account' ? 'none' : cycle)
   const plan = plans.find((p) => p.id === intent)
+  const successToast =
+    intent === 'account'
+      ? 'Talebiniz onaylandı. Paketsiz hesabınız waitlist’te.'
+      : `Talebiniz onaylandı. ${plan?.name ?? 'Paket'} waitlist’e eklendi.`
+  const onCloseRef = useRef(onClose)
+  const finishedRef = useRef(false)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') onCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [])
+
+  useEffect(() => {
+    if (phase !== 'code' || !email) return
+    finishedRef.current = false
+    function finish() {
+      if (finishedRef.current) return
+      finishedRef.current = true
+      onCloseRef.current(successToast)
+    }
+    const stop = onWaitlistConfirmed(email, finish)
+    const timer = window.setInterval(() => {
+      void fetchConfirmStatus(email).then((confirmed) => {
+        if (confirmed) finish()
+      })
+    }, 2500)
+    void fetchConfirmStatus(email).then((confirmed) => {
+      if (confirmed) finish()
+    })
+    return () => {
+      finishedRef.current = true
+      stop()
+      window.clearInterval(timer)
+    }
+  }, [phase, email, successToast])
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -40,11 +81,7 @@ export function SignupModal({
       setError('')
       try {
         await confirmWaitlist({ email, code })
-        onClose(
-          intent === 'account'
-            ? 'E-posta onaylandı. Paketsiz hesabın sırada.'
-            : `E-posta onaylandı. ${plan?.name ?? 'Paket'} sırada.`,
-        )
+        onClose(successToast)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Onay başarısız.')
       } finally {
@@ -145,7 +182,8 @@ export function SignupModal({
         ) : (
           <>
             <p>
-              {email} adresine 6 haneli kod ve onay bağlantısı gönderdik. Listeye ancak onaydan sonra düşersin.
+              {email} adresine 6 haneli kod ve onay bağlantısı gönderdik. Bağlantıya tıklarsan bu pencere kapanır;
+              kodu buraya da yazabilirsin.
             </p>
             <label htmlFor="confirm-code">Onay kodu</label>
             <input
@@ -183,7 +221,7 @@ export function SignupToast({ message, onClose }: { message: string; onClose: ()
       if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', onKey)
-    const timer = window.setTimeout(onClose, 3200)
+    const timer = window.setTimeout(onClose, 4500)
     return () => {
       window.removeEventListener('keydown', onKey)
       window.clearTimeout(timer)
