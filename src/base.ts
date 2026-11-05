@@ -26,10 +26,20 @@ export function isCompareHash(hash = window.location.hash) {
   return value === '/compare' || value === 'compare'
 }
 
+export function isCampaignsHash(hash = window.location.hash) {
+  const value = hashValue(hash)
+  return value === '/campaigns' || value === 'campaigns' || value === '/kampanyalar' || value === 'kampanyalar'
+}
+
 export function isWaitlistLocation() {
   return pathPage() === 'waitlist' || isWaitlistHash()
 }
 
 export function isCompareLocation() {
   return pathPage() === 'compare' || isCompareHash()
+}
+
+export function isCampaignsLocation() {
+  const page = pathPage()
+  return page === 'campaigns' || page === 'kampanyalar' || isCampaignsHash()
 }

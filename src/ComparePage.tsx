@@ -36,9 +36,14 @@ export default function ComparePage() {
             <span className="logo-mark">A</span>
             AURE
           </a>
-          <a className="btn btn-ghost" href={withBase()}>
-            Siteye dön
-          </a>
+          <div className="waitlist-nav-actions">
+            <a className="btn btn-ghost" href={withBase('campaigns')}>
+              Kampanyalar
+            </a>
+            <a className="btn btn-ghost" href={withBase()}>
+              Siteye dön
+            </a>
+          </div>
         </div>
       </header>
 

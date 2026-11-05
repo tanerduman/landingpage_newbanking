@@ -130,3 +130,50 @@ export const comparisonRows: {
     values: { account: false, standard: false, plus: '%10', premium: '%15' },
   },
 ]
+
+export const campaignDetails: {
+  id: string
+  name: string
+  category: string
+  summary: string
+  how: string
+  note: string
+  rates: Record<PlanColumnId, FeatureValue>
+}[] = [
+  {
+    id: 'migros',
+    name: 'Migros',
+    category: 'Market',
+    summary: 'Fiziksel Migros mağazalarında kartınla yaptığın alışverişe paket indirimi yansır.',
+    how: 'Kampanyalı paketi ekle, AURE kartınla kasada öde. İndirim dönem sonunda ekstra puan veya anlık fiyat farkı olarak işlenir (kurgusal model).',
+    note: 'Paketsiz hesapta kapalı. Standard’dan itibaren açılır; oran paketinle yükselir.',
+    rates: { account: false, standard: '%2', plus: '%4', premium: '%7' },
+  },
+  {
+    id: 'migros-online',
+    name: 'Migros Sanal Market',
+    category: 'Market',
+    summary: 'Migros Sanal Market siparişlerinde aynı marka işbirliği, online sepete özel oranla geçer.',
+    how: 'Sanal Market’te ödeme yöntemi olarak AURE kartını seç. Kampanya yalnızca paketli hesapta ve kampanya döneminde işler.',
+    note: 'Standard %2, Plus %5, Premium %8. Mağaza oranından Plus ve Premium’da daha yüksek.',
+    rates: { account: false, standard: '%2', plus: '%5', premium: '%8' },
+  },
+  {
+    id: 'divan',
+    name: 'Divan Pastanesi',
+    category: 'Yiyecek',
+    summary: 'Divan Pastanesi mağaza ve seçili noktalarda paket oranında indirim.',
+    how: 'Kartınla öde; kasa kampanyayı paketine göre tanır. Plus’ta %10, Premium’da %15.',
+    note: 'Standard ve paketsiz hesapta bu kampanya kapalıdır.',
+    rates: { account: false, standard: false, plus: '%10', premium: '%15' },
+  },
+  {
+    id: 'setur',
+    name: 'Setur',
+    category: 'Seyahat',
+    summary: 'Setur tur ve otel rezervasyonlarında paket ayrıcalığı. Plus turda, Premium tur + otelde.',
+    how: 'Setur’da ödeme adımında AURE kartı kullan. Tur indirimi Plus’tan, otel avantajı Premium’dan açılır.',
+    note: 'Paketsiz ve Standard’da Setur kampanyası yok; yurt dışı kart yine açıktır.',
+    rates: { account: false, standard: false, plus: '%5 tur', premium: '%10 tur + otel' },
+  },
+]

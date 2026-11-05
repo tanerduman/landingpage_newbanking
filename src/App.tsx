@@ -109,6 +109,7 @@ export default function App() {
             <a href="#features">Özellikler</a>
             <a href="#app">Uygulama</a>
             <a href={withBase('compare')}>Karşılaştır</a>
+            <a href={withBase('campaigns')}>Kampanyalar</a>
             <a href="#faq">SSS</a>
           </nav>
           <div className="nav-cta">
@@ -135,6 +136,9 @@ export default function App() {
           </a>
           <a href={withBase('compare')} onClick={() => setMenu(false)}>
             Karşılaştır
+          </a>
+          <a href={withBase('campaigns')} onClick={() => setMenu(false)}>
+            Kampanyalar
           </a>
           <a href="#faq" onClick={() => setMenu(false)}>
             SSS
@@ -377,7 +381,10 @@ export default function App() {
               <article className="feature-tile">
                 <div className="icon">🛒</div>
                 <h3>Kampanya</h3>
-                <p>Migros, Divan Pastanesi ve Setur indirimleri.</p>
+                <p>
+                  Migros, Divan Pastanesi ve Setur indirimleri.{' '}
+                  <a href={withBase('campaigns')}>Kampanya detayları</a>
+                </p>
               </article>
             </div>
           </div>
