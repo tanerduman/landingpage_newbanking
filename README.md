@@ -9,9 +9,7 @@ npm run dev
 
 - Landing: `/landingpage_newbanking/`
 - Compare plans: `/landingpage_newbanking/#/compare`
-- Waiting list: `/landingpage_newbanking/#/waitlist` (şifreli)
-
-Giriş: kullanıcı `admin` · şifre `AureWaitlist2026`
+- Waiting list: `/landingpage_newbanking/#/waitlist` (şifreli; şifre sunucu ortamında tutulur)
 
 ## GitHub Pages
 

@@ -135,7 +135,6 @@ export default function WaitlistPage() {
               autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="admin"
             />
             <label htmlFor="waitlist-pass">Şifre</label>
             <input

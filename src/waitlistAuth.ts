@@ -1,17 +1,9 @@
-import { apiFetch, readApiJson, setAdminToken } from './api.ts'
+import { apiFetch, getAdminToken, readApiJson, setAdminToken } from './api.ts'
 
 const SESSION_KEY = 'aure-waitlist-auth'
-const USERNAME = 'admin'
-const PASSWORD_SHA256 = '1c88f121522221bd8bb119a09ffee582fe3b0b1d49a6b9bb01c56620663f3509'
-
-async function sha256Hex(value: string) {
-  const bytes = new TextEncoder().encode(value)
-  const digest = await crypto.subtle.digest('SHA-256', bytes)
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
-}
 
 export function isWaitlistAuthed() {
-  return sessionStorage.getItem(SESSION_KEY) === 'ok'
+  return sessionStorage.getItem(SESSION_KEY) === 'ok' && Boolean(getAdminToken())
 }
 
 export function logoutWaitlist() {
@@ -24,22 +16,11 @@ export async function loginWaitlist(username: string, password: string) {
     method: 'POST',
     body: JSON.stringify({ username, password }),
   })
-  const remote = await readApiJson<{ token?: string; error?: string }>(res)
+  const remote = await readApiJson<{ token?: string }>(res)
   if (res?.ok && remote?.token) {
     setAdminToken(remote.token)
     sessionStorage.setItem(SESSION_KEY, 'ok')
     return true
   }
-  if (res && (res.status === 401 || res.status === 429)) return false
-
-  const userOk = username.trim().toLowerCase() === USERNAME
-  const envPassword = import.meta.env.VITE_WAITLIST_PASSWORD
-  const passwordOk =
-    typeof envPassword === 'string' && envPassword.length > 0
-      ? password === envPassword
-      : (await sha256Hex(password)) === PASSWORD_SHA256
-
-  if (!userOk || !passwordOk) return false
-  sessionStorage.setItem(SESSION_KEY, 'ok')
-  return true
+  return false
 }

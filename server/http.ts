@@ -1,4 +1,4 @@
-import { bearerToken, issueToken, passwordMatches, tokenValid } from './auth.ts'
+import { adminConfigured, bearerToken, issueToken, passwordMatches, tokenValid } from './auth.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
 const buckets = new Map<string, { count: number; start: number }>()
@@ -81,6 +81,9 @@ async function handleHealth(request: Request) {
 
 async function handleLogin(request: Request) {
   if (limited(request, 'POST /api/login')) return json({ error: 'Çok fazla deneme.' }, 429, request)
+  if (!adminConfigured()) {
+    return json({ error: 'Yönetici girişi yapılandırılmamış.' }, 503, request)
+  }
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
   const body = parsed.value as { username?: unknown; password?: unknown } | null
@@ -89,7 +92,9 @@ async function handleLogin(request: Request) {
   if (!passwordMatches(username, password)) {
     return json({ error: 'Kullanıcı adı veya şifre hatalı.' }, 401, request)
   }
-  return json({ token: issueToken(), store: getStore().kind }, 200, request)
+  const token = issueToken()
+  if (!token) return json({ error: 'Yönetici girişi yapılandırılmamış.' }, 503, request)
+  return json({ token, store: getStore().kind }, 200, request)
 }
 
 async function handleVisits(request: Request) {
