@@ -15,7 +15,7 @@ export const plans: {
   {
     id: 'standard',
     name: 'Standard',
-    monthly: 49,
+    monthly: 299,
     blurb: 'Günlük bankacılık + ilk market indirimleri.',
     banking: ['ATM 250 €/gün', 'Döviz 1.500 €/ay · %0,75', 'Hisse %0,12', 'Mevduat %34', '8 ücretsiz EFT/ay'],
     campaigns: ['Migros %2', 'Migros Sanal Market %2'],
@@ -23,7 +23,7 @@ export const plans: {
   {
     id: 'plus',
     name: 'Plus',
-    monthly: 99,
+    monthly: 399,
     blurb: 'Daha yüksek limit, daha iyi faiz, daha fazla kampanya.',
     banking: ['ATM 500 €/gün', 'Döviz 5.000 €/ay · %0,35', 'Hisse %0,08', 'Mevduat %36', '20 ücretsiz EFT/ay'],
     campaigns: ['Migros %4', 'Divan Pastanesi %10', 'Setur %5'],
@@ -32,7 +32,7 @@ export const plans: {
   {
     id: 'premium',
     name: 'Premium',
-    monthly: 249,
+    monthly: 499,
     blurb: 'Sınırsız döviz, en yüksek faiz ve tam kampanya paketi.',
     banking: ['ATM 1.000 €/gün', 'Döviz sınırsız · %0', 'Hisse %0,04', 'Mevduat %38', 'Sınırsız ücretsiz EFT'],
     campaigns: ['Migros %7', 'Divan Pastanesi %15', 'Setur %10'],
@@ -48,7 +48,7 @@ export const planColumns: { id: PlanColumnId; name: string }[] = [
 ]
 
 export const comparisonRows: { label: string; group: string; values: Record<PlanColumnId, FeatureValue> }[] = [
-  { label: 'Aylık ücret', group: 'Banka / Saving', values: { account: '0 ₺', standard: '49 ₺', plus: '99 ₺', premium: '249 ₺' } },
+  { label: 'Aylık ücret', group: 'Banka / Saving', values: { account: '0 ₺', standard: '299 ₺', plus: '399 ₺', premium: '499 ₺' } },
   {
     label: 'Günlük ATM döviz çekimi',
     group: 'Banka / Saving',
