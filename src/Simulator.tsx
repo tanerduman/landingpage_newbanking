@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatMoney } from './i18n/format.ts'
-import { plans, type PlanColumnId } from './plans.ts'
+import { SAMPLE_IDLE_TRY, plans, type PlanColumnId } from './plans.ts'
 import type { PlanId } from './waitlist'
 
 function estimate(plan: (typeof plans)[number], spend: number, idle: number, salary: boolean) {
@@ -71,11 +71,14 @@ export default function Simulator({
           <input
             type="range"
             min={5000}
-            max={200000}
-            step={1000}
+            max={SAMPLE_IDLE_TRY}
+            step={5000}
             value={idle}
             onChange={(e) => setIdle(Number(e.target.value))}
           />
+          <button type="button" className="simulator-preset" onClick={() => setIdle(SAMPLE_IDLE_TRY)}>
+            {t.simulator.idlePreset}
+          </button>
         </label>
         <label className="simulator-check">
           <input type="checkbox" checked={salary} onChange={(e) => setSalary(e.target.checked)} />

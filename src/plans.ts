@@ -51,6 +51,27 @@ export const planColumns: { id: PlanColumnId; name: string; price: string }[] = 
   { id: 'premium', name: 'Premium', price: '499 ₺/ay' },
 ]
 
+/** Worked example: idle cash on a Basic account, same FX mid-rate as the 500 EUR mock. */
+export const SAMPLE_IDLE_TRY = 1_000_000
+export const SAMPLE_EUR_TRY = 36.42
+
+export const overnightByColumn: Record<PlanColumnId, number> = {
+  account: 0.32,
+  ...Object.fromEntries(plans.map((plan) => [plan.id, plan.overnight])),
+} as Record<PlanColumnId, number>
+
+export const fxFeeByColumn: Record<PlanColumnId, number> = {
+  account: 0.0149,
+  standard: 0.0075,
+  plus: 0.0035,
+  premium: 0,
+}
+
+export function monthlyFeeOf(id: PlanColumnId): number {
+  if (id === 'account') return 0
+  return plans.find((plan) => plan.id === id)?.monthly ?? 0
+}
+
 export const comparisonRows: {
   id:
     | 'feeWaiver'
