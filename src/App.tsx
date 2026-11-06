@@ -21,6 +21,18 @@ function Cell({ value, yes }: { value: string | boolean; yes: string }) {
   return <span>{value}</span>
 }
 
+function CardBrand() {
+  return (
+    <span className="card-brand">
+      <svg className="card-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="#d8ff4a" />
+        <path d="M8 22.5L16 7.5L24 22.5H20.2L16 14.4L11.8 22.5H8Z" fill="#0b0b0c" />
+      </svg>
+      AURE
+    </span>
+  )
+}
+
 export default function App() {
   const { t, locale } = useI18n()
   const [cycle, setCycle] = useState<Cycle>('monthly')
@@ -175,28 +187,40 @@ export default function App() {
           <div className={`stage is-${intent === 'account' ? 'account' : selected}`}>
             <div className="card-stack" aria-hidden="true">
               <article className="bank-card card-account">
-                <span className="chip" />
+                <div className="card-top">
+                  <span className="chip" />
+                  <CardBrand />
+                </div>
                 <div>
                   <small>{t.hero.cardAccount}</small>
                   <b>•••• 2208</b>
                 </div>
               </article>
               <article className="bank-card card-standard">
-                <span className="chip" />
+                <div className="card-top">
+                  <span className="chip" />
+                  <CardBrand />
+                </div>
                 <div>
                   <small>AURE Standard</small>
                   <b>•••• 4412</b>
                 </div>
               </article>
               <article className="bank-card card-plus">
-                <span className="chip" />
+                <div className="card-top">
+                  <span className="chip" />
+                  <CardBrand />
+                </div>
                 <div>
                   <small>AURE Plus</small>
                   <b>•••• 8821</b>
                 </div>
               </article>
               <article className="bank-card card-premium">
-                <span className="chip" />
+                <div className="card-top">
+                  <span className="chip" />
+                  <CardBrand />
+                </div>
                 <div>
                   <small>AURE Premium</small>
                   <b>•••• 1904</b>
