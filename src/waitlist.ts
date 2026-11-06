@@ -15,7 +15,7 @@ export type WaitlistEntry = {
 }
 
 export const PACKAGE_LABELS: Record<SignupIntent, string> = {
-  account: 'Paketsiz hesap',
+  account: 'Temel (0 ₺)',
   standard: 'Standard',
   plus: 'Plus',
   premium: 'Premium',
@@ -23,14 +23,14 @@ export const PACKAGE_LABELS: Record<SignupIntent, string> = {
 
 export const PACKAGE_FILTERS: { id: 'all' | SignupIntent; label: string }[] = [
   { id: 'all', label: 'Tümü' },
-  { id: 'account', label: 'Paketsiz hesap' },
+  { id: 'account', label: 'Temel (0 ₺)' },
   { id: 'standard', label: 'Standard' },
   { id: 'plus', label: 'Plus' },
   { id: 'premium', label: 'Premium' },
 ]
 
 export const CYCLE_LABELS: Record<BillingCycle, string> = {
-  none: 'Paketsiz',
+  none: 'Temel',
   monthly: 'Aylık',
   yearly: 'Yıllık',
 }
@@ -39,7 +39,7 @@ export const CYCLE_FILTERS: { id: 'all' | BillingCycle; label: string }[] = [
   { id: 'all', label: 'Tüm dönemler' },
   { id: 'monthly', label: 'Aylık' },
   { id: 'yearly', label: 'Yıllık' },
-  { id: 'none', label: 'Paketsiz' },
+  { id: 'none', label: 'Temel' },
 ]
 
 const KEY = 'aure-waitlist'
