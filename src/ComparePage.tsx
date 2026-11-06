@@ -3,7 +3,7 @@ import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { localizeFeature } from './i18n/format.ts'
-import { comparisonRows, planColumns, type FeatureValue, type PlanColumnId } from './plans.ts'
+import { comparisonRows, planColumns, plans, type FeatureValue, type PlanColumnId } from './plans.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import type { SignupIntent } from './waitlist'
 
@@ -42,11 +42,15 @@ export default function ComparePage() {
     plus: t.pkg.plus,
     premium: t.pkg.premium,
   }
+  const priceById = Object.fromEntries(plans.map((plan) => [plan.id, plan.monthly])) as Record<
+    Exclude<PlanColumnId, 'account'>,
+    number
+  >
   const colPrice: Record<PlanColumnId, string> = {
     account: t.pkg.free,
-    standard: `299 ${t.pkg.priceMonth}`,
-    plus: `399 ${t.pkg.priceMonth}`,
-    premium: `499 ${t.pkg.priceMonth}`,
+    standard: `${priceById.standard} ${t.pkg.priceMonth}`,
+    plus: `${priceById.plus} ${t.pkg.priceMonth}`,
+    premium: `${priceById.premium} ${t.pkg.priceMonth}`,
   }
 
   return (

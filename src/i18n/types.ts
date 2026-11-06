@@ -21,15 +21,15 @@ export type Messages = {
     eyebrow: string
     title: string
     lead: string
-    optionalPlans: string
-    statFree: string
-    statPlans: string
-    statCountries: string
+    simulatorCta: string
+    statEft: string
+    statInterest: string
+    statOffers: string
     cardAccount: string
-    pillFree: string
-    pillFreeSub: string
-    pillLater: string
-    pillLaterSub: string
+    pillSupport: string
+    pillSupportSub: string
+    pillInterest: string
+    pillInterestSub: string
   }
   fx: {
     eyebrow: string
@@ -43,6 +43,7 @@ export type Messages = {
     bannerCta: string
     upgradeTitle: string
     upgradeLead: string
+    waiverNote: string
     billingAria: string
     monthly: string
     yearly: string
@@ -82,18 +83,37 @@ export type Messages = {
     campBody: string
     campLink: string
   }
+  simulator: {
+    spend: string
+    idle: string
+    salary: string
+    fee: string
+    waived: string
+    interest: string
+    extras: string
+    net: string
+    best: string
+    pick: string
+    sample: string
+    perMonth: string
+  }
   app: {
     title: string
     lead: string
     wallets: string
     walletsCap: string
     walletsAlt: string
+    walletsGold: string
+    walletsInterest: string
+    walletsEarned: string
     order: string
     orderCap: string
     orderAlt: string
     trade: string
     tradeCap: string
     tradeAlt: string
+    tradeLive: string
+    tradeBsmv: string
   }
   homeCompare: {
     title: string
@@ -156,6 +176,7 @@ export type Messages = {
     tour: string
     tourHotel: string
     rows: Record<string, string>
+    cell: Record<string, string>
   }
   campaigns: {
     kicker: string

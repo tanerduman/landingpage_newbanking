@@ -3,6 +3,7 @@ import { withBase } from './base.ts'
 import { comparisonRows, planColumns, plans } from './plans.ts'
 import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
+import Simulator from './Simulator.tsx'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatFx, formatMoney, localizeFeature } from './i18n/format.ts'
@@ -151,22 +152,22 @@ export default function App() {
               <button className="btn btn-solid" onClick={openAccount}>
                 {t.nav.openFree}
               </button>
-              <a className="btn btn-ghost" href="#plans">
-                {t.hero.optionalPlans}
+              <a className="btn btn-ghost" href="#simulator">
+                {t.hero.simulatorCta}
               </a>
             </div>
             <div className="stats">
               <div>
                 <strong>0 ₺</strong>
-                <span>{t.hero.statFree}</span>
+                <span>{t.hero.statEft}</span>
               </div>
               <div>
-                <strong>3</strong>
-                <span>{t.hero.statPlans}</span>
+                <strong>🌙</strong>
+                <span>{t.hero.statInterest}</span>
               </div>
               <div>
-                <strong>150+</strong>
-                <span>{t.hero.statCountries}</span>
+                <strong>3–6</strong>
+                <span>{t.hero.statOffers}</span>
               </div>
             </div>
           </div>
@@ -203,12 +204,12 @@ export default function App() {
               </article>
             </div>
             <div className="float-pill pill-fx">
-              <strong>{t.hero.pillFree}</strong>
-              {t.hero.pillFreeSub}
+              <strong>{t.hero.pillSupport}</strong>
+              {t.hero.pillSupportSub}
             </div>
             <div className="float-pill pill-atm">
-              <strong>{t.hero.pillLater}</strong>
-              {t.hero.pillLaterSub}
+              <strong>{t.hero.pillInterest}</strong>
+              {t.hero.pillInterestSub}
             </div>
           </div>
         </div>
@@ -287,6 +288,8 @@ export default function App() {
                 </div>
               </div>
             </div>
+
+            <Simulator cycleYearly={cycle === 'yearly'} onPick={openPlan} />
 
             <div className="plans">
               {plans.map((plan) => (
@@ -390,6 +393,13 @@ export default function App() {
                     src={withBase('app/aure-app-wallets.jpg')}
                     alt={t.app.walletsAlt}
                   />
+                  <div className="phone-overlay">
+                    <span className="phone-chip">{t.app.walletsGold}</span>
+                    <span className="phone-toast">
+                      <strong>{t.app.walletsInterest}</strong>
+                      {t.app.walletsEarned}
+                    </span>
+                  </div>
                 </div>
                 <figcaption>
                   <strong>{t.app.wallets}</strong>
@@ -414,6 +424,7 @@ export default function App() {
                     src={withBase('app/aure-app-fx-premium.jpg')}
                     alt={t.app.tradeAlt}
                   />
+                  <span className="phone-live">{t.app.tradeLive}</span>
                 </div>
                 <figcaption>
                   <strong>{t.app.trade}</strong>

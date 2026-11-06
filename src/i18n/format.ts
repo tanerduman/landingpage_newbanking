@@ -6,6 +6,8 @@ export function localizeFeature(value: FeatureValue, t: Messages, locale: Locale
   if (value === 'Sınırsız') return t.compare.unlimited
   if (value === '%5 tur') return t.compare.tour
   if (value === '%10 tur + otel') return t.compare.tourHotel
+  const cell = t.compare.cell[value]
+  if (cell) return cell
   if (locale !== 'en') return value
   return value
     .replaceAll(' adet/ay', '/mo')
@@ -14,7 +16,9 @@ export function localizeFeature(value: FeatureValue, t: Messages, locale: Locale
 }
 
 export function formatMoney(amount: number, locale: Locale) {
-  return `${amount.toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR')} ₺`
+  const rounded = Math.round(amount)
+  const sign = rounded < 0 ? '−' : ''
+  return `${sign}${Math.abs(rounded).toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR')} ₺`
 }
 
 export function formatFx(rate: number, locale: Locale) {
