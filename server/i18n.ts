@@ -18,6 +18,10 @@ const errors: Record<ApiLocale, Record<string, string>> = {
     intent: 'Geçersiz paket.',
     cycle: 'Geçersiz ödeme dönemi.',
     confirm_invalid: 'Onay kodu veya bağlantı geçersiz.',
+    unauthorized: 'Oturum gerekli.',
+    auth_need: 'Kullanıcı adı ve şifre gerekli.',
+    auth_bad: 'Kullanıcı adı veya şifre hatalı.',
+    auth_off: 'Waitlist girişi henüz bağlanmadı.',
   },
   en: {
     too_big: 'Request too large.',
@@ -36,6 +40,10 @@ const errors: Record<ApiLocale, Record<string, string>> = {
     intent: 'Invalid plan.',
     cycle: 'Invalid billing period.',
     confirm_invalid: 'The confirmation code or link is invalid.',
+    unauthorized: 'Sign in required.',
+    auth_need: 'Username and password are required.',
+    auth_bad: 'Wrong username or password.',
+    auth_off: 'Waitlist login is not connected yet.',
   },
 }
 

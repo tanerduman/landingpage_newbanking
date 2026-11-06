@@ -258,6 +258,15 @@ export type Messages = {
     excelPkg: string
     excelCycle: string
     excelSheet: string
+    loginKicker: string
+    loginTitle: string
+    loginLead: string
+    loginUser: string
+    loginPassword: string
+    loginSubmit: string
+    logout: string
+    needUser: string
+    needPass: string
   }
   errors: Record<string, string>
 }

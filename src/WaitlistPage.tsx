@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -8,6 +8,9 @@ import {
   formatRequestTime,
   fetchWaitlist,
   downloadWaitlistExcel,
+  isWaitlistAuthed,
+  loginWaitlist,
+  logoutWaitlist,
   type BillingCycle,
   type SignupIntent,
   type WaitlistEntry,
@@ -22,6 +25,11 @@ const PAGE_SIZE = 10
 
 export default function WaitlistPage() {
   const { t, locale } = useI18n()
+  const [authed, setAuthed] = useState(() => isWaitlistAuthed())
+  const [user, setUser] = useState('')
+  const [password, setPassword] = useState('')
+  const [loginError, setLoginError] = useState('')
+  const [loginBusy, setLoginBusy] = useState(false)
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [remote, setRemote] = useState(false)
@@ -56,7 +64,15 @@ export default function WaitlistPage() {
 
   useEffect(() => {
     async function refresh() {
-      const [list, stats] = await Promise.all([fetchWaitlist(), fetchVisitStats()])
+      const list = await fetchWaitlist()
+      if (!list.authorized) {
+        setAuthed(false)
+        setEntries([])
+        setRemote(false)
+        return
+      }
+      setAuthed(true)
+      const stats = await fetchVisitStats()
       setEntries(list.entries)
       setRemote(list.remote)
       setVisits(stats)
@@ -65,6 +81,7 @@ export default function WaitlistPage() {
       void refresh()
     }
     void refresh()
+    if (!authed) return
     window.addEventListener('aure-waitlist', onRefresh)
     window.addEventListener('aure-visits', onRefresh)
     window.addEventListener('storage', onRefresh)
@@ -75,7 +92,37 @@ export default function WaitlistPage() {
       window.removeEventListener('storage', onRefresh)
       window.clearInterval(timer)
     }
-  }, [])
+  }, [authed])
+
+  async function submitLogin(e: FormEvent) {
+    e.preventDefault()
+    if (user.trim().length < 2) {
+      setLoginError(t.waitlist.needUser)
+      return
+    }
+    if (!password) {
+      setLoginError(t.waitlist.needPass)
+      return
+    }
+    setLoginBusy(true)
+    setLoginError('')
+    try {
+      await loginWaitlist(user, password)
+      setPassword('')
+      setAuthed(true)
+    } catch (err) {
+      setLoginError(err instanceof Error ? err.message : t.errors.auth_bad)
+    } finally {
+      setLoginBusy(false)
+    }
+  }
+
+  function signOut() {
+    logoutWaitlist()
+    setAuthed(false)
+    setEntries([])
+    setPassword('')
+  }
 
   const counts = useMemo(() => countByIntent(entries), [entries])
   const cycleCounts = useMemo(() => countByCycle(entries), [entries])
@@ -116,6 +163,12 @@ export default function WaitlistPage() {
           </a>
           <div className="waitlist-nav-actions">
             <LangSwitch />
+            {authed && (
+              <button type="button" className="btn btn-ghost" onClick={signOut}>
+                {t.waitlist.logout}
+              </button>
+            )}
+            {authed && (
             <button
               type="button"
               className="btn btn-solid"
@@ -136,6 +189,7 @@ export default function WaitlistPage() {
             >
               {t.waitlist.export}
             </button>
+            )}
             <a className="btn btn-ghost" href={withBase()}>
               {t.nav.back}
             </a>
@@ -144,6 +198,37 @@ export default function WaitlistPage() {
       </header>
 
       <main className="wrap waitlist-main">
+        {!authed ? (
+          <div className="waitlist-login-wrap">
+            <form className="login-card" onSubmit={submitLogin}>
+              <p className="eyebrow">
+                <span className="dot" /> {t.waitlist.loginKicker}
+              </p>
+              <h1>{t.waitlist.loginTitle}</h1>
+              <p className="lead">{t.waitlist.loginLead}</p>
+              <label htmlFor="waitlist-user">{t.waitlist.loginUser}</label>
+              <input
+                id="waitlist-user"
+                autoComplete="username"
+                value={user}
+                onChange={(e) => setUser(e.target.value)}
+              />
+              <label htmlFor="waitlist-pass">{t.waitlist.loginPassword}</label>
+              <input
+                id="waitlist-pass"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {loginError && <p className="login-error">{loginError}</p>}
+              <button type="submit" className="btn btn-solid login-submit" disabled={loginBusy}>
+                {t.waitlist.loginSubmit}
+              </button>
+            </form>
+          </div>
+        ) : (
+          <>
         <div className="section-head">
           <div>
             <div className="eyebrow">
@@ -286,6 +371,8 @@ export default function WaitlistPage() {
           </div>
         )}
         <p className="waitlist-note">{remote ? t.waitlist.noteRemote : t.waitlist.noteLocal}</p>
+          </>
+        )}
       </main>
     </div>
   )

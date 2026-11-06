@@ -1,3 +1,4 @@
+import { checkCredentials, credentialsConfigured, issueToken, readAdmin } from './auth.ts'
 import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
@@ -10,6 +11,7 @@ const LIMITS: Record<string, number> = {
   'POST /api/waitlist': 12,
   'POST /api/confirm': 20,
   'POST /api/confirm-status': 60,
+  'POST /api/login': 8,
 }
 
 const ALLOWED_ORIGINS = new Set([
@@ -104,9 +106,29 @@ async function handleRates(request: Request) {
   return json(result.payload, 200, request)
 }
 
+function requireAdmin(request: Request) {
+  if (readAdmin(request)) return null
+  return fail(request, 'unauthorized', 401)
+}
+
+async function handleLogin(request: Request) {
+  if (limited(request, 'POST /api/login')) return fail(request, 'too_many', 429)
+  const parsed = await readJson(request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  if (!credentialsConfigured()) return fail(request, 'auth_off', 503, parsed.value)
+  const body = parsed.value as { user?: unknown; password?: unknown } | null
+  const user = typeof body?.user === 'string' ? body.user.trim() : ''
+  const password = typeof body?.password === 'string' ? body.password : ''
+  if (!user || !password) return fail(request, 'auth_need', 400, body)
+  if (!checkCredentials(user, password)) return fail(request, 'auth_bad', 401, body)
+  return json({ token: issueToken(user) }, 200, request)
+}
+
 async function handleVisits(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
+    const denied = requireAdmin(request)
+    if (denied) return denied
     const stats = await store.getStats()
     return json({ ...stats, store: store.kind }, 200, request)
   }
@@ -126,6 +148,8 @@ async function handleVisits(request: Request) {
 async function handleWaitlist(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
+    const denied = requireAdmin(request)
+    if (denied) return denied
     const entries = await store.listWaitlist()
     return json({ entries, store: store.kind }, 200, request)
   }
@@ -208,6 +232,7 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
     if (path === '/api/waitlist' && (request.method === 'GET' || request.method === 'POST')) {
       return handleWaitlist(request)
     }
+    if (path === '/api/login' && request.method === 'POST') return handleLogin(request)
     if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)
     if (path === '/api/confirm-status' && request.method === 'POST') return handleConfirmStatus(request)
   } catch {
