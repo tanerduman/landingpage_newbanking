@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { withBase } from './base.ts'
+import LangSwitch from './LangSwitch.tsx'
+import { useI18n } from './i18n/LocaleContext.tsx'
 import {
-  CYCLE_FILTERS,
-  CYCLE_LABELS,
-  PACKAGE_FILTERS,
-  PACKAGE_LABELS,
   countByCycle,
   countByIntent,
   formatRequestTime,
@@ -23,12 +21,38 @@ type CycleFilter = 'all' | BillingCycle
 const PAGE_SIZE = 10
 
 export default function WaitlistPage() {
+  const { t, locale } = useI18n()
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [remote, setRemote] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
   const [cycleFilter, setCycleFilter] = useState<CycleFilter>('all')
   const [page, setPage] = useState(1)
+
+  const pkgLabels: Record<SignupIntent, string> = {
+    account: t.pkg.account,
+    standard: t.pkg.standard,
+    plus: t.pkg.plus,
+    premium: t.pkg.premium,
+  }
+  const cycleLabels: Record<BillingCycle, string> = {
+    none: t.cycle.none,
+    monthly: t.cycle.monthly,
+    yearly: t.cycle.yearly,
+  }
+  const packageFilters: { id: Filter; label: string }[] = [
+    { id: 'all', label: t.pkg.all },
+    { id: 'account', label: t.pkg.account },
+    { id: 'standard', label: t.pkg.standard },
+    { id: 'plus', label: t.pkg.plus },
+    { id: 'premium', label: t.pkg.premium },
+  ]
+  const cycleFilters: { id: CycleFilter; label: string }[] = [
+    { id: 'all', label: t.cycle.all },
+    { id: 'monthly', label: t.cycle.monthly },
+    { id: 'yearly', label: t.cycle.yearly },
+    { id: 'none', label: t.cycle.none },
+  ]
 
   useEffect(() => {
     async function refresh() {
@@ -80,6 +104,8 @@ export default function WaitlistPage() {
     setPage(1)
   }
 
+  const filterLabel = packageFilters.find((item) => item.id === filter)?.label ?? t.pkg.all
+
   return (
     <div className="page waitlist-page">
       <header className="nav">
@@ -89,21 +115,29 @@ export default function WaitlistPage() {
             AURE
           </a>
           <div className="waitlist-nav-actions">
+            <LangSwitch />
             <button
               type="button"
               className="btn btn-solid"
               disabled={visible.length === 0}
               onClick={() =>
-                downloadWaitlistExcel(
-                  visible,
-                  PACKAGE_FILTERS.find((item) => item.id === filter)?.label ?? 'Tumu',
-                )
+                downloadWaitlistExcel(visible, filterLabel, {
+                  date: t.waitlist.excelDate,
+                  name: t.waitlist.excelName,
+                  email: t.waitlist.excelEmail,
+                  pkg: t.waitlist.excelPkg,
+                  cycle: t.waitlist.excelCycle,
+                  sheet: t.waitlist.excelSheet,
+                  packages: pkgLabels,
+                  cycles: cycleLabels,
+                  locale,
+                })
               }
             >
-              Excel’e aktar
+              {t.waitlist.export}
             </button>
             <a className="btn btn-ghost" href={withBase()}>
-              Siteye dön
+              {t.nav.back}
             </a>
           </div>
         </div>
@@ -113,39 +147,34 @@ export default function WaitlistPage() {
         <div className="section-head">
           <div>
             <div className="eyebrow">
-              <span className="dot" /> Waiting list
+              <span className="dot" /> {t.waitlist.kicker}
             </div>
-            <h1>Gelen talepler</h1>
-            <p className="lead">
-              Yalnızca e-postası onaylanmış talepler burada ve Excel’de durur. Üstte siteye giren kişi sayısı, altta
-              paket talepleri var.
-            </p>
+            <h1>{t.waitlist.title}</h1>
+            <p className="lead">{t.waitlist.lead}</p>
           </div>
         </div>
 
         <div className="traffic-stats">
           <div className="waitlist-stat traffic">
             <strong>{visits.unique}</strong>
-            <span>Tekil ziyaretçi</span>
+            <span>{t.waitlist.unique}</span>
           </div>
           <div className="waitlist-stat traffic">
             <strong>{visits.views}</strong>
-            <span>Site girişi (oturum)</span>
+            <span>{t.waitlist.views}</span>
           </div>
           <div className="waitlist-stat traffic">
             <strong>{entries.length}</strong>
-            <span>Paket / hesap talebi</span>
+            <span>{t.waitlist.requests}</span>
           </div>
           <div className="waitlist-stat traffic">
-            <strong>
-              {visits.unique === 0 ? '—' : `${Math.round((entries.length / visits.unique) * 100)}%`}
-            </strong>
-            <span>Talebe dönüşüm</span>
+            <strong>{visits.unique === 0 ? '—' : `${Math.round((entries.length / visits.unique) * 100)}%`}</strong>
+            <span>{t.waitlist.conversion}</span>
           </div>
         </div>
 
         <div className="waitlist-stats">
-          {PACKAGE_FILTERS.map((item) => (
+          {packageFilters.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -159,7 +188,7 @@ export default function WaitlistPage() {
         </div>
 
         <div className="waitlist-stats waitlist-cycle-stats">
-          {CYCLE_FILTERS.map((item) => (
+          {cycleFilters.map((item) => (
             <button
               key={item.id}
               type="button"
@@ -174,8 +203,8 @@ export default function WaitlistPage() {
 
         <div className="waitlist-pies">
           <WaitlistPie
-            kicker="Aylık"
-            title="Aylık paket dağılımı"
+            kicker={t.waitlist.pieMonth}
+            title={t.waitlist.pieMonthTitle}
             counts={countByIntent(monthlyEntries)}
             total={monthlyEntries.length}
             active={filter}
@@ -183,8 +212,8 @@ export default function WaitlistPage() {
             hideAccount
           />
           <WaitlistPie
-            kicker="Yıllık"
-            title="Yıllık paket dağılımı"
+            kicker={t.waitlist.pieYear}
+            title={t.waitlist.pieYearTitle}
             counts={countByIntent(yearlyEntries)}
             total={yearlyEntries.length}
             active={filter}
@@ -197,32 +226,32 @@ export default function WaitlistPage() {
           <table>
             <thead>
               <tr>
-                <th>Tarih</th>
-                <th>Ad soyad</th>
-                <th>E-posta</th>
-                <th>Paket</th>
-                <th>Dönem</th>
+                <th>{t.waitlist.date}</th>
+                <th>{t.waitlist.name}</th>
+                <th>{t.waitlist.email}</th>
+                <th>{t.waitlist.package}</th>
+                <th>{t.waitlist.period}</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="waitlist-empty">
-                    Bu filtrede henüz talep yok. Landing’den hesap veya paket kaydı oluşturunca burada listelenir.
+                    {t.waitlist.empty}
                   </td>
                 </tr>
               ) : (
                 paged.map((row) => (
                   <tr key={row.id}>
-                    <td>{formatRequestTime(row.createdAt)}</td>
+                    <td>{formatRequestTime(row.createdAt, locale)}</td>
                     <td>{row.name}</td>
                     <td>{row.email}</td>
                     <td>
-                      <span className={`pkg-pill pkg-${row.intent}`}>{PACKAGE_LABELS[row.intent]}</span>
+                      <span className={`pkg-pill pkg-${row.intent}`}>{pkgLabels[row.intent]}</span>
                     </td>
                     <td>
                       <span className={`pkg-pill cycle-${row.cycle ?? 'monthly'}`}>
-                        {CYCLE_LABELS[row.cycle] ?? 'Aylık'}
+                        {cycleLabels[row.cycle] ?? t.cycle.monthly}
                       </span>
                     </td>
                   </tr>
@@ -238,7 +267,7 @@ export default function WaitlistPage() {
             </span>
             <div className="waitlist-pager-btns">
               <button type="button" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
-                Önceki
+                {t.waitlist.prev}
               </button>
               {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
                 <button
@@ -251,16 +280,12 @@ export default function WaitlistPage() {
                 </button>
               ))}
               <button type="button" disabled={currentPage >= pageCount} onClick={() => setPage(currentPage + 1)}>
-                Sonraki
+                {t.waitlist.next}
               </button>
             </div>
           </div>
         )}
-        <p className="waitlist-note">
-          {remote
-            ? 'Onaylanmamış kayıtlar listede yok. Aynı e-posta (Gmail nokta/+ varyantları dahil) tek satırdır; paket değişince güncellenir.'
-            : 'Sunucuya bağlanılamadı. Bu ekran yalnızca bu tarayıcıdaki kayıtları gösteriyor.'}
-        </p>
+        <p className="waitlist-note">{remote ? t.waitlist.noteRemote : t.waitlist.noteLocal}</p>
       </main>
     </div>
   )

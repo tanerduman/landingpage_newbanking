@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { withBase } from './base.ts'
+import LangSwitch from './LangSwitch.tsx'
+import { useI18n } from './i18n/LocaleContext.tsx'
 import { confirmWaitlist } from './waitlist.ts'
 
 function tokenFromLocation() {
@@ -12,26 +14,32 @@ function tokenFromLocation() {
 }
 
 export default function ConfirmPage() {
-  const [status, setStatus] = useState<'working' | 'ok' | 'error'>('working')
-  const [message, setMessage] = useState('Talebin onaylanıyor…')
+  const { t } = useI18n()
+  const token = tokenFromLocation()
+  const [status, setStatus] = useState<'working' | 'ok' | 'error' | 'missing'>(token ? 'working' : 'missing')
+  const [detail, setDetail] = useState('')
 
   useEffect(() => {
-    const token = tokenFromLocation()
-    if (!token) {
-      setStatus('error')
-      setMessage('Onay bağlantısı eksik veya bozuk.')
-      return
-    }
+    if (!token) return
     void confirmWaitlist({ token })
       .then(() => {
         setStatus('ok')
-        setMessage('Talebiniz onaylandı. Waitlist’e eklendiniz.')
       })
       .catch((err: unknown) => {
         setStatus('error')
-        setMessage(err instanceof Error ? err.message : 'Onay başarısız.')
+        setDetail(err instanceof Error ? err.message : '')
       })
-  }, [])
+  }, [token])
+
+  const title = status === 'ok' ? t.confirm.okTitle : status === 'working' ? t.confirm.working : t.confirm.errTitle
+  const message =
+    status === 'working'
+      ? t.confirm.wait
+      : status === 'ok'
+        ? t.confirm.success
+        : status === 'missing'
+          ? t.confirm.missing
+          : detail || t.confirm.fail
 
   return (
     <div className="page waitlist-page">
@@ -41,16 +49,19 @@ export default function ConfirmPage() {
             <span className="logo-mark">A</span>
             AURE
           </a>
-          <a className="btn btn-ghost" href={withBase()}>
-            Siteye dön
-          </a>
+          <div className="waitlist-nav-actions">
+            <LangSwitch />
+            <a className="btn btn-ghost" href={withBase()}>
+              {t.nav.back}
+            </a>
+          </div>
         </div>
       </header>
       <main className="wrap waitlist-main">
         <p className="eyebrow">
-          <span className="dot" /> E-posta onayı
+          <span className="dot" /> {t.confirm.kicker}
         </p>
-        <h1>{status === 'ok' ? 'Onaylandı' : status === 'error' ? 'Onaylanamadı' : 'Onaylanıyor'}</h1>
+        <h1>{title}</h1>
         <p className="lead">{message}</p>
       </main>
     </div>

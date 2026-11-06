@@ -1,3 +1,5 @@
+import { confirmMailCopy } from './i18n.ts'
+
 export function normalizeEmail(email: string) {
   const trimmed = email.trim().toLowerCase()
   const at = trimmed.lastIndexOf('@')
@@ -15,14 +17,16 @@ export function isProduction() {
   return process.env.VERCEL_ENV === 'production'
 }
 
-function escapeHtml(value: string) {
-  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
-}
-
-export async function sendWaitlistConfirm(input: { to: string; code: string; link: string }) {
+export async function sendWaitlistConfirm(input: {
+  to: string
+  code: string
+  link: string
+  locale: 'tr' | 'en'
+}) {
   const key = process.env.RESEND_API_KEY || ''
   const from = process.env.MAIL_FROM || 'AURE <onboarding@resend.dev>'
   if (!key) return { ok: false as const, skipped: true as const }
+  const copy = confirmMailCopy(input.locale, input.code, input.link)
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -33,11 +37,9 @@ export async function sendWaitlistConfirm(input: { to: string; code: string; lin
     body: JSON.stringify({
       from,
       to: [input.to],
-      subject: 'AURE talep onayın',
-      text: `Talebini onaylamak için kod: ${input.code}\n\nVeya bu bağlantıya tıkla:\n${input.link}\n\nKod 30 dakika geçerli.`,
-      html: `<p>AURE waitlist talebini onaylamak için kodun:</p>
-<p style="font-size:28px;letter-spacing:0.12em;font-weight:700">${escapeHtml(input.code)}</p>
-<p><a href="${escapeHtml(input.link)}">Onay bağlantısı</a> — 30 dakika geçerli.</p>`,
+      subject: copy.subject,
+      text: copy.text,
+      html: copy.html,
     }),
   })
   if (!res.ok) return { ok: false as const, skipped: false as const }

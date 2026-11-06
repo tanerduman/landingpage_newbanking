@@ -1,4 +1,5 @@
 import { apiFetch, readApiJson } from './api.ts'
+import { messages, readLocale, type Locale } from './i18n/index.ts'
 
 export type PlanId = 'standard' | 'plus' | 'premium'
 export type SignupIntent = 'account' | PlanId
@@ -65,17 +66,24 @@ export function loadWaitlist(): WaitlistEntry[] {
   }
 }
 
+function failMessage(remoteError: string | undefined, key: 'save_fail' | 'confirm_fail' | 'offline') {
+  const t = messages(readLocale())
+  return remoteError || t.errors[key]
+}
+
 export async function addWaitlistEntry(input: {
   name: string
   email: string
   intent: SignupIntent
   cycle: BillingCycle
+  lang?: Locale
 }) {
   const payload = {
     name: input.name.trim(),
     email: input.email.trim().toLowerCase(),
     intent: input.intent,
     cycle: input.intent === 'account' ? 'none' : input.cycle,
+    lang: input.lang || readLocale(),
   }
   const res = await apiFetch('/api/waitlist', {
     method: 'POST',
@@ -95,7 +103,7 @@ export async function addWaitlistEntry(input: {
   if (res?.ok && remote?.pending) {
     return { status: 'pending' as const, delivered: Boolean(remote.delivered), devCode: remote.devCode }
   }
-  throw new Error(remote?.error || (res ? 'Kayıt alınamadı.' : 'Sunucuya bağlanılamadı.'))
+  throw new Error(failMessage(remote?.error, res ? 'save_fail' : 'offline'))
 }
 
 const CONFIRMED_KEY = 'aure-waitlist-confirmed'
@@ -168,7 +176,7 @@ export async function confirmWaitlist(input: { token?: string; email?: string; c
     else window.dispatchEvent(new Event('aure-waitlist'))
     return remote
   }
-  throw new Error(remote?.error || (res ? 'Onay başarısız.' : 'Sunucuya bağlanılamadı.'))
+  throw new Error(failMessage(remote?.error, res ? 'confirm_fail' : 'offline'))
 }
 
 export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean }> {
@@ -199,8 +207,8 @@ export function countByCycle(entries: WaitlistEntry[]) {
   }
 }
 
-export function formatRequestTime(iso: string) {
-  return new Intl.DateTimeFormat('tr-TR', {
+export function formatRequestTime(iso: string, locale: Locale = 'tr') {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'tr-TR', {
     timeZone: 'Europe/Istanbul',
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -214,20 +222,34 @@ function xmlCell(value: string) {
     .replaceAll('>', '&gt;')}</Data></Cell>`
 }
 
-export function downloadWaitlistExcel(rows: WaitlistEntry[], filterLabel: string) {
-  const header = ['Tarih', 'Ad soyad', 'E-posta', 'Paket', 'Dönem']
+export function downloadWaitlistExcel(
+  rows: WaitlistEntry[],
+  filterLabel: string,
+  copy: {
+    date: string
+    name: string
+    email: string
+    pkg: string
+    cycle: string
+    sheet: string
+    packages: Record<SignupIntent, string>
+    cycles: Record<BillingCycle, string>
+    locale: Locale
+  },
+) {
+  const header = [copy.date, copy.name, copy.email, copy.pkg, copy.cycle]
   const body = rows.map((row) => [
-    formatRequestTime(row.createdAt),
+    formatRequestTime(row.createdAt, copy.locale),
     row.name,
     row.email,
-    PACKAGE_LABELS[row.intent],
-    CYCLE_LABELS[row.cycle] ?? row.cycle,
+    copy.packages[row.intent],
+    copy.cycles[row.cycle] ?? row.cycle,
   ])
   const xml = `<?xml version="1.0"?>
 <?mso-application progid="Excel.Sheet"?>
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
- <Worksheet ss:Name="Talepler">
+ <Worksheet ss:Name="${copy.sheet.replaceAll('"', '')}">
   <Table>
    <Row>${header.map(xmlCell).join('')}</Row>
    ${body.map((line) => `<Row>${line.map(xmlCell).join('')}</Row>`).join('\n   ')}

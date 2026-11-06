@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useI18n } from './i18n/LocaleContext.tsx'
 import { plans } from './plans.ts'
 import {
   addWaitlistEntry,
@@ -18,6 +19,7 @@ export function SignupModal({
   cycle?: BillingCycle
   onClose: (toast?: string) => void
 }) {
+  const { t, locale } = useI18n()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -27,10 +29,9 @@ export function SignupModal({
   const [devCode, setDevCode] = useState('')
   const [billing, setBilling] = useState<BillingCycle>(intent === 'account' ? 'none' : cycle)
   const plan = plans.find((p) => p.id === intent)
+  const planName = intent === 'account' ? t.pkg.account : (plan?.name ?? t.pkg.standard)
   const successToast =
-    intent === 'account'
-      ? 'Talebiniz onaylandı. Paketsiz hesabınız waitlist’te.'
-      : `Talebiniz onaylandı. ${plan?.name ?? 'Paket'} waitlist’e eklendi.`
+    intent === 'account' ? t.signup.successAccount : t.signup.successPlan.replace('{name}', planName)
   const onCloseRef = useRef(onClose)
   const finishedRef = useRef(false)
 
@@ -74,7 +75,7 @@ export function SignupModal({
     e.preventDefault()
     if (phase === 'code') {
       if (!/^\d{6}$/.test(code.trim())) {
-        setError('E-postadaki 6 haneli kodu yaz.')
+        setError(t.signup.needCode)
         return
       }
       setBusy(true)
@@ -83,18 +84,18 @@ export function SignupModal({
         await confirmWaitlist({ email, code })
         onClose(successToast)
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Onay başarısız.')
+        setError(err instanceof Error ? err.message : t.signup.confirmFail)
       } finally {
         setBusy(false)
       }
       return
     }
     if (name.trim().length < 2) {
-      setError('Lütfen adını yaz.')
+      setError(t.signup.needName)
       return
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Geçerli bir e-posta gir.')
+      setError(t.signup.needEmail)
       return
     }
     setBusy(true)
@@ -104,16 +105,17 @@ export function SignupModal({
         name,
         email,
         intent,
+        lang: locale,
         cycle: intent === 'account' ? 'none' : billing === 'yearly' ? 'yearly' : 'monthly',
       })
       if (result.status === 'updated') {
-        onClose('Bu e-posta zaten onaylı; paket tercihin güncellendi.')
+        onClose(t.signup.updated)
         return
       }
       setDevCode(result.devCode || '')
       setPhase('code')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Kayıt alınamadı.')
+      setError(err instanceof Error ? err.message : t.signup.saveFail)
     } finally {
       setBusy(false)
     }
@@ -130,26 +132,22 @@ export function SignupModal({
       }}
     >
       <form className="modal-card" onSubmit={submit}>
-        <button type="button" className="modal-close" onClick={() => onClose()} aria-label="Kapat">
+        <button type="button" className="modal-close" onClick={() => onClose()} aria-label={t.signup.close}>
           ×
         </button>
         <h3 id="signup-title">
           {phase === 'code'
-            ? 'E-postanı onayla'
+            ? t.signup.confirmEmail
             : intent === 'account'
-              ? 'Paketsiz hesap aç'
-              : `${plan?.name ?? 'Paket'} paketini ekle`}
+              ? t.signup.openAccount
+              : t.signup.addPlan.replace('{name}', planName)}
         </h3>
         {phase === 'form' ? (
           <>
-            <p>
-              {intent === 'account'
-                ? 'Kayıt e-posta onayından sonra waitlist’e düşer. Adını ve e-postanı bırak.'
-                : `Adını ve e-postanı bırak. Onay linki veya kod gelmeden ${plan?.name ?? 'paket'} talebi listeye yazılmaz.`}
-            </p>
-            <label htmlFor="full-name">Ad soyad</label>
-            <input id="full-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ada Yılmaz" />
-            <label htmlFor="email">E-posta</label>
+            <p>{intent === 'account' ? t.signup.accountLead : t.signup.planLead}</p>
+            <label htmlFor="full-name">{t.signup.name}</label>
+            <input id="full-name" value={name} onChange={(e) => setName(e.target.value)} placeholder={t.signup.namePh} />
+            <label htmlFor="email">{t.signup.email}</label>
             <input
               id="email"
               type="email"
@@ -159,21 +157,21 @@ export function SignupModal({
             />
             {intent !== 'account' && (
               <>
-                <label>Ödeme dönemi</label>
-                <div className="toggle" role="tablist" aria-label="Ödeme dönemi">
+                <label>{t.signup.period}</label>
+                <div className="toggle" role="tablist" aria-label={t.signup.period}>
                   <button
                     type="button"
                     className={billing !== 'yearly' ? 'active' : ''}
                     onClick={() => setBilling('monthly')}
                   >
-                    Aylık
+                    {t.plans.monthly}
                   </button>
                   <button
                     type="button"
                     className={billing === 'yearly' ? 'active' : ''}
                     onClick={() => setBilling('yearly')}
                   >
-                    Yıllık <span className="save-tag">2 ay bedava</span>
+                    {t.plans.yearly} <span className="save-tag">{t.plans.saveTag}</span>
                   </button>
                 </div>
               </>
@@ -182,10 +180,9 @@ export function SignupModal({
         ) : (
           <>
             <p>
-              {email} adresine 6 haneli kod ve onay bağlantısı gönderdik. Bağlantıya tıklarsan bu pencere kapanır;
-              kodu buraya da yazabilirsin.
+              {email} {t.signup.codeSent}
             </p>
-            <label htmlFor="confirm-code">Onay kodu</label>
+            <label htmlFor="confirm-code">{t.signup.codeLabel}</label>
             <input
               id="confirm-code"
               inputMode="numeric"
@@ -194,7 +191,11 @@ export function SignupModal({
               onChange={(e) => setCode(e.target.value)}
               placeholder="123456"
             />
-            {devCode ? <p className="confirm-dev">Geliştirme kodu: {devCode}</p> : null}
+            {devCode ? (
+              <p className="confirm-dev">
+                {t.signup.devCode} {devCode}
+              </p>
+            ) : null}
           </>
         )}
         {error && (
@@ -204,10 +205,10 @@ export function SignupModal({
         )}
         <div className="modal-actions">
           <button type="submit" className="btn btn-solid" disabled={busy}>
-            {phase === 'code' ? 'Onayla' : 'Kodu gönder'}
+            {phase === 'code' ? t.signup.confirm : t.signup.sendCode}
           </button>
           <button type="button" className="btn btn-ghost" onClick={() => onClose()}>
-            Vazgeç
+            {t.signup.cancel}
           </button>
         </div>
       </form>
@@ -216,6 +217,7 @@ export function SignupModal({
 }
 
 export function SignupToast({ message, onClose }: { message: string; onClose: () => void }) {
+  const { t } = useI18n()
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') onClose()
@@ -231,7 +233,7 @@ export function SignupToast({ message, onClose }: { message: string; onClose: ()
   return (
     <div className="toast" role="status">
       <span>{message}</span>
-      <button type="button" className="toast-close" onClick={onClose} aria-label="Kapat">
+      <button type="button" className="toast-close" onClick={onClose} aria-label={t.signup.close}>
         ×
       </button>
     </div>

@@ -1,5 +1,6 @@
 import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
+import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
 const buckets = new Map<string, { count: number; start: number }>()
@@ -49,6 +50,11 @@ function json(data: unknown, status = 200, request?: Request) {
   return new Response(JSON.stringify(data), { status, headers })
 }
 
+function fail(request: Request, code: string, status: number, body?: unknown) {
+  const locale: ApiLocale = localeFromRequest(request, body)
+  return json({ error: apiError(code, locale), code }, status, request)
+}
+
 function originAllowed(origin: string) {
   if (ALLOWED_ORIGINS.has(origin)) return true
   try {
@@ -75,14 +81,14 @@ function uuidLike(value: unknown): value is string {
 
 async function readJson(request: Request) {
   const length = Number(request.headers.get('content-length') || '0')
-  if (length > 8_000) return { error: 'İstek çok büyük.' as const }
+  if (length > 8_000) return { error: 'too_big' as const }
   const text = await request.text()
-  if (text.length > 8_000) return { error: 'İstek çok büyük.' as const }
+  if (text.length > 8_000) return { error: 'too_big' as const }
   if (!text) return { value: null }
   try {
     return { value: JSON.parse(text) as unknown }
   } catch {
-    return { error: 'Geçersiz JSON.' as const }
+    return { error: 'bad_json' as const }
   }
 }
 
@@ -104,14 +110,14 @@ async function handleVisits(request: Request) {
     const stats = await store.getStats()
     return json({ ...stats, store: store.kind }, 200, request)
   }
-  if (limited(request, 'POST /api/visits')) return json({ error: 'Çok fazla istek.' }, 429, request)
+  if (limited(request, 'POST /api/visits')) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
-  if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   const body = parsed.value as { visitorId?: unknown; sessionId?: unknown } | null
   const visitorId = body?.visitorId
   const sessionId = body?.sessionId
   if (!uuidLike(visitorId) || !uuidLike(sessionId)) {
-    return json({ error: 'Geçersiz ziyaret.' }, 400, request)
+    return fail(request, 'bad_visit', 400, body)
   }
   await store.recordVisit(visitorId, sessionId)
   return json({ ok: true, store: store.kind }, 200, request)
@@ -123,22 +129,23 @@ async function handleWaitlist(request: Request) {
     const entries = await store.listWaitlist()
     return json({ entries, store: store.kind }, 200, request)
   }
-  if (limited(request, 'POST /api/waitlist')) return json({ error: 'Çok fazla istek.' }, 429, request)
+  if (limited(request, 'POST /api/waitlist')) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
-  if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  const locale = localeFromRequest(request, parsed.value)
   const valid = validateWaitlistInput(parsed.value)
-  if (typeof valid === 'string') return json({ error: valid }, 400, request)
+  if (typeof valid === 'string') return fail(request, valid, 400, parsed.value)
   const result = await store.requestWaitlist(valid)
   if (result.status === 'updated') {
     return json({ updated: true, store: store.kind }, 200, request)
   }
   const link = `${publicAppUrl(request)}/confirm?token=${result.token}`
-  const sent = await sendWaitlistConfirm({ to: result.email, code: result.code || '', link })
+  const sent = await sendWaitlistConfirm({ to: result.email, code: result.code || '', link, locale })
   if (!sent.ok && isProduction() && !sent.skipped) {
-    return json({ error: 'Onay e-postası gönderilemedi. Az sonra tekrar dene.' }, 503, request)
+    return fail(request, 'mail_fail', 503, parsed.value)
   }
   if (!sent.ok && sent.skipped && isProduction()) {
-    return json({ error: 'E-posta servisi henüz bağlanmadı.' }, 503, request)
+    return fail(request, 'mail_off', 503, parsed.value)
   }
   return json(
     {
@@ -153,31 +160,31 @@ async function handleWaitlist(request: Request) {
 }
 
 async function handleConfirm(request: Request) {
-  if (limited(request, 'POST /api/confirm')) return json({ error: 'Çok fazla istek.' }, 429, request)
+  if (limited(request, 'POST /api/confirm')) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
-  if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   const body = parsed.value as { token?: unknown; email?: unknown; code?: unknown } | null
   const token = typeof body?.token === 'string' ? body.token.trim() : ''
   const email = typeof body?.email === 'string' ? body.email.trim() : ''
   const code = typeof body?.code === 'string' ? body.code.trim() : ''
-  if (!token && !(email && code)) return json({ error: 'Onay kodu veya bağlantı gerekli.' }, 400, request)
+  if (!token && !(email && code)) return fail(request, 'confirm_need', 400, body)
   const result = await getStore().confirmWaitlist({
     token: token || undefined,
     email: email || undefined,
     code: code || undefined,
   })
-  if (typeof result === 'string') return json({ error: result }, 400, request)
+  if (typeof result === 'string') return fail(request, result, 400, body)
   return json({ confirmed: true, email: result.email, intent: result.intent, store: getStore().kind }, 200, request)
 }
 
 async function handleConfirmStatus(request: Request) {
-  if (limited(request, 'POST /api/confirm-status')) return json({ error: 'Çok fazla istek.' }, 429, request)
+  if (limited(request, 'POST /api/confirm-status')) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
-  if ('error' in parsed && parsed.error) return json({ error: parsed.error }, 400, request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   const email = typeof (parsed.value as { email?: unknown } | null)?.email === 'string'
     ? (parsed.value as { email: string }).email
     : ''
-  if (!email) return json({ error: 'E-posta gerekli.' }, 400, request)
+  if (!email) return fail(request, 'email_need', 400, parsed.value)
   const confirmed = await getStore().isConfirmed(normalizeEmail(email))
   return json({ confirmed, store: getStore().kind }, 200, request)
 }
@@ -204,10 +211,10 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
     if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)
     if (path === '/api/confirm-status' && request.method === 'POST') return handleConfirmStatus(request)
   } catch {
-    return json({ error: 'Sunucu hatası.' }, 500, request)
+    return fail(request, 'server', 500)
   }
 
-  if (path.startsWith('/api/')) return json({ error: 'Bulunamadı.' }, 404, request)
+  if (path.startsWith('/api/')) return fail(request, 'not_found', 404)
   return null
 }
 
