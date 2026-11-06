@@ -41,7 +41,7 @@ export default function Simulator({
     })
   }, [spend, idle, salary, cycleYearly])
 
-  const bestId = rows.reduce((best, row) => (row.net > (rows.find((r) => r.id === best)?.net ?? -Infinity) ? row.id : best), rows[0]?.id)
+  const bestId = rows.reduce((best, row) => (row.net > best.net ? row : best), rows[0]).id
   const colName: Record<PlanColumnId, string> = {
     account: t.pkg.account,
     standard: t.pkg.standard,
@@ -54,40 +54,62 @@ export default function Simulator({
       <p className="simulator-note">{t.plans.waiverNote}</p>
       <div className="simulator-controls">
         <label>
-          {t.simulator.spend}
+          <span>{t.simulator.spend}</span>
           <strong>{formatMoney(spend, locale)}</strong>
-          <input type="range" min={5000} max={80000} step={1000} value={spend} onChange={(e) => setSpend(Number(e.target.value))} />
+          <input
+            type="range"
+            min={5000}
+            max={80000}
+            step={1000}
+            value={spend}
+            onChange={(e) => setSpend(Number(e.target.value))}
+          />
         </label>
         <label>
-          {t.simulator.idle}
+          <span>{t.simulator.idle}</span>
           <strong>{formatMoney(idle, locale)}</strong>
-          <input type="range" min={5000} max={200000} step={1000} value={idle} onChange={(e) => setIdle(Number(e.target.value))} />
+          <input
+            type="range"
+            min={5000}
+            max={200000}
+            step={1000}
+            value={idle}
+            onChange={(e) => setIdle(Number(e.target.value))}
+          />
         </label>
         <label className="simulator-check">
           <input type="checkbox" checked={salary} onChange={(e) => setSalary(e.target.checked)} />
-          {t.simulator.salary}
+          <span>{t.simulator.salary}</span>
         </label>
       </div>
       <div className="simulator-grid">
         {rows.map((row) => (
           <article key={row.id} className={`simulator-card ${row.id === bestId ? 'best' : ''}`}>
             <div className="simulator-kicker">
-              <span>{colName[row.id]}</span>
+              <h3>{colName[row.id]}</h3>
               {row.id === bestId && <b>{t.simulator.best}</b>}
             </div>
-            <p>
-              {t.simulator.fee}: {row.waived ? t.simulator.waived : formatMoney(row.fee, locale)}
+            <dl>
+              <div>
+                <dt>{t.simulator.fee}</dt>
+                <dd className={row.waived ? 'waived' : ''}>{row.waived ? t.simulator.waived : formatMoney(row.fee, locale)}</dd>
+              </div>
+              <div>
+                <dt>{t.simulator.interest}</dt>
+                <dd>{formatMoney(row.interest, locale)}</dd>
+              </div>
+              <div>
+                <dt>{t.simulator.extras}</dt>
+                <dd>{formatMoney(row.extras, locale)}</dd>
+              </div>
+            </dl>
+            <p className="simulator-net">
+              <span>{t.simulator.net}</span>
+              <strong>
+                {formatMoney(row.net, locale)}
+                <small>{t.simulator.perMonth}</small>
+              </strong>
             </p>
-            <p>
-              {t.simulator.interest}: {formatMoney(row.interest, locale)}
-            </p>
-            <p>
-              {t.simulator.extras}: {formatMoney(row.extras, locale)}
-            </p>
-            <strong>
-              {t.simulator.net} {formatMoney(row.net, locale)}
-              <small>{t.simulator.perMonth}</small>
-            </strong>
             <button type="button" className="btn btn-solid" onClick={() => onPick(row.id)}>
               {t.simulator.pick}
             </button>

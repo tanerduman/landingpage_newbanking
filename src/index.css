@@ -542,113 +542,185 @@ h3 {
 
 .simulator {
   margin: 8px 0 32px;
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  background: var(--bg-elev);
+  padding: 28px;
+  border: 1px solid #ddd6c8;
+  border-radius: 28px;
+  background: #fff;
+  color: var(--ink);
 }
 
 .simulator-note {
-  margin: 0 0 16px;
-  font-weight: 700;
-  color: var(--lime);
+  margin: 0 0 22px;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+  color: var(--ink);
 }
 
 .simulator-controls {
   display: grid;
   grid-template-columns: 1.2fr 1.2fr auto;
-  gap: 18px;
+  gap: 22px;
   align-items: end;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
 }
 
 .simulator-controls label {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--muted);
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3f3c37;
+}
+
+.simulator-controls label span {
+  color: #3f3c37;
 }
 
 .simulator-controls strong {
-  color: var(--text);
-  font-size: 18px;
+  color: var(--ink);
+  font-size: 28px;
+  letter-spacing: -0.04em;
+  font-family: "Bricolage Grotesque", sans-serif;
 }
 
 .simulator-controls input[type='range'] {
   width: 100%;
-  accent-color: var(--lime);
+  height: 8px;
+  accent-color: #5a8f12;
 }
 
 .simulator-check {
   flex-direction: row !important;
   align-items: center;
-  gap: 8px !important;
-  color: var(--text) !important;
+  gap: 10px !important;
+  color: var(--ink) !important;
+  font-size: 15px !important;
+  padding-bottom: 8px;
+}
+
+.simulator-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #5a8f12;
 }
 
 .simulator-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 .simulator-card {
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 16px;
+  background: #f7f3ea;
+  border: 1px solid #e5dfd2;
+  border-radius: 20px;
+  padding: 18px 18px 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
+  color: var(--ink);
 }
 
-.simulator-card p {
+.simulator-card dl {
   margin: 0;
-  color: var(--muted);
-  font-size: 13px;
+  display: grid;
+  gap: 8px;
 }
 
-.simulator-card strong {
-  margin: 8px 0;
-  font-size: 22px;
-  letter-spacing: -0.03em;
+.simulator-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
 }
 
-.simulator-card strong small {
+.simulator-card dt {
+  margin: 0;
+  color: #4a463f;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.simulator-card dd {
+  margin: 0;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.simulator-card dd.waived {
+  color: #3d6b0d;
+}
+
+.simulator-net {
+  margin: 4px 0 2px;
+  padding-top: 12px;
+  border-top: 1px solid #e5dfd2;
+}
+
+.simulator-net span {
   display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--muted);
+  color: #3f3c37;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.simulator-net strong {
+  display: block;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 32px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.simulator-net small {
+  margin-left: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a463f;
 }
 
 .simulator-kicker {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 700;
+  gap: 8px;
+}
+
+.simulator-kicker h3 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.03em;
 }
 
 .simulator-kicker b {
   background: var(--lime);
   color: var(--ink);
-  font-size: 11px;
-  padding: 2px 7px;
+  font-size: 12px;
+  padding: 4px 8px;
   border-radius: 999px;
 }
 
 .simulator-card.best {
-  border-color: var(--lime);
+  background: #fff;
+  border-color: #111;
+  box-shadow: 0 0 0 2px var(--lime);
 }
 
 .simulator-card .btn {
   margin-top: auto;
+  color: var(--ink);
 }
 
 .simulator-sample {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 12px;
+  margin: 14px 0 0;
+  color: #4a463f;
+  font-size: 13px;
 }
 
 .plans {
