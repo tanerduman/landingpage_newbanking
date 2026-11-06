@@ -110,7 +110,7 @@ export const tr: Messages = {
     stockTitle: 'Sıfır komisyonlu yatırım & canlı veri',
     stockBody: 'BIST, ABD borsaları, eurobond ve ücretsiz canlı piyasa verisi.',
     campTitle: 'Şartsız kampanya & peşin fiyatına taksit',
-    campBody: 'SMS’siz, taahhütsüz otomatik katılım ve KoçAilem indirimleri.',
+    campBody: 'SMS’siz, taahhütsüz otomatik katılım ve marka indirimleri.',
     campLink: 'Kampanya detayları',
   },
   simulator: {
@@ -182,7 +182,7 @@ export const tr: Messages = {
     bankTitle: 'Gecelik faiz, EFT, döviz',
     bankBody: 'Sınırsız 0 ₺ EFT/FAST, otomatik gecelik faiz ve dijital altın / eurobond.',
     camp: 'Kampanya',
-    campTitle: 'Taksit · KoçAilem · Migros',
+    campTitle: 'Taksit · Migros · Setur',
     campBody: 'Peşin fiyatına taksit ve taahhütsüz otomatik katılım paketinle açılır.',
     send: 'Destek',
     sendTitle: 'Chatbot yok',
@@ -218,7 +218,7 @@ export const tr: Messages = {
       },
       {
         q: 'Kampanyalar nasıl kullanılır?',
-        a: 'Plus ve Premium’da kampanyaya taahhütsüz otomatik katılırın. Kartınla Migros, Sanal Market, Divan, Setur ve KoçAilem noktalarında oran paketine göre işler.',
+        a: 'Plus ve Premium’da kampanyaya taahhütsüz otomatik katılırın. Kartınla Migros, Sanal Market, Divan ve Setur noktalarında oran paketine göre işler.',
       },
     ],
   },
@@ -292,7 +292,7 @@ export const tr: Messages = {
   campaigns: {
     kicker: 'Kampanyalar',
     title: 'Paketindeki marka ayrıcalıkları.',
-    lead: 'Migros, Sanal Market, Divan Pastanesi, Setur ve KoçAilem. Temel hesapta kapalı; Standard, Plus ve Premium’da oran paketine göre açılır.',
+    lead: 'Migros, Sanal Market, Divan Pastanesi ve Setur. Temel hesapta kapalı; Standard, Plus ve Premium’da oran paketine göre açılır.',
     how: 'Nasıl kullanılır.',
     add: 'Bu kampanya için paket ekle',
     on: 'Var',

@@ -110,7 +110,7 @@ export const en: Messages = {
     stockTitle: 'Zero-commission investing & live data',
     stockBody: 'BIST, US markets, eurobonds and free live prices.',
     campTitle: 'No-strings offers & cash-price instalments',
-    campBody: 'Auto opt-in with no SMS and no lock-in, plus KoçAilem discounts.',
+    campBody: 'Auto opt-in with no SMS and no lock-in, plus partner discounts.',
     campLink: 'Offer details',
   },
   simulator: {
@@ -182,7 +182,7 @@ export const en: Messages = {
     bankTitle: 'Overnight interest, transfers, FX',
     bankBody: 'Unlimited 0 ₺ EFT/FAST, automatic overnight interest, digital gold and eurobonds.',
     camp: 'Offers',
-    campTitle: 'Instalments · KoçAilem · Migros',
+    campTitle: 'Instalments · Migros · Setur',
     campBody: 'Cash-price instalments and auto opt-in with no lock-in.',
     send: 'Support',
     sendTitle: 'No chatbot',
@@ -218,7 +218,7 @@ export const en: Messages = {
       },
       {
         q: 'How do the offers work?',
-        a: 'Plus and Premium auto-enrol you with no lock-in. Pay with your card at Migros, Sanal Market, Divan, Setur and KoçAilem; the rate follows the plan.',
+        a: 'Plus and Premium auto-enrol you with no lock-in. Pay with your card at Migros, Sanal Market, Divan and Setur; the rate follows the plan.',
       },
     ],
   },
