@@ -96,6 +96,29 @@ export type Messages = {
     pick: string
     sample: string
     perMonth: string
+    idlePreset: string
+  }
+  idleExample: {
+    kicker: string
+    title: string
+    lead: string
+    boardTitle: string
+    amountHint: string
+    overnight: string
+    fx: string
+    fxHint: string
+    fee: string
+    rate: string
+    net: string
+    spread: string
+    eur: string
+    more: string
+    stay: string
+    pick: string
+    footStart: string
+    footMid: string
+    footEnd: string
+    sample: string
   }
   app: {
     title: string

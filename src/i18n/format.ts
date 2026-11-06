@@ -27,3 +27,18 @@ export function formatFx(rate: number, locale: Locale) {
     maximumFractionDigits: 4,
   })
 }
+
+export function formatEur(amount: number, locale: Locale) {
+  const rounded = Math.round(amount)
+  const sign = rounded < 0 ? '−' : ''
+  return `${sign}${Math.abs(rounded).toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR')} €`
+}
+
+export function formatRate(rate: number, locale: Locale) {
+  const pct = rate * 100
+  const n = pct.toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR', {
+    minimumFractionDigits: pct % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  })
+  return locale === 'en' ? `${n}%` : `%${n}`
+}

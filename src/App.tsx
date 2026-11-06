@@ -3,6 +3,7 @@ import { withBase } from './base.ts'
 import { comparisonRows, planColumns, plans } from './plans.ts'
 import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
+import IdleExample from './IdleExample.tsx'
 import Simulator from './Simulator.tsx'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -456,6 +457,7 @@ export default function App() {
                 </figcaption>
               </figure>
             </div>
+            <IdleExample onPick={openPlan} />
           </div>
         </section>
 

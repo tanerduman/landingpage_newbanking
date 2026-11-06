@@ -752,6 +752,19 @@ h3 {
   font-size: 13px;
 }
 
+.simulator-preset {
+  align-self: start;
+  margin-top: 4px;
+  border: 1px solid #111;
+  background: var(--lime);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .plans {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1095,6 +1108,213 @@ th.center {
   color: var(--text);
   font-size: 16px;
   margin-bottom: 4px;
+}
+
+.idle-example {
+  margin-top: 72px;
+}
+
+.idle-example .section-head {
+  margin-bottom: 28px;
+}
+
+.idle-board {
+  background: #111114;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+
+.idle-board-head {
+  margin-bottom: 28px;
+}
+
+.idle-board-head span {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.idle-board-head strong {
+  display: block;
+  margin: 6px 0 4px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(36px, 5vw, 52px);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.idle-board-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.idle-label {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.idle-fx-hint {
+  margin: -6px 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.idle-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.idle-card {
+  background: #1a1a1e;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.idle-card.base {
+  opacity: 0.92;
+}
+
+.idle-card.featured {
+  background: #14160f;
+  border-color: var(--lime);
+  box-shadow: 0 0 0 1px var(--lime);
+}
+
+.idle-card-kicker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.idle-card h3 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.idle-card-kicker b {
+  background: var(--lime);
+  color: var(--ink);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.idle-card dl {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.idle-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.idle-card dt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.idle-card dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.idle-card dd.spread {
+  color: #ff6b6b;
+}
+
+.idle-card dd.zero {
+  color: var(--lime);
+}
+
+.idle-net {
+  margin: 4px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.idle-net span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.idle-net strong {
+  display: block;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 26px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.idle-net small {
+  margin-left: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.idle-card.featured .idle-net strong {
+  color: var(--lime);
+}
+
+.idle-delta {
+  margin: 0;
+  color: var(--lime);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.idle-stay {
+  margin: auto 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.idle-card .btn {
+  margin-top: auto;
+}
+
+.idle-foot {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.idle-foot span {
+  color: var(--lime);
+  font-weight: 800;
+}
+
+.idle-sample {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .faq-wrap {
@@ -1986,6 +2206,10 @@ footer {
     grid-template-columns: 1fr;
   }
 
+  .idle-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .stage,
   .card-stack {
     min-height: 460px;
@@ -2005,7 +2229,8 @@ footer {
   .phones,
   .waitlist-stats,
   .traffic-stats,
-  .fx-grid {
+  .fx-grid,
+  .idle-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2021,5 +2246,13 @@ footer {
 
   .plan-card {
     min-height: unset;
+  }
+
+  .idle-board {
+    padding: 18px;
+  }
+
+  .idle-net strong {
+    font-size: 22px;
   }
 }
