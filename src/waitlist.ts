@@ -1,4 +1,4 @@
-import { apiFetch, readApiJson } from './api.ts'
+import { apiFetch, getAdminToken, readApiJson, setAdminToken } from './api.ts'
 import { messages, readLocale, type Locale } from './i18n/index.ts'
 
 export type PlanId = 'standard' | 'plus' | 'premium'
@@ -66,7 +66,10 @@ export function loadWaitlist(): WaitlistEntry[] {
   }
 }
 
-function failMessage(remoteError: string | undefined, key: 'save_fail' | 'confirm_fail' | 'offline') {
+function failMessage(
+  remoteError: string | undefined,
+  key: 'save_fail' | 'confirm_fail' | 'offline' | 'auth_bad',
+) {
   const t = messages(readLocale())
   return remoteError || t.errors[key]
 }
@@ -179,13 +182,39 @@ export async function confirmWaitlist(input: { token?: string; email?: string; c
   throw new Error(failMessage(remote?.error, res ? 'confirm_fail' : 'offline'))
 }
 
-export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean }> {
+export async function loginWaitlist(user: string, password: string) {
+  const res = await apiFetch('/api/login', {
+    method: 'POST',
+    body: JSON.stringify({ user: user.trim(), password }),
+  })
+  const remote = await readApiJson<{ token?: string; error?: string }>(res)
+  if (res?.ok && remote?.token) {
+    setAdminToken(remote.token)
+    return
+  }
+  throw new Error(failMessage(remote?.error, res ? 'auth_bad' : 'offline'))
+}
+
+export function logoutWaitlist() {
+  setAdminToken(null)
+}
+
+export function isWaitlistAuthed() {
+  return Boolean(getAdminToken())
+}
+
+export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean; authorized: boolean }> {
   const res = await apiFetch('/api/waitlist')
+  if (res?.status === 401) {
+    setAdminToken(null)
+    return { entries: [], remote: false, authorized: false }
+  }
   const remote = await readApiJson<{ entries: WaitlistEntry[] }>(res)
   if (res?.ok && remote?.entries) {
-    return { entries: remote.entries.map(normalizeEntry), remote: true }
+    return { entries: remote.entries.map(normalizeEntry), remote: true, authorized: true }
   }
-  return { entries: loadWaitlist().map(normalizeEntry), remote: false }
+  if (!getAdminToken()) return { entries: [], remote: false, authorized: false }
+  return { entries: [], remote: false, authorized: true }
 }
 
 export function countByIntent(entries: WaitlistEntry[]) {

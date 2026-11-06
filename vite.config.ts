@@ -7,6 +7,9 @@ function apiPlugin(env: Record<string, string>) {
   if (env.RESEND_API_KEY) process.env.RESEND_API_KEY = env.RESEND_API_KEY
   if (env.MAIL_FROM) process.env.MAIL_FROM = env.MAIL_FROM
   if (env.APP_URL) process.env.APP_URL = env.APP_URL
+  if (env.WAITLIST_USER) process.env.WAITLIST_USER = env.WAITLIST_USER
+  if (env.WAITLIST_PASSWORD) process.env.WAITLIST_PASSWORD = env.WAITLIST_PASSWORD
+  if (env.WAITLIST_SESSION_SECRET) process.env.WAITLIST_SESSION_SECRET = env.WAITLIST_SESSION_SECRET
   async function attach(server: ViteDevServer | PreviewServer) {
     server.middlewares.use(async (req, res, next) => {
       if (!req.url?.startsWith('/api')) {
