@@ -540,7 +540,7 @@ export default function App() {
         <div className="wrap foot">
           <span>{t.footer.legal}</span>
           <span>
-            {t.pkg.account} · Standard · Plus · Premium · <a href={withBase('waitlist')}>{t.footer.waitlist}</a>
+            {t.pkg.account} · Standard · Plus · Premium
           </span>
         </div>
       </footer>
