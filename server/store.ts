@@ -152,7 +152,7 @@ function memoryStore(): Store {
         if (codeHash && emailNorm && item.emailNorm === emailNorm && item.confirmCodeHash === codeHash) return true
         return false
       })
-      if (!row) return 'Onay kodu veya bağlantı geçersiz.'
+      if (!row) return 'confirm_invalid'
       row.confirmed = true
       row.confirmTokenHash = null
       row.confirmCodeHash = null
@@ -374,7 +374,7 @@ function postgresStore(url: string): Store {
         [tokenHash, codeHash, emailNorm],
       )
       const row = result.rows[0]
-      if (!row) return 'Onay kodu veya bağlantı geçersiz.'
+      if (!row) return 'confirm_invalid'
       return {
         id: row.id,
         name: row.name,
@@ -429,19 +429,19 @@ export function getStore(): Store {
 }
 
 export function validateWaitlistInput(body: unknown) {
-  if (!body || typeof body !== 'object') return 'Geçersiz istek.'
+  if (!body || typeof body !== 'object') return 'invalid'
   const data = body as { name?: unknown; email?: unknown; intent?: unknown; cycle?: unknown }
   const name = typeof data.name === 'string' ? data.name.trim() : ''
   const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : ''
   const intent = typeof data.intent === 'string' ? data.intent : ''
   const rawCycle = typeof data.cycle === 'string' ? data.cycle : ''
-  if (name.length < 2 || name.length > 80) return 'Lütfen adını yaz.'
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return 'Geçerli bir e-posta gir.'
-  if (!isIntent(intent)) return 'Geçersiz paket.'
+  if (name.length < 2 || name.length > 80) return 'name'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return 'email'
+  if (!isIntent(intent)) return 'intent'
   let cycle: BillingCycle = 'monthly'
   if (intent === 'account') cycle = 'none'
   else if (isBillingCycle(rawCycle) && rawCycle !== 'none') cycle = rawCycle
-  else if (rawCycle && rawCycle !== 'monthly' && rawCycle !== 'yearly') return 'Geçersiz ödeme dönemi.'
+  else if (rawCycle && rawCycle !== 'monthly' && rawCycle !== 'yearly') return 'cycle'
   return { name, email, emailNorm: normalizeEmail(email), intent, cycle }
 }
 

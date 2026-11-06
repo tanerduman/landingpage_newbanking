@@ -1,0 +1,242 @@
+export type Locale = 'tr' | 'en'
+
+export type Messages = {
+  htmlLang: string
+  title: string
+  description: string
+  nav: {
+    plans: string
+    features: string
+    app: string
+    compare: string
+    campaigns: string
+    faq: string
+    seePlans: string
+    openFree: string
+    menu: string
+    back: string
+    language: string
+  }
+  hero: {
+    eyebrow: string
+    title: string
+    lead: string
+    optionalPlans: string
+    statFree: string
+    statPlans: string
+    statCountries: string
+    cardAccount: string
+    pillFree: string
+    pillFreeSub: string
+    pillLater: string
+    pillLaterSub: string
+  }
+  fx: {
+    eyebrow: string
+    lead: string
+    error: string
+  }
+  plans: {
+    badge: string
+    bannerTitle: string
+    bannerBody: string
+    bannerCta: string
+    upgradeTitle: string
+    upgradeLead: string
+    billingAria: string
+    monthly: string
+    yearly: string
+    saveTag: string
+    perMonth: string
+    perYear: string
+    featured: string
+    optional: string
+    banking: string
+    travel: string
+    brands: string
+    addPlan: string
+    standardBlurb: string
+    plusBlurb: string
+    premiumBlurb: string
+    standardBanking: string[]
+    plusBanking: string[]
+    premiumBanking: string[]
+    standardTravel: string[]
+    plusTravel: string[]
+    premiumTravel: string[]
+    standardCampaigns: string[]
+    plusCampaigns: string[]
+    premiumCampaigns: string[]
+  }
+  features: {
+    eyebrow: string
+    title: string
+    lead: string
+    fxTitle: string
+    fxBody: string
+    saveTitle: string
+    saveBody: string
+    stockTitle: string
+    stockBody: string
+    campTitle: string
+    campBody: string
+    campLink: string
+  }
+  app: {
+    title: string
+    lead: string
+    wallets: string
+    walletsCap: string
+    walletsAlt: string
+    order: string
+    orderCap: string
+    orderAlt: string
+    trade: string
+    tradeCap: string
+    tradeAlt: string
+  }
+  homeCompare: {
+    title: string
+    lead: string
+    feature: string
+    all: string
+    yes: string
+  }
+  lifestyle: {
+    title: string
+    lead: string
+    bank: string
+    bankTitle: string
+    bankBody: string
+    camp: string
+    campTitle: string
+    campBody: string
+    send: string
+    sendTitle: string
+    sendBody: string
+  }
+  faq: {
+    title: string
+    lead: string
+    items: { q: string; a: string }[]
+  }
+  cta: {
+    title: string
+    body: string
+    button: string
+  }
+  footer: {
+    legal: string
+    waitlist: string
+  }
+  pkg: {
+    all: string
+    account: string
+    standard: string
+    plus: string
+    premium: string
+    free: string
+    priceMonth: string
+  }
+  cycle: {
+    all: string
+    monthly: string
+    yearly: string
+    none: string
+  }
+  compare: {
+    kicker: string
+    title: string
+    lead: string
+    choose: string
+    groupBank: string
+    groupTravel: string
+    groupBrand: string
+    unlimited: string
+    tour: string
+    tourHotel: string
+    rows: Record<string, string>
+  }
+  campaigns: {
+    kicker: string
+    title: string
+    lead: string
+    how: string
+    add: string
+    on: string
+    off: string
+    market: string
+    food: string
+    travel: string
+    items: Record<string, { title: string; summary: string; how: string; note: string }>
+  }
+  signup: {
+    close: string
+    confirmEmail: string
+    openAccount: string
+    addPlan: string
+    accountLead: string
+    planLead: string
+    name: string
+    namePh: string
+    email: string
+    period: string
+    codeLabel: string
+    codeSent: string
+    sendCode: string
+    confirm: string
+    cancel: string
+    needName: string
+    needEmail: string
+    needCode: string
+    confirmFail: string
+    saveFail: string
+    updated: string
+    successAccount: string
+    successPlan: string
+    devCode: string
+  }
+  confirm: {
+    working: string
+    okTitle: string
+    errTitle: string
+    wait: string
+    missing: string
+    fail: string
+    success: string
+    kicker: string
+  }
+  waitlist: {
+    export: string
+    kicker: string
+    title: string
+    lead: string
+    unique: string
+    views: string
+    requests: string
+    conversion: string
+    pieMonth: string
+    pieMonthTitle: string
+    pieYear: string
+    pieYearTitle: string
+    pieRequests: string
+    pieChart: string
+    date: string
+    name: string
+    email: string
+    package: string
+    period: string
+    empty: string
+    prev: string
+    next: string
+    noteRemote: string
+    noteLocal: string
+    excelDate: string
+    excelName: string
+    excelEmail: string
+    excelPkg: string
+    excelCycle: string
+    excelSheet: string
+  }
+  errors: Record<string, string>
+}

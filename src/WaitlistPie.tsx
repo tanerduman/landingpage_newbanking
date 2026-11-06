@@ -1,4 +1,5 @@
-import { PACKAGE_LABELS, type SignupIntent } from './waitlist'
+import { useI18n } from './i18n/LocaleContext.tsx'
+import { type SignupIntent } from './waitlist'
 
 const SLICES: { id: SignupIntent; color: string }[] = [
   { id: 'account', color: '#d8ff4a' },
@@ -26,6 +27,13 @@ export default function WaitlistPie({
   onSelect: (id: SignupIntent) => void
   hideAccount?: boolean
 }) {
+  const { t } = useI18n()
+  const labels: Record<SignupIntent, string> = {
+    account: t.pkg.account,
+    standard: t.pkg.standard,
+    plus: t.pkg.plus,
+    premium: t.pkg.premium,
+  }
   const slices = hideAccount ? SLICES.filter((slice) => slice.id !== 'account') : SLICES
   const r = 62
   const c = 2 * Math.PI * r
@@ -45,7 +53,7 @@ export default function WaitlistPie({
       </div>
       <div className="waitlist-pie-body">
         <div className="waitlist-pie-chart">
-          <svg viewBox="0 0 180 180" role="img" aria-label="Paket taleplerinin pasta grafiği">
+          <svg viewBox="0 0 180 180" role="img" aria-label={t.waitlist.pieChart}>
             <circle cx="90" cy="90" r={r} fill="none" stroke="#1c1c20" strokeWidth="28" />
             {arcs
               .filter((slice) => slice.dash > 0)
@@ -67,7 +75,9 @@ export default function WaitlistPie({
           </svg>
           <div className="waitlist-pie-center">
             <strong>{total === 0 ? '—' : '%100'}</strong>
-            <span>{total} talep</span>
+            <span>
+              {total} {t.waitlist.pieRequests}
+            </span>
           </div>
         </div>
         <ul className="waitlist-pie-legend">
@@ -81,7 +91,7 @@ export default function WaitlistPie({
                   onClick={() => onSelect(slice.id)}
                 >
                   <i style={{ background: slice.color }} />
-                  <span>{PACKAGE_LABELS[slice.id]}</span>
+                  <span>{labels[slice.id]}</span>
                   <b>
                     {slice.value} · %{pct}
                   </b>

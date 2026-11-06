@@ -15,6 +15,14 @@
       rel="stylesheet"
     />
     <title>AURE — Paran her yerde daha güçlü</title>
+    <script>
+      (function () {
+        try {
+          var l = localStorage.getItem('aure-lang')
+          if (l === 'en' || l === 'tr') document.documentElement.lang = l
+        } catch (e) {}
+      })()
+    </script>
     <style>
       html,
       body,

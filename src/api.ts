@@ -16,9 +16,20 @@ export function setAdminToken(token: string | null) {
   else sessionStorage.removeItem(TOKEN_KEY)
 }
 
+function currentLang() {
+  try {
+    const saved = localStorage.getItem('aure-lang')
+    if (saved === 'en' || saved === 'tr') return saved
+  } catch {
+    /* ignore */
+  }
+  return 'tr'
+}
+
 export async function apiFetch(path: string, init?: RequestInit) {
   const headers = new Headers(init?.headers)
   if (init?.body && !headers.has('content-type')) headers.set('content-type', 'application/json')
+  if (!headers.has('accept-language')) headers.set('accept-language', currentLang())
   const token = getAdminToken()
   if (token) headers.set('authorization', `Bearer ${token}`)
   try {

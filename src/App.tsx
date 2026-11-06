@@ -3,53 +3,25 @@ import { withBase } from './base.ts'
 import { comparisonRows, planColumns, plans } from './plans.ts'
 import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
+import LangSwitch from './LangSwitch.tsx'
+import { useI18n } from './i18n/LocaleContext.tsx'
+import { formatFx, formatMoney, localizeFeature } from './i18n/format.ts'
 import { type PlanId, type SignupIntent } from './waitlist'
 
 type Cycle = 'monthly' | 'yearly'
-
-const faqs = [
-  {
-    q: 'Paket almak zorunda mıyım?',
-    a: 'Hayır. Hesabını herhangi bir paket olmadan, 0 ₺’ye açarsın. IBAN, sanal kart ve temel harcama paketsiz hesaba dahildir. Standard, Plus veya Premium’u yalnızca limiti veya ayrıcalığı yükseltmek istediğinde eklersin.',
-  },
-  {
-    q: 'AURE bir banka mı?',
-    a: 'AURE, elektronik para kuruluşu lisansı modeliyle çalışan kurgusal bir neo-banka deneyimidir. Gerçek para yatırma veya hesap açma işlemi yapılmaz; bu sayfa ürün ve üyelik modelini göstermek için tasarlandı.',
-  },
-  {
-    q: 'İstediğim zaman plan değiştirebilir miyim?',
-    a: 'Evet. Paketsiz hesaptan Standard, Plus veya Premium’a anında geçebilir, dönem sonunda paketi iptal edip yine ücretsiz hesaba dönebilirsin. Yıllık planda kalan günler sonraki faturaya kredi olarak yansır.',
-  },
-  {
-    q: 'Döviz ve ATM limitleri nasıl işler?',
-    a: 'Her pakette günlük ATM döviz çekimi ve aylık indirimli döviz alım-satım limiti vardır. Limit içinde komisyon düşer; Premium’da döviz komisyonu %0 ve limit sınırsızdır. Limit üstünde standart tarife uygulanır.',
-  },
-  {
-    q: 'Kampanyalar nasıl kullanılır?',
-    a: 'Paket kampanyaları kartınla Migros, Migros Sanal Market, Divan Pastanesi ve Setur’da geçer. İndirim oranı paketine göredir; paketsiz hesapta bu kampanyalar kapalıdır.',
-  },
-]
 
 const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
 
 type FxQuote = { base: string; quote: string; rate: number }
 
-function formatFx(rate: number) {
-  return rate.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })
-}
-
-function formatPrice(amount: number, cycle: Cycle) {
-  const value = cycle === 'yearly' ? Math.round(amount * 10) : amount
-  return `${value.toLocaleString('tr-TR')} ₺`
-}
-
-function Cell({ value }: { value: string | boolean }) {
-  if (value === true) return <span className="yes">Var</span>
+function Cell({ value, yes }: { value: string | boolean; yes: string }) {
+  if (value === true) return <span className="yes">{yes}</span>
   if (value === false) return <span className="no">—</span>
   return <span>{value}</span>
 }
 
 export default function App() {
+  const { t, locale } = useI18n()
   const [cycle, setCycle] = useState<Cycle>('monthly')
   const [selected, setSelected] = useState<PlanId | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
@@ -60,7 +32,27 @@ export default function App() {
   const [fx, setFx] = useState<FxQuote[]>([])
   const [fxError, setFxError] = useState('')
 
-  const period = cycle === 'yearly' ? '/yıl' : '/ay'
+  const period = cycle === 'yearly' ? t.plans.perYear : t.plans.perMonth
+  const planCopy = {
+    standard: {
+      blurb: t.plans.standardBlurb,
+      banking: t.plans.standardBanking,
+      travel: t.plans.standardTravel,
+      campaigns: t.plans.standardCampaigns,
+    },
+    plus: {
+      blurb: t.plans.plusBlurb,
+      banking: t.plans.plusBanking,
+      travel: t.plans.plusTravel,
+      campaigns: t.plans.plusCampaigns,
+    },
+    premium: {
+      blurb: t.plans.premiumBlurb,
+      banking: t.plans.premiumBanking,
+      travel: t.plans.premiumTravel,
+      campaigns: t.plans.premiumCampaigns,
+    },
+  } as const
 
   function openAccount() {
     setIntent('account')
@@ -105,43 +97,44 @@ export default function App() {
             AURE
           </a>
           <nav className="nav-links">
-            <a href="#plans">Paketler</a>
-            <a href="#features">Özellikler</a>
-            <a href="#app">Uygulama</a>
-            <a href={withBase('compare')}>Karşılaştır</a>
-            <a href={withBase('campaigns')}>Kampanyalar</a>
-            <a href="#faq">SSS</a>
+            <a href="#plans">{t.nav.plans}</a>
+            <a href="#features">{t.nav.features}</a>
+            <a href="#app">{t.nav.app}</a>
+            <a href={withBase('compare')}>{t.nav.compare}</a>
+            <a href={withBase('campaigns')}>{t.nav.campaigns}</a>
+            <a href="#faq">{t.nav.faq}</a>
           </nav>
           <div className="nav-cta">
+            <LangSwitch />
             <a className="btn btn-solid" href="#plans">
-              Paketleri gör
+              {t.nav.seePlans}
             </a>
             <button className="btn btn-ghost" onClick={openAccount}>
-              Paketsiz hesap aç
+              {t.nav.openFree}
             </button>
-            <button className="menu-btn" aria-label="Menü" onClick={() => setMenu((v) => !v)}>
+            <button className="menu-btn" aria-label={t.nav.menu} onClick={() => setMenu((v) => !v)}>
               ☰
             </button>
           </div>
         </div>
         <div className={`wrap mobile-drawer ${menu ? 'open' : ''}`}>
           <a href="#plans" onClick={() => setMenu(false)}>
-            Paketler
+            {t.nav.plans}
           </a>
           <a href="#features" onClick={() => setMenu(false)}>
-            Özellikler
+            {t.nav.features}
           </a>
           <a href="#app" onClick={() => setMenu(false)}>
-            Uygulama
+            {t.nav.app}
           </a>
           <a href={withBase('compare')} onClick={() => setMenu(false)}>
-            Karşılaştır
+            {t.nav.compare}
           </a>
           <a href={withBase('campaigns')} onClick={() => setMenu(false)}>
-            Kampanyalar
+            {t.nav.campaigns}
           </a>
           <a href="#faq" onClick={() => setMenu(false)}>
-            SSS
+            {t.nav.faq}
           </a>
         </div>
       </header>
@@ -150,33 +143,30 @@ export default function App() {
         <div className="wrap hero">
           <div>
             <div className="eyebrow">
-              <span className="dot" /> Paket şart değil · hesap 0 ₺
+              <span className="dot" /> {t.hero.eyebrow}
             </div>
-            <h1>Paran, her yerde daha güçlü.</h1>
-            <p className="lead">
-              Hesabını herhangi bir paket olmadan aç. IBAN, sanal kart ve günlük harcama ücretsiz. Standard, Plus veya
-              Premium’u yalnızca daha fazla limit ve ayrıcalık istediğinde ekle.
-            </p>
+            <h1>{t.hero.title}</h1>
+            <p className="lead">{t.hero.lead}</p>
             <div className="hero-actions">
               <button className="btn btn-solid" onClick={openAccount}>
-                Paketsiz hesap aç
+                {t.nav.openFree}
               </button>
               <a className="btn btn-ghost" href="#plans">
-                İsteğe bağlı paketler
+                {t.hero.optionalPlans}
               </a>
             </div>
             <div className="stats">
               <div>
                 <strong>0 ₺</strong>
-                <span>paketsiz hesap</span>
+                <span>{t.hero.statFree}</span>
               </div>
               <div>
                 <strong>3</strong>
-                <span>isteğe bağlı paket</span>
+                <span>{t.hero.statPlans}</span>
               </div>
               <div>
                 <strong>150+</strong>
-                <span>ülkede harcama</span>
+                <span>{t.hero.statCountries}</span>
               </div>
             </div>
           </div>
@@ -186,7 +176,7 @@ export default function App() {
               <article className="bank-card card-account">
                 <span className="chip" />
                 <div>
-                  <small>AURE Hesap</small>
+                  <small>{t.hero.cardAccount}</small>
                   <b>•••• 2208</b>
                 </div>
               </article>
@@ -213,12 +203,12 @@ export default function App() {
               </article>
             </div>
             <div className="float-pill pill-fx">
-              <strong>Paketsiz</strong>
-              Hesap açılışı ücretsiz
+              <strong>{t.hero.pillFree}</strong>
+              {t.hero.pillFreeSub}
             </div>
             <div className="float-pill pill-atm">
-              <strong>Sonra paket</strong>
-              İstediğin gün yükselt
+              <strong>{t.hero.pillLater}</strong>
+              {t.hero.pillLaterSub}
             </div>
           </div>
         </div>
@@ -226,9 +216,9 @@ export default function App() {
         <div className="fx-board wrap">
           <div className="fx-head">
             <span className="eyebrow">
-              <span className="dot" /> Anlık kur
+              <span className="dot" /> {t.fx.eyebrow}
             </span>
-            <p>USD, EUR, GBP ve CHF — TRY karşılığı. Makas Premium’da kapanır.</p>
+            <p>{t.fx.lead}</p>
           </div>
           <div className="fx-grid">
             {(fx.length
@@ -240,12 +230,16 @@ export default function App() {
                   <span>
                     {row.base}/{row.quote}
                   </span>
-                  <strong>{row.rate ? formatFx(row.rate) : '—'}</strong>
+                  <strong>{row.rate ? formatFx(row.rate, locale) : '—'}</strong>
                 </div>
               ),
             )}
           </div>
-          {fxError && <p className="fx-error">Kurlar alınamadı ({fxError}).</p>}
+          {fxError && (
+            <p className="fx-error">
+              {t.fx.error} ({fxError}).
+            </p>
+          )}
         </div>
 
         <div className="marquee" aria-hidden="true">
@@ -254,7 +248,7 @@ export default function App() {
               fx.length
                 ? fx
                     .filter((row) => (fxBases as readonly string[]).includes(row.base))
-                    .map((row) => `${row.base}/${row.quote} ${formatFx(row.rate)}`)
+                    .map((row) => `${row.base}/${row.quote} ${formatFx(row.rate, locale)}`)
                 : fxBases.map((c) => `${c}/TRY`),
             )
               .flat()
@@ -268,30 +262,27 @@ export default function App() {
           <div className="wrap">
             <div className="account-banner">
               <div>
-                <span className="badge">Paket şart değil</span>
-                <h2>Önce hesabını aç. Paketi sonra düşün.</h2>
-                <p>
-                  Paketsiz hesap 0 ₺. Limit, faiz ve kampanya (Migros, Divan, Setur) istediğinde Standard, Plus veya
-                  Premium ekle.
-                </p>
+                <span className="badge">{t.plans.badge}</span>
+                <h2>{t.plans.bannerTitle}</h2>
+                <p>{t.plans.bannerBody}</p>
               </div>
               <button className="btn btn-solid" onClick={openAccount}>
-                Ücretsiz hesap aç
+                {t.plans.bannerCta}
               </button>
             </div>
 
             <div className="section-head">
               <div>
-                <h2>İstersen paketi yükselt.</h2>
+                <h2>{t.plans.upgradeTitle}</h2>
               </div>
               <div>
-                <p>Paketler isteğe bağlı. Aylık öde veya yıllıkta 2 ay bizden olsun; istediğin an iptal et.</p>
-                <div className="toggle" role="tablist" aria-label="Ödeme dönemi">
+                <p>{t.plans.upgradeLead}</p>
+                <div className="toggle" role="tablist" aria-label={t.plans.billingAria}>
                   <button className={cycle === 'monthly' ? 'active' : ''} onClick={() => setCycle('monthly')}>
-                    Aylık
+                    {t.plans.monthly}
                   </button>
                   <button className={cycle === 'yearly' ? 'active' : ''} onClick={() => setCycle('yearly')}>
-                    Yıllık <span className="save-tag">2 ay bedava</span>
+                    {t.plans.yearly} <span className="save-tag">{t.plans.saveTag}</span>
                   </button>
                 </div>
               </div>
@@ -305,30 +296,30 @@ export default function App() {
                   onClick={() => setSelected(plan.id)}
                 >
                   <div className="plan-kicker">
-                    {plan.featured ? 'En çok seçilen' : 'İsteğe bağlı paket'}
+                    {plan.featured ? t.plans.featured : t.plans.optional}
                     {plan.featured && <span className="badge">Premium</span>}
                   </div>
                   <h3>{plan.name}</h3>
                   <div className="price">
-                    {formatPrice(plan.monthly, cycle)}
+                    {formatMoney(cycle === 'yearly' ? Math.round(plan.monthly * 10) : plan.monthly, locale)}
                     <span> {period}</span>
                   </div>
-                  <p style={{ margin: 0, color: 'inherit', opacity: 0.75 }}>{plan.blurb}</p>
-                  <p className="perk-heading">Banka / Saving</p>
+                  <p style={{ margin: 0, color: 'inherit', opacity: 0.75 }}>{planCopy[plan.id].blurb}</p>
+                  <p className="perk-heading">{t.plans.banking}</p>
                   <ul>
-                    {plan.banking.map((perk) => (
+                    {planCopy[plan.id].banking.map((perk) => (
                       <li key={perk}>{perk}</li>
                     ))}
                   </ul>
-                  <p className="perk-heading">Seyahat</p>
+                  <p className="perk-heading">{t.plans.travel}</p>
                   <ul>
-                    {plan.travel.map((perk) => (
+                    {planCopy[plan.id].travel.map((perk) => (
                       <li key={perk}>{perk}</li>
                     ))}
                   </ul>
-                  <p className="perk-heading">Marka işbirlikleri</p>
+                  <p className="perk-heading">{t.plans.brands}</p>
                   <ul>
-                    {plan.campaigns.map((perk) => (
+                    {planCopy[plan.id].campaigns.map((perk) => (
                       <li key={perk}>{perk}</li>
                     ))}
                   </ul>
@@ -341,7 +332,7 @@ export default function App() {
                         openPlan(plan.id)
                       }}
                     >
-                      Bu paketi ekle
+                      {t.plans.addPlan}
                     </button>
                   )}
                 </article>
@@ -354,36 +345,32 @@ export default function App() {
           <div className="wrap features">
             <div className="feature-copy">
               <div className="eyebrow">
-                <span className="dot" /> Tek bakiye
+                <span className="dot" /> {t.features.eyebrow}
               </div>
-              <h2>Harca, çevir, biriktir, yatırıma geç.</h2>
-              <p className="lead">
-                Paketsiz hesap temel nakit ve kartı açar. Üyelik ekledikçe ATM ve döviz limitleri, mevduat faizi, hisse
-                komisyonu ve Migros–Setur kampanyaları açılır.
-              </p>
+              <h2>{t.features.title}</h2>
+              <p className="lead">{t.features.lead}</p>
             </div>
             <div className="feature-grid">
               <article className="feature-tile">
                 <div className="icon">Fx</div>
-                <h3>Döviz</h3>
-                <p>Aylık indirimli döviz kotası. Premium’da komisyon %0.</p>
+                <h3>{t.features.fxTitle}</h3>
+                <p>{t.features.fxBody}</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">%</div>
-                <h3>Mevduat</h3>
-                <p>Paket yükseldikçe TL mevduat faizi artar.</p>
+                <h3>{t.features.saveTitle}</h3>
+                <p>{t.features.saveBody}</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">↑</div>
-                <h3>Hisse</h3>
-                <p>Alım-satım komisyonu Standard’dan Premium’a kademeli düşer.</p>
+                <h3>{t.features.stockTitle}</h3>
+                <p>{t.features.stockBody}</p>
               </article>
               <article className="feature-tile">
                 <div className="icon">🛒</div>
-                <h3>Kampanya</h3>
+                <h3>{t.features.campTitle}</h3>
                 <p>
-                  Migros, Divan Pastanesi ve Setur indirimleri.{' '}
-                  <a href={withBase('campaigns')}>Kampanya detayları</a>
+                  {t.features.campBody} <a href={withBase('campaigns')}>{t.features.campLink}</a>
                 </p>
               </article>
             </div>
@@ -393,47 +380,44 @@ export default function App() {
         <section className="section" id="app">
           <div className="wrap">
             <div className="section-head">
-              <h2>Paketli dövizde makas yok.</h2>
-              <p>
-                Uygulamada EUR, USD, GBP alım-satımı piyasa kurundan. Premium’da makas %0; paketsiz hesapta fark kırmızı
-                görünür.
-              </p>
+              <h2>{t.app.title}</h2>
+              <p>{t.app.lead}</p>
             </div>
             <div className="phones">
               <figure className="phone-shot">
                 <div className="phone">
                   <img
                     src={withBase('app/aure-app-wallets.jpg')}
-                    alt="AURE uygulamasında çoklu döviz cüzdanları ve Premium aktif rozeti"
+                    alt={t.app.walletsAlt}
                   />
                 </div>
                 <figcaption>
-                  <strong>Cüzdanlar</strong>
-                  Premium aktifken sınırsız çeviri, makas yok.
+                  <strong>{t.app.wallets}</strong>
+                  {t.app.walletsCap}
                 </figcaption>
               </figure>
               <figure className="phone-shot featured-shot">
                 <div className="phone">
                   <img
                     src={withBase('app/aure-app-fx-compare.jpg')}
-                    alt="Paketsiz hesapta %0,65 makas, Premium’da makas %0 ve 120 TL daha fazla TRY"
+                    alt={t.app.orderAlt}
                   />
                 </div>
                 <figcaption>
-                  <strong>Emir özeti</strong>
-                  Aynı 500 EUR: paketsiz makaslı, Premium piyasa kuru.
+                  <strong>{t.app.order}</strong>
+                  {t.app.orderCap}
                 </figcaption>
               </figure>
               <figure className="phone-shot">
                 <div className="phone">
                   <img
                     src={withBase('app/aure-app-fx-premium.jpg')}
-                    alt="Döviz ekranı: 1000 EUR eşittir 36.420 TRY, Premium makas yok"
+                    alt={t.app.tradeAlt}
                   />
                 </div>
                 <figcaption>
-                  <strong>Al · Sat</strong>
-                  1.000 EUR = 36.420 TRY, ek ücret yok.
+                  <strong>{t.app.trade}</strong>
+                  {t.app.tradeCap}
                 </figcaption>
               </figure>
             </div>
@@ -443,28 +427,28 @@ export default function App() {
         <section className="section" id="compare" style={{ paddingTop: 0 }}>
           <div className="wrap">
             <div className="section-head">
-              <h2>Paketsiz hesap da bir seçenek.</h2>
-              <p>Banka / Saving ve Kampanya satırlarını Compare plans’te yan yana gör.</p>
+              <h2>{t.homeCompare.title}</h2>
+              <p>{t.homeCompare.lead}</p>
             </div>
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Özellik</th>
+                    <th>{t.homeCompare.feature}</th>
                     {planColumns.map((col) => (
                       <th key={col.id} className="center">
-                        {col.name}
+                        {col.id === 'account' ? t.pkg.account : col.name}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {comparisonRows.map((row) => (
-                    <tr key={row.label}>
-                      <td>{row.label}</td>
+                    <tr key={row.id}>
+                      <td>{t.compare.rows[row.id]}</td>
                       {planColumns.map((col) => (
-                        <td key={`${row.label}-${col.id}`} className="center">
-                          <Cell value={row.values[col.id]} />
+                        <td key={`${row.id}-${col.id}`} className="center">
+                          <Cell value={localizeFeature(row.values[col.id], t, locale)} yes={t.homeCompare.yes} />
                         </td>
                       ))}
                     </tr>
@@ -474,7 +458,7 @@ export default function App() {
             </div>
             <p style={{ marginTop: 18 }}>
               <a className="btn btn-solid" href={withBase('compare')}>
-                Tüm özellikleri karşılaştır
+                {t.homeCompare.all}
               </a>
             </p>
           </div>
@@ -483,24 +467,24 @@ export default function App() {
         <section className="section" style={{ paddingTop: 12 }}>
           <div className="wrap">
             <div className="section-head">
-              <h2>Paket, hesabın üstüne biner.</h2>
-              <p>Banka tarafında limit ve faiz; kampanyada Migros, Divan ve Setur.</p>
+              <h2>{t.lifestyle.title}</h2>
+              <p>{t.lifestyle.lead}</p>
             </div>
             <div className="lifestyle">
               <article className="life-card a">
-                <span>Banka / Saving</span>
-                <h3>ATM, döviz, faiz</h3>
-                <p>Günlük döviz ATM, indirimli kur kotası, hisse komisyonu ve daha yüksek mevduat.</p>
+                <span>{t.lifestyle.bank}</span>
+                <h3>{t.lifestyle.bankTitle}</h3>
+                <p>{t.lifestyle.bankBody}</p>
               </article>
               <article className="life-card b">
-                <span>Kampanya</span>
-                <h3>Migros · Divan · Setur</h3>
-                <p>Market, pastane ve tatil indirimleri paketine göre açılır.</p>
+                <span>{t.lifestyle.camp}</span>
+                <h3>{t.lifestyle.campTitle}</h3>
+                <p>{t.lifestyle.campBody}</p>
               </article>
               <article className="life-card c">
-                <span>Transfer</span>
-                <h3>Ücretsiz EFT hakkı</h3>
-                <p>Paketsiz 2 adet/ay; Premium’da sayı sınırsız.</p>
+                <span>{t.lifestyle.send}</span>
+                <h3>{t.lifestyle.sendTitle}</h3>
+                <p>{t.lifestyle.sendBody}</p>
               </article>
             </div>
           </div>
@@ -509,13 +493,13 @@ export default function App() {
         <section className="section" id="faq" style={{ paddingTop: 24 }}>
           <div className="wrap faq-wrap">
             <div>
-              <h2>Merak edilenler.</h2>
+              <h2>{t.faq.title}</h2>
               <p className="lead" style={{ color: 'var(--muted)' }}>
-                Fiyatlar örnek niteliğindedir. Lisans, sigorta kapsamı ve ATM ağları ülkene göre değişir.
+                {t.faq.lead}
               </p>
             </div>
             <div>
-              {faqs.map((item, i) => (
+              {t.faq.items.map((item, i) => (
                 <div className="faq-item" key={item.q}>
                   <button className="faq-q" onClick={() => setFaq(faq === i ? null : i)} aria-expanded={faq === i}>
                     {item.q}
@@ -531,11 +515,11 @@ export default function App() {
         <div className="wrap">
           <div className="cta-band">
             <div>
-              <h2>Paket yok. Hesap var.</h2>
-              <p>Önce ücretsiz hesabını aç. Standard, Plus veya Premium’u gerçekten ihtiyaç olunca ekle.</p>
+              <h2>{t.cta.title}</h2>
+              <p>{t.cta.body}</p>
             </div>
             <button className="btn btn-dark" onClick={openAccount}>
-              Paketsiz hesap aç
+              {t.cta.button}
             </button>
           </div>
         </div>
@@ -543,10 +527,9 @@ export default function App() {
 
       <footer>
         <div className="wrap foot">
-          <span>© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.</span>
+          <span>{t.footer.legal}</span>
           <span>
-            Paketsiz hesap · Standard · Plus · Premium ·{' '}
-            <a href={withBase('waitlist')}>Waiting list</a>
+            {t.pkg.account} · Standard · Plus · Premium · <a href={withBase('waitlist')}>{t.footer.waitlist}</a>
           </span>
         </div>
       </footer>

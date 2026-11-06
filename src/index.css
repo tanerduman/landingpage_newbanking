@@ -112,6 +112,38 @@ img {
   gap: 10px;
 }
 
+.lang-switch {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.lang-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 10px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.lang-switch button.active {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+.compare-nav .lang-switch {
+  border-color: #ddd9d0;
+}
+
+.compare-nav .lang-switch button.active {
+  background: var(--lime);
+  color: var(--ink);
+}
+
 .btn {
   border: 0;
   cursor: pointer;
@@ -1296,6 +1328,8 @@ footer {
 .waitlist-nav-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 10px;
 }
 

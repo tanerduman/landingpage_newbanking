@@ -52,80 +52,80 @@ export const planColumns: { id: PlanColumnId; name: string; price: string }[] = 
 ]
 
 export const comparisonRows: {
-  label: string
-  group: string
+  id: 'atm' | 'fxLimit' | 'fxFee' | 'stock' | 'deposit' | 'eft' | 'card' | 'atmAbroad' | 'setur' | 'migros' | 'migrosOnline' | 'divan'
+  group: 'bank' | 'travel' | 'brand'
   icon: string
   values: Record<PlanColumnId, FeatureValue>
 }[] = [
   {
-    label: 'Günlük ATM döviz çekimi',
-    group: 'Banka / Saving',
+    id: 'atm',
+    group: 'bank',
     icon: 'atm',
     values: { account: '100 €/gün', standard: '250 €/gün', plus: '500 €/gün', premium: '1.000 €/gün' },
   },
   {
-    label: 'Aylık döviz alım-satım limiti',
-    group: 'Banka / Saving',
+    id: 'fxLimit',
+    group: 'bank',
     icon: 'fx',
     values: { account: '250 €/ay', standard: '1.500 €/ay', plus: '5.000 €/ay', premium: 'Sınırsız' },
   },
   {
-    label: 'Döviz komisyonu (limit içi)',
-    group: 'Banka / Saving',
+    id: 'fxFee',
+    group: 'bank',
     icon: 'fx',
     values: { account: '%1,49', standard: '%0,75', plus: '%0,35', premium: '%0' },
   },
   {
-    label: 'Hisse senedi komisyonu',
-    group: 'Banka / Saving',
+    id: 'stock',
+    group: 'bank',
     icon: 'stock',
     values: { account: '%0,20', standard: '%0,12', plus: '%0,08', premium: '%0,04' },
   },
   {
-    label: 'Mevduat faizi (örnek TL)',
-    group: 'Banka / Saving',
+    id: 'deposit',
+    group: 'bank',
     icon: 'save',
     values: { account: '%32', standard: '%34', plus: '%36', premium: '%38' },
   },
   {
-    label: 'Ücretsiz EFT / havale',
-    group: 'Banka / Saving',
+    id: 'eft',
+    group: 'bank',
     icon: 'send',
     values: { account: '2 adet/ay', standard: '8 adet/ay', plus: '20 adet/ay', premium: 'Sınırsız' },
   },
   {
-    label: 'Yurt dışı kart kullanımı',
-    group: 'Seyahat',
+    id: 'card',
+    group: 'travel',
     icon: 'card',
     values: { account: true, standard: true, plus: true, premium: true },
   },
   {
-    label: 'Yurt dışı ATM',
-    group: 'Seyahat',
+    id: 'atmAbroad',
+    group: 'travel',
     icon: 'atm',
     values: { account: '100 €/gün', standard: '250 €/gün', plus: '500 €/gün', premium: '1.000 €/gün' },
   },
   {
-    label: 'Setur',
-    group: 'Seyahat',
+    id: 'setur',
+    group: 'travel',
     icon: 'plane',
     values: { account: false, standard: false, plus: '%5 tur', premium: '%10 tur + otel' },
   },
   {
-    label: 'Migros mağaza',
-    group: 'Marka işbirlikleri',
+    id: 'migros',
+    group: 'brand',
     icon: 'shop',
     values: { account: false, standard: '%2', plus: '%4', premium: '%7' },
   },
   {
-    label: 'Migros Sanal Market',
-    group: 'Marka işbirlikleri',
+    id: 'migrosOnline',
+    group: 'brand',
     icon: 'bag',
     values: { account: false, standard: '%2', plus: '%5', premium: '%8' },
   },
   {
-    label: 'Divan Pastanesi',
-    group: 'Marka işbirlikleri',
+    id: 'divan',
+    group: 'brand',
     icon: 'cake',
     values: { account: false, standard: false, plus: '%10', premium: '%15' },
   },
