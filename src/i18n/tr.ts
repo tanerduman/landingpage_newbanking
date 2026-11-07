@@ -19,6 +19,8 @@ export const tr: Messages = {
     language: 'Dil',
   },
   hero: {
+    fictionLabel: 'Kurgusal ürün',
+    fiction: 'Gerçek banka hesabı açılmaz ve para yatırılamaz. Bu sayfa yalnızca ürün modelini gösterir.',
     eyebrow: '0 ₺ EFT/Havale · Sürpriz Aidat Yok · Taahhüt Yok',
     title: 'Paran, her yerde daha güçlü.',
     lead: 'Boşta duran parana her gece otomatik faiz, e-ticarette peşin fiyatına taksit, sıfır komisyonlu yatırım ve doğrudan insan desteği.',
