@@ -21,6 +21,16 @@ export function formatMoney(amount: number, locale: Locale) {
   return `${sign}${Math.abs(rounded).toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR')} ₺`
 }
 
+export function formatTry(amount: number, locale: Locale) {
+  const sign = amount < 0 ? '−' : ''
+  const abs = Math.abs(amount)
+  const text = abs.toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR', {
+    minimumFractionDigits: abs % 1 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  })
+  return `${sign}${text} ₺`
+}
+
 export function formatFx(rate: number, locale: Locale) {
   return rate.toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR', {
     minimumFractionDigits: 2,

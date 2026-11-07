@@ -67,6 +67,16 @@ export const fxFeeByColumn: Record<PlanColumnId, number> = {
   premium: 0,
 }
 
+/** In-app gram gold. Paid plans quote a tighter spread than Basic; Premium is the mid price. */
+export const SAMPLE_GOLD_GRAMS = 10
+export const SAMPLE_GOLD_TRY = 5_000
+export const goldSpreadByColumn: Record<PlanColumnId, number> = {
+  account: 0.009,
+  standard: 0.004,
+  plus: 0.0015,
+  premium: 0,
+}
+
 export function monthlyFeeOf(id: PlanColumnId): number {
   if (id === 'account') return 0
   return plans.find((plan) => plan.id === id)?.monthly ?? 0
@@ -79,6 +89,7 @@ export const comparisonRows: {
     | 'eft'
     | 'fxLimit'
     | 'fxFee'
+    | 'goldSpread'
     | 'stock'
     | 'liveData'
     | 'installments'
@@ -121,6 +132,12 @@ export const comparisonRows: {
     group: 'bank',
     icon: 'fx',
     values: { account: '%1,49', standard: '%0,75', plus: '%0,35', premium: '%0' },
+  },
+  {
+    id: 'goldSpread',
+    group: 'bank',
+    icon: 'save',
+    values: { account: '%0,90', standard: '%0,40', plus: '%0,15', premium: '%0' },
   },
   {
     id: 'stock',

@@ -120,6 +120,23 @@ export type Messages = {
     footEnd: string
     sample: string
   }
+  goldExample: {
+    kicker: string
+    title: string
+    lead: string
+    boardTitle: string
+    amount: string
+    amountHint: string
+    spread: string
+    gram: string
+    pay: string
+    less: string
+    stay: string
+    pick: string
+    footStart: string
+    footMid: string
+    sample: string
+  }
   app: {
     title: string
     lead: string
