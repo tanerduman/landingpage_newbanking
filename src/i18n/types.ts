@@ -136,6 +136,7 @@ export type Messages = {
     footStart: string
     footMid: string
     sample: string
+    live: string
   }
   app: {
     title: string

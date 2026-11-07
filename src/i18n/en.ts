@@ -168,7 +168,8 @@ export const en: Messages = {
     pick: 'Add this plan',
     footStart: 'For the same 10 grams, Premium pays',
     footMid: 'less than Basic. The spread tightens with the plan and closes at the mid price on Premium.',
-    sample: 'Sample price. Rates are fictional; only the legal BSMV applies on top.',
+    sample: 'Sample price. When the live rate arrives, every plan reprices from it.',
+    live: 'Live market: gram gold selling price. Plan prices add their spread on top of this rate.',
   },
   app: {
     title: 'No FX spread on a paid plan.',

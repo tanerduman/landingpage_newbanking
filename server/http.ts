@@ -1,6 +1,7 @@
 import { checkCredentials, credentialsConfigured, issueToken, readAdmin } from './auth.ts'
 import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
+import { getGoldPrice } from './gold.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
 import { getStore, validateWaitlistInput } from './store.ts'
 
@@ -100,6 +101,14 @@ async function handleHealth(request: Request) {
 
 async function handleRates(request: Request) {
   const result = await getFxRates()
+  if (!result.ok) {
+    return json({ error: result.code }, result.status, request)
+  }
+  return json(result.payload, 200, request)
+}
+
+async function handleGold(request: Request) {
+  const result = await getGoldPrice()
   if (!result.ok) {
     return json({ error: result.code }, result.status, request)
   }
@@ -226,6 +235,7 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
   try {
     if (path === '/api/health' && request.method === 'GET') return handleHealth(request)
     if (path === '/api/rates' && request.method === 'GET') return handleRates(request)
+    if (path === '/api/gold' && request.method === 'GET') return handleGold(request)
     if (path === '/api/visits' && (request.method === 'GET' || request.method === 'POST')) {
       return handleVisits(request)
     }
