@@ -51,9 +51,8 @@ export const planColumns: { id: PlanColumnId; name: string; price: string }[] = 
   { id: 'premium', name: 'Premium', price: '499 ₺/ay' },
 ]
 
-/** Worked example: idle cash on a Basic account, same FX mid-rate as the 500 EUR mock. */
+/** Worked example: idle cash on a Basic account. The EUR leg uses the live rate. */
 export const SAMPLE_IDLE_TRY = 1_000_000
-export const SAMPLE_EUR_TRY = 36.42
 
 export const overnightByColumn: Record<PlanColumnId, number> = {
   account: 0.32,

@@ -13,7 +13,7 @@ export const en: Messages = {
     campaigns: 'Offers',
     faq: 'FAQ',
     seePlans: 'See plans',
-    openFree: 'Start free (0 ₺)',
+    openFree: 'Start free (0 ₺)',
     menu: 'Menu',
     back: 'Back to site',
     language: 'Language',
@@ -34,7 +34,7 @@ export const en: Messages = {
   },
   fx: {
     eyebrow: 'Live rates',
-    lead: 'USD, EUR, GBP and CHF vs TRY. The spread closes on Premium.',
+    lead: 'USD and EUR vs TRY. The spread closes on Premium.',
     error: 'Rates unavailable',
   },
   plans: {
@@ -42,7 +42,7 @@ export const en: Messages = {
     bannerTitle: 'Don’t let cash sleep in a current account, or chase offers by hand.',
     bannerBody:
       'Idle balance earns overnight interest automatically. E-commerce unlocks instalments at the cash price; offers opt you in with no SMS and no commitment.',
-    bannerCta: 'Start free (0 ₺)',
+    bannerCta: 'Start free (0 ₺)',
     upgradeTitle: 'Upgrade the plan if you want.',
     upgradeLead: 'Plans are optional. Pay monthly, or get two months free on yearly — cancel any time.',
     waiverNote: 'Salary in or a balance pledge makes plans 0 ₺!',
@@ -91,13 +91,17 @@ export const en: Messages = {
     standardCampaigns: ['Migros 2%', 'Migros Sanal Market 2%'],
     plusCampaigns: [
       'Migros 4%',
+      'Migros Sanal Market 5%',
       'Divan Pastanesi 10%',
+      'Setur 5% tours',
       'Auto opt-in to offers, no lock-in',
       'Human support, no chatbot gate',
     ],
     premiumCampaigns: [
       'Migros 7%',
+      'Migros Sanal Market 8%',
       'Divan Pastanesi 15%',
+      'Setur 10% tours + hotels',
       'Auto opt-in to offers, no lock-in',
       'Human support and VIP branch priority',
     ],
@@ -139,7 +143,8 @@ export const en: Messages = {
     amountHint: 'Idle cash · Basic account',
     overnight: 'Monthly overnight interest',
     fx: 'Convert the same 1,000,000 ₺ to EUR',
-    fxHint: 'Mid-market 36.42 TRY/EUR — the same rate as the 500 € example.',
+    fxHint: 'Live rate {rate} TRY/EUR. The phone screen is a sample.',
+    fxHintWait: 'Amounts follow the live EUR/TRY rate once it loads. The phone screen is a sample.',
     fee: 'Plan fee',
     rate: 'Overnight',
     net: 'Net / month',
@@ -149,8 +154,9 @@ export const en: Messages = {
     stay: 'Free account',
     pick: 'Add this plan',
     footStart: 'Premium leaves',
-    footMid: 'more net each month vs Basic. Converting the same balance to EUR, the gap is',
-    footEnd: 'on that trade — the spread closes, just like the 500 € sale.',
+    footNet: 'more net each month vs Basic.',
+    footMid: 'Converting the same balance to EUR, the gap is',
+    footEnd: 'on that trade.',
     sample: 'Sample figures; rates are fictional.',
   },
   goldExample: {
@@ -246,7 +252,7 @@ export const en: Messages = {
   cta: {
     title: 'No surprise fees. Plans that pay you back.',
     body: 'Open the free account first. Add Standard, Plus or Premium when the simulator says it pays — or just when you want more.',
-    button: 'Start free (0 ₺)',
+    button: 'Start free (0 ₺)',
   },
   footer: {
     legal: '© 2026 AURE. A fictional product — it does not provide real banking services.',
@@ -352,7 +358,7 @@ export const en: Messages = {
   signup: {
     close: 'Close',
     confirmEmail: 'Confirm your email',
-    openAccount: 'Start free (0 ₺)',
+    openAccount: 'Start free (0 ₺)',
     addPlan: 'Add {name}',
     accountLead: 'You join the waitlist after email confirmation. Leave your name and email.',
     planLead: 'Leave your name and email. The request stays off the list until you use the link or code.',
