@@ -13,7 +13,7 @@ export const tr: Messages = {
     campaigns: 'Kampanyalar',
     faq: 'SSS',
     seePlans: 'Paketleri gör',
-    openFree: 'Ücretsiz Başla (0 ₺)',
+    openFree: 'Ücretsiz Başla',
     menu: 'Menü',
     back: 'Siteye dön',
     language: 'Dil',
@@ -42,7 +42,7 @@ export const tr: Messages = {
     bannerTitle: 'Paran vadesizde uyumasın, kampanyalar seni yormasın.',
     bannerBody:
       'Boşta bakiye her gece otomatik faiz kazanır. E-ticarette peşin fiyatına taksit açılır; kampanyaya SMS ve taahhüt olmadan girersin.',
-    bannerCta: 'Ücretsiz Başla (0 ₺)',
+    bannerCta: 'Ücretsiz Başla',
     upgradeTitle: 'İstersen paketi yükselt.',
     upgradeLead: 'Paketler isteğe bağlı. Aylık öde veya yıllıkta 2 ay bizden olsun; istediğin an iptal et.',
     waiverNote: 'Maaş taşıma veya bakiye sözüne paketler 0 ₺!',
@@ -246,7 +246,7 @@ export const tr: Messages = {
   cta: {
     title: 'Sürpriz aidat yok. Kazandıran paketler var.',
     body: 'Önce ücretsiz hesabını aç. Standard, Plus veya Premium kazancını büyütünce ekle — veya simülatörde dene.',
-    button: 'Ücretsiz Başla (0 ₺)',
+    button: 'Ücretsiz Başla',
   },
   footer: {
     legal: '© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.',
@@ -352,7 +352,7 @@ export const tr: Messages = {
   signup: {
     close: 'Kapat',
     confirmEmail: 'E-postanı onayla',
-    openAccount: 'Ücretsiz Başla (0 ₺)',
+    openAccount: 'Ücretsiz Başla',
     addPlan: '{name} paketini ekle',
     accountLead: 'Kayıt e-posta onayından sonra waitlist’e düşer. Adını ve e-postanı bırak.',
     planLead: 'Adını ve e-postanı bırak. Onay linki veya kod gelmeden talep listeye yazılmaz.',

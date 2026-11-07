@@ -13,7 +13,7 @@ export const en: Messages = {
     campaigns: 'Offers',
     faq: 'FAQ',
     seePlans: 'See plans',
-    openFree: 'Start free (0 ₺)',
+    openFree: 'Start free',
     menu: 'Menu',
     back: 'Back to site',
     language: 'Language',
@@ -42,7 +42,7 @@ export const en: Messages = {
     bannerTitle: 'Don’t let cash sleep in a current account, or chase offers by hand.',
     bannerBody:
       'Idle balance earns overnight interest automatically. E-commerce unlocks instalments at the cash price; offers opt you in with no SMS and no commitment.',
-    bannerCta: 'Start free (0 ₺)',
+    bannerCta: 'Start free',
     upgradeTitle: 'Upgrade the plan if you want.',
     upgradeLead: 'Plans are optional. Pay monthly, or get two months free on yearly — cancel any time.',
     waiverNote: 'Salary in or a balance pledge makes plans 0 ₺!',
@@ -246,7 +246,7 @@ export const en: Messages = {
   cta: {
     title: 'No surprise fees. Plans that pay you back.',
     body: 'Open the free account first. Add Standard, Plus or Premium when the simulator says it pays — or just when you want more.',
-    button: 'Start free (0 ₺)',
+    button: 'Start free',
   },
   footer: {
     legal: '© 2026 AURE. A fictional product — it does not provide real banking services.',
@@ -352,7 +352,7 @@ export const en: Messages = {
   signup: {
     close: 'Close',
     confirmEmail: 'Confirm your email',
-    openAccount: 'Start free (0 ₺)',
+    openAccount: 'Start free',
     addPlan: 'Add {name}',
     accountLead: 'You join the waitlist after email confirmation. Leave your name and email.',
     planLead: 'Leave your name and email. The request stays off the list until you use the link or code.',
