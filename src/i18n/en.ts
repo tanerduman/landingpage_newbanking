@@ -159,7 +159,7 @@ export const en: Messages = {
     lead: 'Gram gold lands in your AURE wallet. The same order has a tighter spread on Standard, Plus and Premium.',
     boardTitle: 'Gold order',
     amount: '10 g',
-    amountHint: '10 g · mid-market 5,000 ₺/g',
+    amountHint: '10 g · mid-market {price}/g',
     spread: 'Spread',
     gram: 'Price per gram',
     pay: 'You pay',
