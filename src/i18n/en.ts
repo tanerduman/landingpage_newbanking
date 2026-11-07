@@ -19,6 +19,8 @@ export const en: Messages = {
     language: 'Language',
   },
   hero: {
+    fictionLabel: 'Fictional product',
+    fiction: 'You cannot open a real bank account or deposit money. This page only shows the product model.',
     eyebrow: '0 ₺ transfers · no surprise fees · no lock-in',
     title: 'Your money, stronger everywhere.',
     lead: 'Overnight interest on idle cash, instalments at the cash price on e-commerce, zero-commission investing, and a human on the line — not a chatbot.',
@@ -34,7 +36,7 @@ export const en: Messages = {
   },
   fx: {
     eyebrow: 'Live rates',
-    lead: 'USD, EUR, GBP and CHF vs TRY. The spread closes on Premium.',
+    lead: 'USD and EUR vs TRY. The spread closes on Premium.',
     error: 'Rates unavailable',
   },
   plans: {
@@ -91,13 +93,17 @@ export const en: Messages = {
     standardCampaigns: ['Migros 2%', 'Migros Sanal Market 2%'],
     plusCampaigns: [
       'Migros 4%',
+      'Migros Sanal Market 5%',
       'Divan Pastanesi 10%',
+      'Setur 5% tours',
       'Auto opt-in to offers, no lock-in',
       'Human support, no chatbot gate',
     ],
     premiumCampaigns: [
       'Migros 7%',
+      'Migros Sanal Market 8%',
       'Divan Pastanesi 15%',
+      'Setur 10% tours + hotels',
       'Auto opt-in to offers, no lock-in',
       'Human support and VIP branch priority',
     ],
@@ -139,7 +145,8 @@ export const en: Messages = {
     amountHint: 'Idle cash · Basic account',
     overnight: 'Monthly overnight interest',
     fx: 'Convert the same 1,000,000 ₺ to EUR',
-    fxHint: 'Mid-market 36.42 TRY/EUR — the same rate as the 500 € example.',
+    fxHint: 'Live rate {rate} TRY/EUR. The phone screen is a sample.',
+    fxHintWait: 'Amounts follow the live EUR/TRY rate once it loads. The phone screen is a sample.',
     fee: 'Plan fee',
     rate: 'Overnight',
     net: 'Net / month',
@@ -149,8 +156,9 @@ export const en: Messages = {
     stay: 'Free account',
     pick: 'Add this plan',
     footStart: 'Premium leaves',
-    footMid: 'more net each month vs Basic. Converting the same balance to EUR, the gap is',
-    footEnd: 'on that trade — the spread closes, just like the 500 € sale.',
+    footNet: 'more net each month vs Basic.',
+    footMid: 'Converting the same balance to EUR, the gap is',
+    footEnd: 'on that trade.',
     sample: 'Sample figures; rates are fictional.',
   },
   goldExample: {

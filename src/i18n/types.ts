@@ -18,6 +18,8 @@ export type Messages = {
     language: string
   }
   hero: {
+    fictionLabel: string
+    fiction: string
     eyebrow: string
     title: string
     lead: string
@@ -107,6 +109,7 @@ export type Messages = {
     overnight: string
     fx: string
     fxHint: string
+    fxHintWait: string
     fee: string
     rate: string
     net: string
@@ -116,6 +119,7 @@ export type Messages = {
     stay: string
     pick: string
     footStart: string
+    footNet: string
     footMid: string
     footEnd: string
     sample: string
