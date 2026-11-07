@@ -155,6 +155,10 @@ export default function App() {
       </header>
 
       <main id="top">
+        <p className="fiction-bar" role="note">
+          <strong>{t.hero.fictionLabel}</strong>
+          <span>{t.hero.fiction}</span>
+        </p>
         <div className="wrap hero">
           <div>
             <div className="eyebrow">

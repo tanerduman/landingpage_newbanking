@@ -191,8 +191,35 @@ img {
   border-radius: 12px;
 }
 
+.fiction-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  width: min(1180px, calc(100% - 40px));
+  margin: 18px auto 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(216, 255, 74, 0.45);
+  border-radius: 14px;
+  background: rgba(216, 255, 74, 0.1);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.fiction-bar strong {
+  flex: none;
+  color: var(--ink);
+  background: var(--lime);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .hero {
-  padding: 72px 0 40px;
+  padding: 36px 0 40px;
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: 48px;
