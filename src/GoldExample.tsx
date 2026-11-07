@@ -1,9 +1,9 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { apiFetch, readApiJson } from './api.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatRate, formatTry } from './i18n/format.ts'
 import {
   SAMPLE_GOLD_GRAMS,
-  SAMPLE_GOLD_TEMEL_TRY,
   SAMPLE_GOLD_TRY,
   goldSpreadByColumn,
   planColumns,
@@ -18,23 +18,36 @@ function isPlanId(id: PlanColumnId): id is PlanId {
 export default function GoldExample({ onPick }: { onPick: (id: PlanId) => void }) {
   const { t, locale } = useI18n()
   const grams = SAMPLE_GOLD_GRAMS
-  const mid = SAMPLE_GOLD_TRY
+  const [mid, setMid] = useState(SAMPLE_GOLD_TRY)
+  const [live, setLive] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    async function load() {
+      const res = await apiFetch('/api/gold')
+      const data = await readApiJson<{ gramTry?: number; source?: string }>(res)
+      if (cancelled || !res?.ok || data?.source !== 'collectapi' || !data.gramTry) return
+      setMid(data.gramTry)
+      setLive(true)
+    }
+    void load()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const rows = useMemo(() => {
-    const temelPay = SAMPLE_GOLD_TEMEL_TRY * grams
-    return planColumns.map((col) => {
+    const priced = planColumns.map((col) => {
       const spread = goldSpreadByColumn[col.id]
-      const gram =
-        col.id === 'account' ? SAMPLE_GOLD_TEMEL_TRY : Math.round(mid * (1 + spread) * 100) / 100
+      const gram = Math.round(mid * (1 + spread) * 100) / 100
       const pay = Math.round(gram * grams * 100) / 100
-      return {
-        id: col.id,
-        spread,
-        gram,
-        pay,
-        saved: Math.round((temelPay - pay) * 100) / 100,
-      }
+      return { id: col.id, spread, gram, pay }
     })
+    const temelPay = priced.find((row) => row.id === 'account')?.pay ?? 0
+    return priced.map((row) => ({
+      ...row,
+      saved: Math.round((temelPay - row.pay) * 100) / 100,
+    }))
   }, [grams, mid])
 
   const premium = rows.find((row) => row.id === 'premium') ?? rows[rows.length - 1]
@@ -116,7 +129,7 @@ export default function GoldExample({ onPick }: { onPick: (id: PlanId) => void }
           <span aria-hidden="true">✓</span>
           {t.goldExample.footStart} {formatTry(premium.saved, locale)} {t.goldExample.footMid}
         </p>
-        <p className="idle-sample">{t.goldExample.sample}</p>
+        <p className="idle-sample">{live ? t.goldExample.live : t.goldExample.sample}</p>
       </div>
     </div>
   )

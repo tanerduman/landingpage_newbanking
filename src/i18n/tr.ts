@@ -168,7 +168,8 @@ export const tr: Messages = {
     pick: 'Bu paketi ekle',
     footStart: 'Aynı 10 gramda Premium, Temel hesaba göre',
     footMid: 'daha az öder. Makas pakette daralır; Premium’da piyasa fiyatına iner.',
-    sample: 'Örnek fiyat. Oranlar kurgusaldır; üzerine yalnızca yasal BSMV uygulanır.',
+    sample: 'Örnek fiyat. Canlı kur gelince paketler bu kura göre yeniden hesaplanır.',
+    live: 'Canlı piyasa: gram altın satış kuru. Paket fiyatları bu kura göre, makas kadar eklenerek hesaplanır.',
   },
   app: {
     title: 'Paketli dövizde makas yok.',

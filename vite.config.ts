@@ -4,6 +4,7 @@ import { handleApiRequest, nodeToWebRequest, writeNodeResponse } from './server/
 
 function apiPlugin(env: Record<string, string>) {
   if (env.FREECURRENCYAPI_KEY) process.env.FREECURRENCYAPI_KEY = env.FREECURRENCYAPI_KEY
+  if (env.COLLECTAPI_KEY) process.env.COLLECTAPI_KEY = env.COLLECTAPI_KEY
   if (env.RESEND_API_KEY) process.env.RESEND_API_KEY = env.RESEND_API_KEY
   if (env.MAIL_FROM) process.env.MAIL_FROM = env.MAIL_FROM
   if (env.APP_URL) process.env.APP_URL = env.APP_URL

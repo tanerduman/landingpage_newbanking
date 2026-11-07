@@ -67,7 +67,7 @@ export const fxFeeByColumn: Record<PlanColumnId, number> = {
   premium: 0,
 }
 
-/** In-app gram gold. Basic pays 6,450 ₺/g; paid plans quote a tighter spread and Premium pays the mid. */
+/** Fallback gram gold until CollectAPI returns the live selling price. Basic stays 6,450 ₺/g in that sample. */
 export const SAMPLE_GOLD_GRAMS = 10
 export const SAMPLE_GOLD_TEMEL_TRY = 6_450
 export const goldSpreadByColumn: Record<PlanColumnId, number> = {
