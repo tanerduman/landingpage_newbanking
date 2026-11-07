@@ -13,7 +13,7 @@ import { type PlanId, type SignupIntent } from './waitlist'
 
 type Cycle = 'monthly' | 'yearly'
 
-const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
+const fxBases = ['USD', 'EUR'] as const
 
 type FxQuote = { base: string; quote: string; rate: number }
 
@@ -419,7 +419,7 @@ export default function App() {
                     src={withBase('app/aure-app-wallets.jpg')}
                     alt={t.app.walletsAlt}
                   />
-                  <div className="phone-overlay">
+                  <div className="phone-overlay dock">
                     <span className="phone-chip">{t.app.walletsGold}</span>
                     <span className="phone-toast">
                       <strong>{t.app.walletsInterest}</strong>
@@ -458,7 +458,7 @@ export default function App() {
                 </figcaption>
               </figure>
             </div>
-            <IdleExample onPick={openPlan} />
+            <IdleExample onPick={openPlan} eurTry={fx.find((row) => row.base === 'EUR')?.rate ?? 0} />
             <GoldExample onPick={openPlan} />
           </div>
         </section>
