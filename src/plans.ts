@@ -67,15 +67,17 @@ export const fxFeeByColumn: Record<PlanColumnId, number> = {
   premium: 0,
 }
 
-/** In-app gram gold. Paid plans quote a tighter spread than Basic; Premium is the mid price. */
+/** In-app gram gold. Basic pays 6,450 ₺/g; paid plans quote a tighter spread and Premium pays the mid. */
 export const SAMPLE_GOLD_GRAMS = 10
-export const SAMPLE_GOLD_TRY = 5_000
+export const SAMPLE_GOLD_TEMEL_TRY = 6_450
 export const goldSpreadByColumn: Record<PlanColumnId, number> = {
   account: 0.009,
   standard: 0.004,
   plus: 0.0015,
   premium: 0,
 }
+export const SAMPLE_GOLD_TRY =
+  Math.round((SAMPLE_GOLD_TEMEL_TRY / (1 + goldSpreadByColumn.account)) * 100) / 100
 
 export function monthlyFeeOf(id: PlanColumnId): number {
   if (id === 'account') return 0

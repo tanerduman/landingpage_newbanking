@@ -159,7 +159,7 @@ export const tr: Messages = {
     lead: 'AURE cüzdanından gram altın alırsın. Aynı emirde makas Standard, Plus ve Premium’da daralır.',
     boardTitle: 'Altın alış özeti',
     amount: '10 gr',
-    amountHint: '10 gram · piyasa 5.000 ₺/gr',
+    amountHint: '10 gram · piyasa {price}/gr',
     spread: 'Makas',
     gram: 'Gram fiyatı',
     pay: 'Ödeyeceğin',

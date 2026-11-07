@@ -3,6 +3,7 @@ import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatRate, formatTry } from './i18n/format.ts'
 import {
   SAMPLE_GOLD_GRAMS,
+  SAMPLE_GOLD_TEMEL_TRY,
   SAMPLE_GOLD_TRY,
   goldSpreadByColumn,
   planColumns,
@@ -20,17 +21,18 @@ export default function GoldExample({ onPick }: { onPick: (id: PlanId) => void }
   const mid = SAMPLE_GOLD_TRY
 
   const rows = useMemo(() => {
-    const basePay = grams * mid * (1 + goldSpreadByColumn.account)
+    const temelPay = SAMPLE_GOLD_TEMEL_TRY * grams
     return planColumns.map((col) => {
       const spread = goldSpreadByColumn[col.id]
-      const pay = Math.round(grams * mid * (1 + spread) * 100) / 100
-      const gram = Math.round(mid * (1 + spread) * 100) / 100
+      const gram =
+        col.id === 'account' ? SAMPLE_GOLD_TEMEL_TRY : Math.round(mid * (1 + spread) * 100) / 100
+      const pay = Math.round(gram * grams * 100) / 100
       return {
         id: col.id,
         spread,
         gram,
         pay,
-        saved: Math.round(basePay * 100) / 100 - pay,
+        saved: Math.round((temelPay - pay) * 100) / 100,
       }
     })
   }, [grams, mid])
@@ -59,7 +61,7 @@ export default function GoldExample({ onPick }: { onPick: (id: PlanId) => void }
         <header className="idle-board-head">
           <span>{t.goldExample.boardTitle}</span>
           <strong>{t.goldExample.amount}</strong>
-          <p>{t.goldExample.amountHint}</p>
+          <p>{t.goldExample.amountHint.replace('{price}', formatTry(mid, locale))}</p>
         </header>
 
         <div className="idle-grid">
