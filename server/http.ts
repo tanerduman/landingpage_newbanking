@@ -1,3 +1,5 @@
+import { checkBotId } from 'botid/server'
+import { botProtectedRoutes } from '../src/botProtection.ts'
 import { checkCredentials, credentialsConfigured, issueToken, readAdmin } from './auth.ts'
 import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
@@ -73,9 +75,26 @@ function applyCors(request: Request, headers: Headers) {
   if (origin && originAllowed(origin)) {
     headers.set('access-control-allow-origin', origin)
     headers.set('vary', 'Origin')
-    headers.set('access-control-allow-headers', 'Authorization, Content-Type')
+    headers.set('access-control-allow-headers', 'Authorization, Content-Type, x-is-human, x-path, x-method')
     headers.set('access-control-allow-methods', 'GET, POST, OPTIONS')
   }
+}
+
+function protectedRoute(method: string, path: string) {
+  return botProtectedRoutes.find(
+    (route) => route.path === path && route.method.toUpperCase() === method.toUpperCase(),
+  )
+}
+
+async function rejectBot(request: Request, path: string) {
+  const route = protectedRoute(request.method, path)
+  if (!route) return null
+  const verification = await checkBotId({
+    developmentOptions: process.env.VERCEL ? undefined : { isDevelopment: true, bypass: 'HUMAN' },
+    advancedOptions: { checkLevel: route.advancedOptions.checkLevel },
+  })
+  if (verification.isBot) return fail(request, 'bot', 403)
+  return null
 }
 
 function uuidLike(value: unknown): value is string {
@@ -233,6 +252,8 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
   }
 
   try {
+    const denied = await rejectBot(request, path)
+    if (denied) return denied
     if (path === '/api/health' && request.method === 'GET') return handleHealth(request)
     if (path === '/api/rates' && request.method === 'GET') return handleRates(request)
     if (path === '/api/gold' && request.method === 'GET') return handleGold(request)

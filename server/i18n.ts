@@ -22,6 +22,7 @@ const errors: Record<ApiLocale, Record<string, string>> = {
     auth_need: 'Kullanıcı adı ve şifre gerekli.',
     auth_bad: 'Kullanıcı adı veya şifre hatalı.',
     auth_off: 'Waitlist girişi henüz bağlanmadı.',
+    bot: 'İstek doğrulanamadı. Sayfayı yenileyip tekrar dene.',
   },
   en: {
     too_big: 'Request too large.',
@@ -44,6 +45,7 @@ const errors: Record<ApiLocale, Record<string, string>> = {
     auth_need: 'Username and password are required.',
     auth_bad: 'Wrong username or password.',
     auth_off: 'Waitlist login is not connected yet.',
+    bot: 'The request could not be verified. Refresh the page and try again.',
   },
 }
 
