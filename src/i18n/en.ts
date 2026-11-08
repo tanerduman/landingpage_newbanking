@@ -460,5 +460,6 @@ export const en: Messages = {
     auth_need: 'Username and password are required.',
     auth_bad: 'Wrong username or password.',
     auth_off: 'Waitlist login is not connected yet.',
+    bot: 'The request could not be verified. Refresh the page and try again.',
   },
 }

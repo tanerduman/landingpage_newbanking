@@ -459,5 +459,6 @@ export const tr: Messages = {
     auth_need: 'Kullanıcı adı ve şifre gerekli.',
     auth_bad: 'Kullanıcı adı veya şifre hatalı.',
     auth_off: 'Waitlist girişi henüz bağlanmadı.',
+    bot: 'İstek doğrulanamadı. Sayfayı yenileyip tekrar dene.',
   },
 }
