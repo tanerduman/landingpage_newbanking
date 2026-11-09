@@ -47,7 +47,6 @@ export type Messages = {
     bannerCta: string
     upgradeTitle: string
     upgradeLead: string
-    waiverNote: string
     billingAria: string
     monthly: string
     yearly: string
@@ -91,7 +90,6 @@ export type Messages = {
     spend: string
     idle: string
     fee: string
-    waived: string
     interest: string
     extras: string
     net: string

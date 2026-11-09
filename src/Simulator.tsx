@@ -5,11 +5,10 @@ import { SAMPLE_IDLE_TRY, plans, type PlanColumnId } from './plans.ts'
 import type { PlanId } from './waitlist'
 
 function estimate(plan: (typeof plans)[number], spend: number, idle: number) {
-  const waived = spend >= plan.waiverSpend
-  const fee = waived ? 0 : plan.monthly
+  const fee = plan.monthly
   const interest = (idle * plan.overnight) / 12
   const extras = spend * 0.4 * plan.campaignRate + spend * 0.2 * plan.installmentRate
-  return { waived, fee, interest, extras, net: interest + extras - fee }
+  return { fee, interest, extras, net: interest + extras - fee }
 }
 
 export default function Simulator({
@@ -27,11 +26,10 @@ export default function Simulator({
     return plans.map((plan) => {
       const monthly = estimate(plan, spend, idle)
       if (!cycleYearly) return { id: plan.id, name: plan.name, ...monthly }
-      const yearlyFee = monthly.waived ? 0 : plan.monthly * 10
+      const yearlyFee = plan.monthly * 10
       return {
         id: plan.id,
         name: plan.name,
-        waived: monthly.waived,
         fee: yearlyFee / 12,
         interest: monthly.interest,
         extras: monthly.extras,
@@ -50,7 +48,6 @@ export default function Simulator({
 
   return (
     <div className="simulator" id="simulator">
-      <p className="simulator-note">{t.plans.waiverNote}</p>
       <div className="simulator-controls">
         <label className="sim-spend-label" htmlFor="sim-spend">
           {t.simulator.spend}
@@ -94,7 +91,7 @@ export default function Simulator({
             <dl>
               <div>
                 <dt>{t.simulator.fee}</dt>
-                <dd className={row.waived ? 'waived' : ''}>{row.waived ? t.simulator.waived : formatMoney(row.fee, locale)}</dd>
+                <dd>{formatMoney(row.fee, locale)}</dd>
               </div>
               <div>
                 <dt>{t.simulator.interest}</dt>
