@@ -9,7 +9,6 @@ import {
   fetchWaitlist,
   downloadSupportExcel,
   downloadWaitlistExcel,
-  isWaitlistAuthed,
   loginWaitlist,
   logoutWaitlist,
   type BillingCycle,
@@ -29,7 +28,7 @@ const PAGE_SIZE = 10
 
 export default function WaitlistPage() {
   const { t, locale } = useI18n()
-  const [authed, setAuthed] = useState(() => isWaitlistAuthed())
+  const [authed, setAuthed] = useState<boolean | null>(null)
   const [user, setUser] = useState('')
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
@@ -125,8 +124,8 @@ export default function WaitlistPage() {
     }
   }
 
-  function signOut() {
-    logoutWaitlist()
+  async function signOut() {
+    await logoutWaitlist()
     setAuthed(false)
     setEntries([])
     setSupport([])
@@ -236,7 +235,7 @@ export default function WaitlistPage() {
       </header>
 
       <main className="wrap waitlist-main">
-        {!authed ? (
+        {authed === null ? null : !authed ? (
           <div className="waitlist-login-wrap">
             <form className="login-card" onSubmit={submitLogin}>
               <p className="eyebrow">

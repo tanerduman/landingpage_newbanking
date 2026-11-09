@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomInt, randomUUID } from 'node:crypto'
+import { createHash, randomBytes, randomInt, randomUUID, timingSafeEqual } from 'node:crypto'
 import pg from 'pg'
 import { normalizeEmail } from './email.ts'
 import {
@@ -21,6 +21,14 @@ export type WaitlistRequest = {
   email: string
   code?: string
   token?: string
+  statusToken?: string
+}
+
+export type AdminSessionInput = {
+  user: string
+  passwordHash: string
+  idHash: string
+  expiresAt: string
 }
 
 type Store = {
@@ -45,6 +53,11 @@ type Store = {
     message: string
   }): Promise<SupportRow>
   listSupport(): Promise<SupportRow[]>
+  createAdminSession(input: AdminSessionInput): Promise<void>
+  readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
+  deleteAdminSession(idHash: string): Promise<void>
+  hitRateLimit(key: string, limit: number, windowMs: number): Promise<boolean>
+  confirmStatus(statusToken: string): Promise<boolean>
 }
 
 type WaitlistRecord = WaitlistRow & {
@@ -53,6 +66,20 @@ type WaitlistRecord = WaitlistRow & {
   confirmTokenHash: string | null
   confirmCodeHash: string | null
   confirmExpires: string | null
+  statusTokenHash: string | null
+  statusExpires: string | null
+}
+
+type AdminSessionRecord = {
+  user: string
+  passwordHash: string
+  expiresAt: number
+}
+
+type RateBucket = {
+  count: number
+  start: number
+  windowMs: number
 }
 
 type Memory = {
@@ -60,6 +87,8 @@ type Memory = {
   sessions: Map<string, { visitorId: string; createdAt: string }>
   waitlist: WaitlistRecord[]
   support: SupportRow[]
+  adminSessions: Map<string, AdminSessionRecord>
+  rates: Map<string, RateBucket>
 }
 
 const CONFIRM_TTL_MS = 30 * 60_000
@@ -71,13 +100,23 @@ function sha256(value: string) {
 function issueChallenge() {
   const token = randomBytes(24).toString('hex')
   const code = String(randomInt(100000, 1000000))
+  const statusToken = randomBytes(24).toString('hex')
+  const expires = new Date(Date.now() + CONFIRM_TTL_MS).toISOString()
   return {
     token,
     code,
+    statusToken,
     tokenHash: sha256(token),
     codeHash: sha256(code),
-    expires: new Date(Date.now() + CONFIRM_TTL_MS).toISOString(),
+    statusHash: sha256(statusToken),
+    expires,
   }
+}
+
+function hashesMatch(left: string, right: string) {
+  const a = Buffer.from(left)
+  const b = Buffer.from(right)
+  return a.length === b.length && timingSafeEqual(a, b)
 }
 
 function publicRow(row: WaitlistRecord): WaitlistRow {
@@ -106,7 +145,14 @@ function statsFromMemory(data: Memory): VisitStats {
 }
 
 function memoryStore(): Store {
-  const data: Memory = { visitors: new Map(), sessions: new Map(), waitlist: [], support: [] }
+  const data: Memory = {
+    visitors: new Map(),
+    sessions: new Map(),
+    waitlist: [],
+    support: [],
+    adminSessions: new Map(),
+    rates: new Map(),
+  }
   return {
     kind: 'memory',
     async recordVisit(visitorId, sessionId) {
@@ -140,7 +186,15 @@ function memoryStore(): Store {
         existing.confirmTokenHash = challenge.tokenHash
         existing.confirmCodeHash = challenge.codeHash
         existing.confirmExpires = challenge.expires
-        return { status: 'pending', email: existing.email, code: challenge.code, token: challenge.token }
+        existing.statusTokenHash = challenge.statusHash
+        existing.statusExpires = challenge.expires
+        return {
+          status: 'pending',
+          email: existing.email,
+          code: challenge.code,
+          token: challenge.token,
+          statusToken: challenge.statusToken,
+        }
       }
       const item: WaitlistRecord = {
         id: randomUUID(),
@@ -154,9 +208,17 @@ function memoryStore(): Store {
         confirmTokenHash: challenge.tokenHash,
         confirmCodeHash: challenge.codeHash,
         confirmExpires: challenge.expires,
+        statusTokenHash: challenge.statusHash,
+        statusExpires: challenge.expires,
       }
       data.waitlist.unshift(item)
-      return { status: 'pending', email: item.email, code: challenge.code, token: challenge.token }
+      return {
+        status: 'pending',
+        email: item.email,
+        code: challenge.code,
+        token: challenge.token,
+        statusToken: challenge.statusToken,
+      }
     },
     async confirmWaitlist(input) {
       const now = Date.now()
@@ -198,6 +260,48 @@ function memoryStore(): Store {
     async listSupport() {
       return data.support.slice(0, 2000)
     },
+    async createAdminSession(input) {
+      data.adminSessions.set(input.idHash, {
+        user: input.user,
+        passwordHash: input.passwordHash,
+        expiresAt: Date.parse(input.expiresAt),
+      })
+    },
+    async readAdminSession(idHash, passwordHash) {
+      const row = data.adminSessions.get(idHash)
+      if (!row) return null
+      if (row.expiresAt < Date.now() || !hashesMatch(row.passwordHash, passwordHash)) {
+        data.adminSessions.delete(idHash)
+        return null
+      }
+      return { user: row.user }
+    },
+    async deleteAdminSession(idHash) {
+      data.adminSessions.delete(idHash)
+    },
+    async hitRateLimit(key, limit, windowMs) {
+      const now = Date.now()
+      if (data.rates.size > 4000) {
+        for (const [bucketKey, bucket] of data.rates) {
+          if (now - bucket.start >= bucket.windowMs) data.rates.delete(bucketKey)
+        }
+      }
+      const bucket = data.rates.get(key)
+      if (!bucket || now - bucket.start >= bucket.windowMs) {
+        data.rates.set(key, { count: 1, start: now, windowMs })
+        return false
+      }
+      bucket.count += 1
+      return bucket.count > limit
+    },
+    async confirmStatus(statusToken) {
+      const hash = sha256(statusToken)
+      const now = Date.now()
+      const row = data.waitlist.find(
+        (item) => item.statusTokenHash === hash && item.statusExpires && Date.parse(item.statusExpires) > now,
+      )
+      return Boolean(row?.confirmed)
+    },
   }
 }
 
@@ -238,6 +342,19 @@ CREATE TABLE IF NOT EXISTS support_requests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS support_requests_created_at_idx ON support_requests (created_at DESC);
+CREATE TABLE IF NOT EXISTS admin_sessions (
+  id_hash TEXT PRIMARY KEY,
+  user_name TEXT NOT NULL,
+  password_hash TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS admin_sessions_expires_at_idx ON admin_sessions (expires_at);
+CREATE TABLE IF NOT EXISTS rate_buckets (
+  bucket_key TEXT PRIMARY KEY,
+  window_start TIMESTAMPTZ NOT NULL,
+  hit_count INTEGER NOT NULL
+);
 `
 
 const WAITLIST_MIGRATE = `
@@ -260,6 +377,8 @@ ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS kind TEXT;
 UPDATE support_requests SET kind = 'support' WHERE kind IS NULL OR kind = '';
 ALTER TABLE support_requests ALTER COLUMN kind SET DEFAULT 'support';
 ALTER TABLE support_requests ALTER COLUMN kind SET NOT NULL;
+ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS status_token_hash TEXT;
+ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS status_expires TIMESTAMPTZ;
 `
 
 function databaseUrl() {
@@ -359,7 +478,7 @@ function postgresStore(url: string): Store {
         await pool.query(
           `UPDATE waitlist
            SET name = $2, email = $3, intent = $4, cycle = $5, confirm_token_hash = $6, confirm_code_hash = $7,
-               confirm_expires = $8, updated_at = NOW()
+               confirm_expires = $8, status_token_hash = $9, status_expires = $10, updated_at = NOW()
            WHERE id = $1`,
           [
             existing.id,
@@ -370,14 +489,22 @@ function postgresStore(url: string): Store {
             challenge.tokenHash,
             challenge.codeHash,
             challenge.expires,
+            challenge.statusHash,
+            challenge.expires,
           ],
         )
-        return { status: 'pending', email: input.email, code: challenge.code, token: challenge.token }
+        return {
+          status: 'pending',
+          email: input.email,
+          code: challenge.code,
+          token: challenge.token,
+          statusToken: challenge.statusToken,
+        }
       }
       await pool.query(
         `INSERT INTO waitlist
-           (id, name, email, email_norm, intent, cycle, confirmed, confirm_token_hash, confirm_code_hash, confirm_expires)
-         VALUES ($1, $2, $3, $4, $5, $6, FALSE, $7, $8, $9)`,
+           (id, name, email, email_norm, intent, cycle, confirmed, confirm_token_hash, confirm_code_hash, confirm_expires, status_token_hash, status_expires)
+         VALUES ($1, $2, $3, $4, $5, $6, FALSE, $7, $8, $9, $10, $11)`,
         [
           randomUUID(),
           input.name,
@@ -388,9 +515,17 @@ function postgresStore(url: string): Store {
           challenge.tokenHash,
           challenge.codeHash,
           challenge.expires,
+          challenge.statusHash,
+          challenge.expires,
         ],
       )
-      return { status: 'pending', email: input.email, code: challenge.code, token: challenge.token }
+      return {
+        status: 'pending',
+        email: input.email,
+        code: challenge.code,
+        token: challenge.token,
+        statusToken: challenge.statusToken,
+      }
     },
     async confirmWaitlist(input) {
       await ensure()
@@ -505,6 +640,68 @@ function postgresStore(url: string): Store {
         message: row.message,
         createdAt: new Date(row.created_at).toISOString(),
       }))
+    },
+    async createAdminSession(input) {
+      await ensure()
+      await pool.query(
+        `INSERT INTO admin_sessions (id_hash, user_name, password_hash, expires_at)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (id_hash) DO UPDATE
+           SET user_name = EXCLUDED.user_name,
+               password_hash = EXCLUDED.password_hash,
+               expires_at = EXCLUDED.expires_at`,
+        [input.idHash, input.user, input.passwordHash, input.expiresAt],
+      )
+    },
+    async readAdminSession(idHash, passwordHash) {
+      await ensure()
+      const result = await pool.query<{ user_name: string; password_hash: string; expires_at: Date }>(
+        `SELECT user_name, password_hash, expires_at FROM admin_sessions WHERE id_hash = $1`,
+        [idHash],
+      )
+      const row = result.rows[0]
+      if (!row) return null
+      const expired = new Date(row.expires_at).getTime() < Date.now()
+      const stalePassword = !hashesMatch(row.password_hash, passwordHash)
+      if (expired || stalePassword) {
+        await pool.query('DELETE FROM admin_sessions WHERE id_hash = $1', [idHash])
+        return null
+      }
+      return { user: row.user_name }
+    },
+    async deleteAdminSession(idHash) {
+      await ensure()
+      await pool.query('DELETE FROM admin_sessions WHERE id_hash = $1', [idHash])
+    },
+    async hitRateLimit(key, limit, windowSec) {
+      await ensure()
+      const windowMs = Math.max(1, Math.ceil(windowSec / 1000))
+      const result = await pool.query<{ hit_count: number }>(
+        `INSERT INTO rate_buckets (bucket_key, window_start, hit_count)
+         VALUES ($1, NOW(), 1)
+         ON CONFLICT (bucket_key) DO UPDATE SET
+           hit_count = CASE
+             WHEN rate_buckets.window_start <= NOW() - ($2::int * INTERVAL '1 second') THEN 1
+             ELSE rate_buckets.hit_count + 1
+           END,
+           window_start = CASE
+             WHEN rate_buckets.window_start <= NOW() - ($2::int * INTERVAL '1 second') THEN NOW()
+             ELSE rate_buckets.window_start
+           END
+         RETURNING hit_count`,
+        [key, windowMs],
+      )
+      return Number(result.rows[0]?.hit_count ?? 1) > limit
+    },
+    async confirmStatus(statusToken) {
+      await ensure()
+      const result = await pool.query<{ confirmed: boolean }>(
+        `SELECT confirmed FROM waitlist
+         WHERE status_token_hash = $1 AND status_expires > NOW()
+         LIMIT 1`,
+        [sha256(statusToken)],
+      )
+      return Boolean(result.rows[0]?.confirmed)
     },
   }
 }
