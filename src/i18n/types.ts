@@ -281,6 +281,13 @@ export type Messages = {
     name: string
     namePh: string
     email: string
+    kind: string
+    kinds: {
+      complaint: string
+      suggestion: string
+      support: string
+    }
+    needKind: string
     message: string
     messagePh: string
     submit: string

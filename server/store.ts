@@ -1,7 +1,16 @@
 import { createHash, randomBytes, randomInt, randomUUID } from 'node:crypto'
 import pg from 'pg'
 import { normalizeEmail } from './email.ts'
-import { isBillingCycle, isIntent, type BillingCycle, type SupportRow, type VisitStats, type WaitlistRow } from './types.ts'
+import {
+  isBillingCycle,
+  isIntent,
+  isSupportKind,
+  type BillingCycle,
+  type SupportKind,
+  type SupportRow,
+  type VisitStats,
+  type WaitlistRow,
+} from './types.ts'
 
 const { Pool } = pg
 
@@ -28,7 +37,13 @@ type Store = {
   confirmWaitlist(input: { token?: string; email?: string; code?: string }): Promise<WaitlistRow | string>
   listWaitlist(): Promise<WaitlistRow[]>
   isConfirmed(emailNorm: string): Promise<boolean>
-  createSupport(input: { name: string; email: string; emailNorm: string; message: string }): Promise<SupportRow>
+  createSupport(input: {
+    name: string
+    email: string
+    emailNorm: string
+    kind: SupportKind
+    message: string
+  }): Promise<SupportRow>
   listSupport(): Promise<SupportRow[]>
 }
 
@@ -173,6 +188,7 @@ function memoryStore(): Store {
         id: randomUUID(),
         name: input.name,
         email: input.email,
+        kind: input.kind,
         message: input.message,
         createdAt: new Date().toISOString(),
       }
@@ -217,6 +233,7 @@ CREATE TABLE IF NOT EXISTS support_requests (
   name TEXT NOT NULL,
   email TEXT NOT NULL,
   email_norm TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'support',
   message TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -239,6 +256,10 @@ ALTER TABLE waitlist ALTER COLUMN cycle SET NOT NULL;
 UPDATE waitlist SET confirmed = TRUE WHERE confirmed IS NULL;
 ALTER TABLE waitlist ALTER COLUMN confirmed SET DEFAULT FALSE;
 ALTER TABLE waitlist ALTER COLUMN confirmed SET NOT NULL;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS kind TEXT;
+UPDATE support_requests SET kind = 'support' WHERE kind IS NULL OR kind = '';
+ALTER TABLE support_requests ALTER COLUMN kind SET DEFAULT 'support';
+ALTER TABLE support_requests ALTER COLUMN kind SET NOT NULL;
 `
 
 function databaseUrl() {
@@ -447,15 +468,16 @@ function postgresStore(url: string): Store {
       await ensure()
       const id = randomUUID()
       const created = await pool.query<{ created_at: Date }>(
-        `INSERT INTO support_requests (id, name, email, email_norm, message)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO support_requests (id, name, email, email_norm, kind, message)
+         VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING created_at`,
-        [id, input.name, input.email, input.emailNorm, input.message],
+        [id, input.name, input.email, input.emailNorm, input.kind, input.message],
       )
       return {
         id,
         name: input.name,
         email: input.email,
+        kind: input.kind,
         message: input.message,
         createdAt: new Date(created.rows[0]?.created_at ?? Date.now()).toISOString(),
       }
@@ -466,10 +488,11 @@ function postgresStore(url: string): Store {
         id: string
         name: string
         email: string
+        kind: string
         message: string
         created_at: Date
       }>(
-        `SELECT id, name, email, message, created_at
+        `SELECT id, name, email, COALESCE(kind, 'support') AS kind, message, created_at
          FROM support_requests
          ORDER BY created_at DESC
          LIMIT 2000`,
@@ -478,6 +501,7 @@ function postgresStore(url: string): Store {
         id: row.id,
         name: row.name,
         email: row.email,
+        kind: isSupportKind(row.kind) ? row.kind : 'support',
         message: row.message,
         createdAt: new Date(row.created_at).toISOString(),
       }))
@@ -512,13 +536,15 @@ export function validateWaitlistInput(body: unknown) {
 
 export function validateSupportInput(body: unknown) {
   if (!body || typeof body !== 'object') return 'invalid'
-  const data = body as { name?: unknown; email?: unknown; message?: unknown }
+  const data = body as { name?: unknown; email?: unknown; kind?: unknown; message?: unknown }
   const name = typeof data.name === 'string' ? data.name.trim() : ''
   const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : ''
+  const kind = typeof data.kind === 'string' ? data.kind : ''
   const message = typeof data.message === 'string' ? data.message.trim() : ''
   if (name.length < 2 || name.length > 80) return 'name'
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return 'email'
+  if (!isSupportKind(kind)) return 'kind'
   if (message.length < 8 || message.length > 2000) return 'message'
-  return { name, email, emailNorm: normalizeEmail(email), message }
+  return { name, email, emailNorm: normalizeEmail(email), kind, message }
 }
 

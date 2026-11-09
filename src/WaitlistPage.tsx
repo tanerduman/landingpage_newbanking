@@ -285,13 +285,14 @@ export default function WaitlistPage() {
                     <th>{t.waitlist.date}</th>
                     <th>{t.waitlist.name}</th>
                     <th>{t.waitlist.email}</th>
+                    <th>{t.support.kind}</th>
                     <th>{t.waitlist.message}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {support.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="waitlist-empty">
+                      <td colSpan={5} className="waitlist-empty">
                         {t.waitlist.supportEmpty}
                       </td>
                     </tr>
@@ -301,6 +302,9 @@ export default function WaitlistPage() {
                         <td>{formatRequestTime(row.createdAt, locale)}</td>
                         <td>{row.name}</td>
                         <td>{row.email}</td>
+                        <td>
+                          <span className={`pkg-pill kind-${row.kind}`}>{t.support.kinds[row.kind]}</span>
+                        </td>
                         <td className="support-message">{row.message}</td>
                       </tr>
                     ))

@@ -13,10 +13,18 @@ export type WaitlistRow = {
   createdAt: string
 }
 
+export const SUPPORT_KINDS = ['complaint', 'suggestion', 'support'] as const
+export type SupportKind = (typeof SUPPORT_KINDS)[number]
+
+export function isSupportKind(value: string): value is SupportKind {
+  return (SUPPORT_KINDS as readonly string[]).includes(value)
+}
+
 export type SupportRow = {
   id: string
   name: string
   email: string
+  kind: SupportKind
   message: string
   createdAt: string
 }

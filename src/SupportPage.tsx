@@ -3,12 +3,13 @@ import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import LogoMark from './LogoMark.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { submitSupport } from './support.ts'
+import { submitSupport, SUPPORT_KINDS, type SupportKind } from './support.ts'
 
 export default function SupportPage() {
   const { t } = useI18n()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [kind, setKind] = useState<SupportKind | ''>('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -24,6 +25,10 @@ export default function SupportPage() {
       setError(t.support.needEmail)
       return
     }
+    if (!kind) {
+      setError(t.support.needKind)
+      return
+    }
     if (message.trim().length < 8) {
       setError(t.support.needMessage)
       return
@@ -31,7 +36,7 @@ export default function SupportPage() {
     setBusy(true)
     setError('')
     try {
-      await submitSupport({ name, email, message })
+      await submitSupport({ name, email, kind, message })
       setSent(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : t.errors.save_fail)
@@ -94,6 +99,23 @@ export default function SupportPage() {
                 placeholder="ada@email.com"
                 onChange={(e) => setEmail(e.target.value)}
               />
+              <fieldset className="kind-field">
+                <legend>{t.support.kind}</legend>
+                <div className="kind-options">
+                  {SUPPORT_KINDS.map((item) => (
+                    <label key={item} className={kind === item ? 'active' : ''}>
+                      <input
+                        type="radio"
+                        name="support-kind"
+                        value={item}
+                        checked={kind === item}
+                        onChange={() => setKind(item)}
+                      />
+                      {t.support.kinds[item]}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
               <label htmlFor="support-message">{t.support.message}</label>
               <textarea
                 id="support-message"

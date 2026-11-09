@@ -1,10 +1,14 @@
 import { apiFetch, readApiJson } from './api.ts'
 import { messages, readLocale } from './i18n/index.ts'
 
+export const SUPPORT_KINDS = ['complaint', 'suggestion', 'support'] as const
+export type SupportKind = (typeof SUPPORT_KINDS)[number]
+
 export type SupportEntry = {
   id: string
   name: string
   email: string
+  kind: SupportKind
   message: string
   createdAt: string
 }
@@ -14,12 +18,13 @@ function failMessage(remoteError: string | undefined) {
   return remoteError || t.errors.save_fail
 }
 
-export async function submitSupport(input: { name: string; email: string; message: string }) {
+export async function submitSupport(input: { name: string; email: string; kind: SupportKind; message: string }) {
   const res = await apiFetch('/api/support', {
     method: 'POST',
     body: JSON.stringify({
       name: input.name.trim(),
       email: input.email.trim().toLowerCase(),
+      kind: input.kind,
       message: input.message.trim(),
       lang: readLocale(),
     }),
