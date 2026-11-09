@@ -90,16 +90,19 @@ export type Messages = {
     spend: string
     idle: string
     fx: string
+    fxSell: string
     fee: string
     interest: string
     extras: string
     fxGain: string
+    fxSellGain: string
     net: string
     best: string
     pick: string
     sample: string
     perMonth: string
     idlePreset: string
+    fxSellPreset: string
     minimum: string
   }
   idleExample: {
@@ -112,6 +115,9 @@ export type Messages = {
     fx: string
     fxHint: string
     fxHintWait: string
+    fxSell: string
+    fxSellHint: string
+    fxSellHintWait: string
     fee: string
     rate: string
     net: string
@@ -120,12 +126,14 @@ export type Messages = {
     spreadUpto: string
     spreadRest: string
     eur: string
+    tryOut: string
     more: string
     stay: string
     pick: string
     footStart: string
     footNet: string
     footMid: string
+    footSell: string
     footEnd: string
     sample: string
   }

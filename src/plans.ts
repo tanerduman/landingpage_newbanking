@@ -59,6 +59,11 @@ export const IDLE_STEP = 5_000
 export const FX_MIN = 0
 export const FX_MAX = SAMPLE_IDLE_TRY
 export const FX_STEP = 5_000
+/** Worked example: selling EUR back to TRY. */
+export const SAMPLE_EUR_SELL = 20_000
+export const FX_SELL_MIN = 0
+export const FX_SELL_MAX = SAMPLE_EUR_SELL
+export const FX_SELL_STEP = 500
 
 function extrasPerSpend(plan: (typeof plans)[number]) {
   return plan.campaignRate * 0.4 + plan.installmentRate * 0.2
@@ -98,6 +103,24 @@ export function fxSavingTry(planId: PlanColumnId, fxTry: number, market: number)
   return (eurFromTry(planId, fxTry, market) - eurFromTry('account', fxTry, market)) * market
 }
 
+/** Spread when selling EUR for TRY. Unlike buys, the plan rate applies to the whole amount. */
+export const fxSellFeeByColumn: Record<PlanColumnId, number> = {
+  account: 0.025,
+  standard: 0.015,
+  plus: 0.01,
+  premium: 0.005,
+}
+
+export function tryFromEur(planId: PlanColumnId, eurAmount: number, market: number) {
+  if (eurAmount <= 0 || market <= 0) return 0
+  return (eurAmount * market) / (1 + fxSellFeeByColumn[planId])
+}
+
+export function fxSellSavingTry(planId: PlanColumnId, eurAmount: number, market: number) {
+  if (planId === 'account' || eurAmount <= 0 || market <= 0) return 0
+  return tryFromEur(planId, eurAmount, market) - tryFromEur('account', eurAmount, market)
+}
+
 export function planBreakdown(
   plan: (typeof plans)[number],
   spend: number,
@@ -105,12 +128,14 @@ export function planBreakdown(
   cycleYearly = false,
   fxTry = 0,
   eurTry = 0,
+  fxSellEur = 0,
 ) {
   const fee = cycleYearly ? (plan.monthly * 10) / 12 : plan.monthly
   const interest = (idle * (plan.overnight - ACCOUNT_OVERNIGHT)) / 12
   const extras = spend * extrasPerSpend(plan)
   const fx = fxSavingTry(plan.id, fxTry, eurTry)
-  return { fee, interest, extras, fx, net: interest + extras + fx - fee }
+  const fxSell = fxSellSavingTry(plan.id, fxSellEur, eurTry)
+  return { fee, interest, extras, fx, fxSell, net: interest + extras + fx + fxSell - fee }
 }
 
 export function planNet(plan: (typeof plans)[number], spend: number, idle: number, cycleYearly = false) {
@@ -178,6 +203,7 @@ export const comparisonRows: {
     | 'fxLimit'
     | 'fxFee'
     | 'fxFeeOver'
+    | 'fxSellFee'
     | 'goldSpread'
     | 'stock'
     | 'liveData'
@@ -227,6 +253,12 @@ export const comparisonRows: {
     group: 'bank',
     icon: 'fx',
     values: { account: '%4', standard: '%4', plus: '%4', premium: '%0,5' },
+  },
+  {
+    id: 'fxSellFee',
+    group: 'bank',
+    icon: 'fx',
+    values: { account: '%2,5', standard: '%1,5', plus: '%1', premium: '%0,5' },
   },
   {
     id: 'goldSpread',
