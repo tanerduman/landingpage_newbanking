@@ -17,12 +17,14 @@ import {
   type WaitlistEntry,
 } from './waitlist'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
-import { fetchSupport, deleteSupportEntry, type SupportEntry } from './support.ts'
+import { fetchSupport, deleteSupportEntry, type SupportEntry, type SupportKind } from './support.ts'
+import SupportPie from './SupportPie.tsx'
 import WaitlistPie from './WaitlistPie.tsx'
 import LogoMark from './LogoMark.tsx'
 
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
+type KindFilter = 'all' | SupportKind
 type Panel = 'requests' | 'support'
 
 const PAGE_SIZE = 10
@@ -41,6 +43,7 @@ export default function WaitlistPage() {
   const [remote, setRemote] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
   const [cycleFilter, setCycleFilter] = useState<CycleFilter>('all')
+  const [kindFilter, setKindFilter] = useState<KindFilter>('all')
   const [page, setPage] = useState(1)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -157,9 +160,18 @@ export default function WaitlistPage() {
       }),
     [entries, filter, cycleFilter],
   )
-  const supportPageCount = Math.max(1, Math.ceil(support.length / PAGE_SIZE))
+  const supportCounts = useMemo(() => {
+    const counts: Record<SupportKind, number> = { complaint: 0, suggestion: 0, support: 0 }
+    for (const row of support) counts[row.kind] += 1
+    return counts
+  }, [support])
+  const visibleSupport = useMemo(
+    () => support.filter((row) => kindFilter === 'all' || row.kind === kindFilter),
+    [support, kindFilter],
+  )
+  const supportPageCount = Math.max(1, Math.ceil(visibleSupport.length / PAGE_SIZE))
   const supportPage = Math.min(page, supportPageCount)
-  const pagedSupport = support.slice((supportPage - 1) * PAGE_SIZE, supportPage * PAGE_SIZE)
+  const pagedSupport = visibleSupport.slice((supportPage - 1) * PAGE_SIZE, supportPage * PAGE_SIZE)
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount)
   const paged = visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
@@ -174,9 +186,16 @@ export default function WaitlistPage() {
     setPage(1)
   }
 
+  function changeKind(next: SupportKind) {
+    setKindFilter((current) => (current === next ? 'all' : next))
+    setPage(1)
+    setConfirmId(null)
+  }
+
   function changePanel(next: Panel) {
     setPanel(next)
     setPage(1)
+    setKindFilter('all')
     setConfirmId(null)
     setDeleteError('')
   }
@@ -268,9 +287,9 @@ export default function WaitlistPage() {
               <button
                 type="button"
                 className="btn btn-solid"
-                disabled={support.length === 0}
+                disabled={visibleSupport.length === 0}
                 onClick={() =>
-                  downloadSupportExcel(support, {
+                  downloadSupportExcel(visibleSupport, {
                     date: t.waitlist.excelDate,
                     name: t.waitlist.excelName,
                     email: t.waitlist.excelEmail,
@@ -357,6 +376,14 @@ export default function WaitlistPage() {
                 <p className="lead">{t.waitlist.supportLead}</p>
               </div>
             </div>
+            <div className="waitlist-pies">
+              <SupportPie
+                counts={supportCounts}
+                total={support.length}
+                active={kindFilter}
+                onSelect={changeKind}
+              />
+            </div>
             <div className="table-wrap">
               <table>
                 <thead>
@@ -370,10 +397,10 @@ export default function WaitlistPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {support.length === 0 ? (
+                  {visibleSupport.length === 0 ? (
                     <tr>
                       <td colSpan={6} className="waitlist-empty">
-                        {t.waitlist.supportEmpty}
+                        {support.length === 0 ? t.waitlist.supportEmpty : t.waitlist.supportFilterEmpty}
                       </td>
                     </tr>
                   ) : (
@@ -412,10 +439,10 @@ export default function WaitlistPage() {
               </table>
             </div>
             {deleteError && <p className="waitlist-action-error">{deleteError}</p>}
-            {support.length > PAGE_SIZE && (
+            {visibleSupport.length > PAGE_SIZE && (
               <div className="waitlist-pager">
                 <span>
-                  {(supportPage - 1) * PAGE_SIZE + 1}–{Math.min(supportPage * PAGE_SIZE, support.length)} / {support.length}
+                  {(supportPage - 1) * PAGE_SIZE + 1}–{Math.min(supportPage * PAGE_SIZE, visibleSupport.length)} / {visibleSupport.length}
                 </span>
                 <div className="waitlist-pager-btns">
                   <button type="button" disabled={supportPage <= 1} onClick={() => setPage(supportPage - 1)}>
