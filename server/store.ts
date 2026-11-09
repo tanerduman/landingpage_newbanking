@@ -54,6 +54,7 @@ type Store = {
     message: string
   }): Promise<SupportRow>
   listSupport(): Promise<SupportRow[]>
+  deleteSupport(id: string): Promise<boolean>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -266,6 +267,12 @@ function memoryStore(): Store {
     },
     async listSupport() {
       return data.support.slice(0, 2000)
+    },
+    async deleteSupport(id) {
+      const index = data.support.findIndex((row) => row.id === id)
+      if (index === -1) return false
+      data.support.splice(index, 1)
+      return true
     },
     async createAdminSession(input) {
       data.adminSessions.set(input.idHash, {
@@ -652,6 +659,11 @@ function postgresStore(url: string): Store {
         message: row.message,
         createdAt: new Date(row.created_at).toISOString(),
       }))
+    },
+    async deleteSupport(id) {
+      await ensure()
+      const result = await pool.query('DELETE FROM support_requests WHERE id = $1', [id])
+      return (result.rowCount ?? 0) > 0
     },
     async createAdminSession(input) {
       await ensure()

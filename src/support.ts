@@ -13,9 +13,12 @@ export type SupportEntry = {
   createdAt: string
 }
 
-function failMessage(remoteError: string | undefined) {
+function failMessage(
+  remoteError: string | undefined,
+  fallback: 'save_fail' | 'support_delete_fail' | 'offline' = 'save_fail',
+) {
   const t = messages(readLocale())
-  return remoteError || t.errors.save_fail
+  return remoteError || t.errors[fallback]
 }
 
 export async function submitSupport(input: { name: string; email: string; kind: SupportKind; message: string }) {
@@ -32,6 +35,19 @@ export async function submitSupport(input: { name: string; email: string; kind: 
   const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
   if (res?.ok && remote?.ok) return
   throw new Error(failMessage(remote?.error))
+}
+
+export async function deleteSupportEntry(id: string) {
+  const res = await apiFetch('/api/support', {
+    method: 'DELETE',
+    body: JSON.stringify({ id }),
+  })
+  const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
+  if (res?.ok && remote?.ok) {
+    window.dispatchEvent(new Event('aure-waitlist'))
+    return
+  }
+  throw new Error(failMessage(remote?.error, res ? 'support_delete_fail' : 'offline'))
 }
 
 export async function fetchSupport(): Promise<{ entries: SupportEntry[]; authorized: boolean }> {

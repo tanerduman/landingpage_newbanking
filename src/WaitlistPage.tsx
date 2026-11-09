@@ -17,7 +17,7 @@ import {
   type WaitlistEntry,
 } from './waitlist'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
-import { fetchSupport, type SupportEntry } from './support.ts'
+import { fetchSupport, deleteSupportEntry, type SupportEntry } from './support.ts'
 import WaitlistPie from './WaitlistPie.tsx'
 import LogoMark from './LogoMark.tsx'
 
@@ -46,6 +46,7 @@ export default function WaitlistPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState('')
   const removedIds = useRef(new Set<string>())
+  const removedSupportIds = useRef(new Set<string>())
 
   const pkgLabels: Record<SignupIntent, string> = {
     account: t.pkg.account,
@@ -88,7 +89,10 @@ export default function WaitlistPage() {
       for (const id of removedIds.current) {
         if (!list.entries.some((entry) => entry.id === id)) removedIds.current.delete(id)
       }
-      setSupport(tickets.entries)
+      setSupport(tickets.entries.filter((entry) => !removedSupportIds.current.has(entry.id)))
+      for (const id of removedSupportIds.current) {
+        if (!tickets.entries.some((entry) => entry.id === id)) removedSupportIds.current.delete(id)
+      }
       setRemote(list.remote)
       setVisits(stats)
     }
@@ -193,6 +197,28 @@ export default function WaitlistPage() {
       setConfirmId(null)
     } catch (err) {
       setDeleteError(err instanceof Error ? err.message : t.errors.delete_fail)
+      setConfirmId(null)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
+  async function removeSupport(id: string) {
+    if (deletingId) return
+    if (confirmId !== id) {
+      setConfirmId(id)
+      setDeleteError('')
+      return
+    }
+    setDeletingId(id)
+    setDeleteError('')
+    try {
+      await deleteSupportEntry(id)
+      removedSupportIds.current.add(id)
+      setSupport((current) => current.filter((entry) => entry.id !== id))
+      setConfirmId(null)
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : t.errors.support_delete_fail)
       setConfirmId(null)
     } finally {
       setDeletingId(null)
@@ -340,12 +366,13 @@ export default function WaitlistPage() {
                     <th>{t.waitlist.email}</th>
                     <th>{t.support.kind}</th>
                     <th>{t.waitlist.message}</th>
+                    <th className="row-action">{t.waitlist.action}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {support.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="waitlist-empty">
+                      <td colSpan={6} className="waitlist-empty">
                         {t.waitlist.supportEmpty}
                       </td>
                     </tr>
@@ -359,12 +386,32 @@ export default function WaitlistPage() {
                           <span className={`pkg-pill kind-${row.kind}`}>{t.support.kinds[row.kind]}</span>
                         </td>
                         <td className="support-message">{row.message}</td>
+                        <td className="row-action">
+                          <button
+                            type="button"
+                            className={`row-delete${confirmId === row.id ? ' armed' : ''}`}
+                            disabled={deletingId === row.id}
+                            aria-label={
+                              confirmId === row.id
+                                ? `${t.waitlist.deleteConfirm} ${row.name}`
+                                : `${t.waitlist.delete} ${row.name}`
+                            }
+                            onClick={() => void removeSupport(row.id)}
+                          >
+                            {deletingId === row.id
+                              ? t.waitlist.deleting
+                              : confirmId === row.id
+                                ? t.waitlist.deleteConfirm
+                                : t.waitlist.delete}
+                          </button>
+                        </td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
             </div>
+            {deleteError && <p className="waitlist-action-error">{deleteError}</p>}
             {support.length > PAGE_SIZE && (
               <div className="waitlist-pager">
                 <span>

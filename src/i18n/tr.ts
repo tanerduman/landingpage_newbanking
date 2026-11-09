@@ -497,6 +497,7 @@ export const tr: Messages = {
     confirm_fail: 'Onay başarısız.',
     save_fail: 'Kayıt alınamadı.',
     delete_fail: 'Talep silinemedi.',
+    support_delete_fail: 'Destek kaydı silinemedi.',
     offline: 'Sunucuya bağlanılamadı.',
     unauthorized: 'Oturum gerekli.',
     auth_need: 'Kullanıcı adı ve şifre gerekli.',
