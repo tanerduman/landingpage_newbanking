@@ -180,7 +180,12 @@ export async function confirmWaitlist(input: { token?: string; email?: string; c
     method: 'POST',
     body: JSON.stringify(input),
   })
-  const remote = await readApiJson<{ confirmed?: boolean; email?: string; error?: string }>(res)
+  const remote = await readApiJson<{
+    confirmed?: boolean
+    email?: string
+    purpose?: 'waitlist' | 'support'
+    error?: string
+  }>(res)
   if (res?.ok && remote?.confirmed) {
     if (remote.email) announceConfirmed(remote.email)
     else window.dispatchEvent(new Event('aure-waitlist'))

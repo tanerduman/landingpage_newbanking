@@ -22,11 +22,12 @@ export async function sendWaitlistConfirm(input: {
   code: string
   link: string
   locale: 'tr' | 'en'
+  purpose?: 'waitlist' | 'support'
 }) {
   const key = process.env.RESEND_API_KEY || ''
   const from = process.env.MAIL_FROM || 'AURE <onboarding@resend.dev>'
   if (!key) return { ok: false as const, skipped: true as const }
-  const copy = confirmMailCopy(input.locale, input.code, input.link)
+  const copy = confirmMailCopy(input.locale, input.code, input.link, input.purpose || 'waitlist')
 
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',

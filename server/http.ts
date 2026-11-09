@@ -217,7 +217,13 @@ async function handleWaitlist(request: Request) {
     return json({ updated: true, store: store.kind }, 200, request)
   }
   const link = `${publicAppUrl(request)}/confirm`
-  const sent = await sendWaitlistConfirm({ to: result.email, code: result.code || '', link, locale })
+  const sent = await sendWaitlistConfirm({
+    to: result.email,
+    code: result.code || '',
+    link,
+    locale,
+    purpose: 'waitlist',
+  })
   if (!sent.ok && isProduction() && !sent.skipped) {
     return fail(request, 'mail_fail', 503, parsed.value)
   }
@@ -247,13 +253,26 @@ async function handleConfirm(request: Request) {
   const email = typeof body?.email === 'string' ? body.email.trim() : ''
   const code = typeof body?.code === 'string' ? body.code.trim() : ''
   if (!token && !(email && code)) return fail(request, 'confirm_need', 400, body)
-  const result = await getStore().confirmWaitlist({
+  const lookup = {
     token: token || undefined,
     email: email || undefined,
     code: code || undefined,
-  })
-  if (typeof result === 'string') return fail(request, result, 400, body)
-  return json({ confirmed: true, email: result.email, intent: result.intent, store: getStore().kind }, 200, request)
+  }
+  const waitlist = await getStore().confirmWaitlist(lookup)
+  if (typeof waitlist !== 'string') {
+    return json(
+      { confirmed: true, email: waitlist.email, intent: waitlist.intent, purpose: 'waitlist', store: getStore().kind },
+      200,
+      request,
+    )
+  }
+  const support = await getStore().confirmSupport(lookup)
+  if (typeof support === 'string') return fail(request, support, 400, body)
+  return json(
+    { confirmed: true, email: support.email, kind: support.kind, purpose: 'support', store: getStore().kind },
+    200,
+    request,
+  )
 }
 
 async function handleSupport(request: Request) {
@@ -279,10 +298,37 @@ async function handleSupport(request: Request) {
   if (await overLimit(`support:ip:${clientKey(request)}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  const locale = localeFromRequest(request, parsed.value)
   const valid = validateSupportInput(parsed.value)
   if (typeof valid === 'string') return fail(request, valid, 400, parsed.value)
-  const row = await store.createSupport(valid)
-  return json({ ok: true, id: row.id, store: store.kind }, 201, request)
+  if (await overLimit(`support:email:${valid.emailNorm}`, 20, 600_000)) return fail(request, 'too_many', 429)
+  const result = await store.requestSupport(valid)
+  const link = `${publicAppUrl(request)}/confirm`
+  const sent = await sendWaitlistConfirm({
+    to: result.email,
+    code: result.code || '',
+    link,
+    locale,
+    purpose: 'support',
+  })
+  if (!sent.ok && isProduction() && !sent.skipped) {
+    return fail(request, 'mail_fail', 503, parsed.value)
+  }
+  if (!sent.ok && sent.skipped && isProduction()) {
+    return fail(request, 'mail_off', 503, parsed.value)
+  }
+  const localDev = !process.env.VERCEL
+  return json(
+    {
+      pending: true,
+      delivered: sent.ok,
+      statusToken: result.statusToken,
+      store: store.kind,
+      ...(localDev && !sent.ok ? { devCode: result.code } : {}),
+    },
+    201,
+    request,
+  )
 }
 
 async function handleConfirmStatus(request: Request) {

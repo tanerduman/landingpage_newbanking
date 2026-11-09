@@ -18,6 +18,7 @@ export default function ConfirmPage() {
   const { t } = useI18n()
   const token = tokenFromLocation()
   const [status, setStatus] = useState<'form' | 'working' | 'ok' | 'error'>(token ? 'working' : 'form')
+  const [purpose, setPurpose] = useState<'waitlist' | 'support'>('waitlist')
   const [detail, setDetail] = useState('')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -26,7 +27,8 @@ export default function ConfirmPage() {
   useEffect(() => {
     if (!token) return
     void confirmWaitlist({ token })
-      .then(() => {
+      .then((result) => {
+        if (result.purpose === 'support') setPurpose('support')
         setStatus('ok')
       })
       .catch((err: unknown) => {
@@ -50,7 +52,8 @@ export default function ConfirmPage() {
     setBusy(true)
     setDetail('')
     try {
-      await confirmWaitlist({ email, code })
+      const result = await confirmWaitlist({ email, code })
+      if (result.purpose === 'support') setPurpose('support')
       setStatus('ok')
     } catch (err) {
       setStatus('error')
@@ -65,7 +68,9 @@ export default function ConfirmPage() {
     status === 'working'
       ? t.confirm.wait
       : status === 'ok'
-        ? t.confirm.success
+        ? purpose === 'support'
+          ? t.confirm.successSupport
+          : t.confirm.success
         : detail || t.confirm.fail
 
   return (
