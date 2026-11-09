@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { plans } from './plans.ts'
 import {
@@ -75,7 +76,7 @@ export function SignupModal({
   async function submit(e: FormEvent) {
     e.preventDefault()
     if (phase === 'code') {
-      if (!/^\d{6}$/.test(code.trim())) {
+      if (!CONFIRM_CODE_RE.test(code.trim())) {
         setError(t.signup.needCode)
         return
       }
@@ -190,8 +191,9 @@ export function SignupModal({
               inputMode="numeric"
               autoComplete="one-time-code"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="123456"
+              maxLength={CONFIRM_CODE_DIGITS}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, CONFIRM_CODE_DIGITS))}
+              placeholder="12345678"
             />
             {devCode ? (
               <p className="confirm-dev">

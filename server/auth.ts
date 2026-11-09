@@ -44,6 +44,13 @@ export function sessionKey(id: string) {
   return createHmac('sha256', sessionSecret()).update(id).digest('hex')
 }
 
+/** HMAC when WAITLIST_SESSION_SECRET is set, so short confirm codes are not unsalted SHA-256. */
+export function secretDigest(value: string) {
+  const secret = sessionSecret()
+  if (secret) return createHmac('sha256', secret).update(value).digest('hex')
+  return createHash('sha256').update(value).digest('hex')
+}
+
 export function readCookie(request: Request, name: string) {
   const header = request.headers.get('cookie') || ''
   for (const part of header.split(';')) {

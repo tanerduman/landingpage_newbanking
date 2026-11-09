@@ -11,7 +11,8 @@ import {
   sessionCookie,
   sessionKey,
 } from './auth.ts'
-import { isProduction, publicAppUrl, sendWaitlistConfirm } from './email.ts'
+import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
+import { CONFIRM_CODE_RE, CONFIRM_EMAIL_ATTEMPTS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
 import { getFxRates } from './fx.ts'
 import { getGoldPrice } from './gold.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
@@ -253,6 +254,12 @@ async function handleConfirm(request: Request) {
   const email = typeof body?.email === 'string' ? body.email.trim() : ''
   const code = typeof body?.code === 'string' ? body.code.trim() : ''
   if (!token && !(email && code)) return fail(request, 'confirm_need', 400, body)
+  if (email && code) {
+    if (!CONFIRM_CODE_RE.test(code)) return fail(request, 'confirm_need', 400, body)
+    if (await overLimit(`confirm:email:${normalizeEmail(email)}`, CONFIRM_EMAIL_ATTEMPTS, CONFIRM_TTL_MS)) {
+      return fail(request, 'too_many', 429)
+    }
+  }
   const lookup = {
     token: token || undefined,
     email: email || undefined,
