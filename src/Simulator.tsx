@@ -35,7 +35,7 @@ export default function Simulator({
   const { t, locale } = useI18n()
   const [manual, setManual] = useState<{ spend: number; idle: number; tick: number | null } | null>(null)
   const focused = focus ? plans.find((item) => item.id === focus.id) : undefined
-  const preset = focused && manual?.tick !== focus.tick ? minimumScenario(focused, cycleYearly) : null
+  const preset = focus && focused && manual?.tick !== focus.tick ? minimumScenario(focused, cycleYearly) : null
   const spend = preset?.spend ?? manual?.spend ?? 18_000
   const idle = preset?.idle ?? manual?.idle ?? 40_000
 
