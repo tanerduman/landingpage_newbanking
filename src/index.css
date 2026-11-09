@@ -628,12 +628,12 @@ h3 {
 
 .simulator-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   grid-template-areas:
-    "spend-label idle-label"
-    "spend-value idle-value"
-    "spend-range idle-range"
-    ". idle-button";
+    "spend-label idle-label fx-label"
+    "spend-value idle-value fx-value"
+    "spend-range idle-range fx-range"
+    ". idle-button .";
   column-gap: 28px;
   row-gap: 6px;
   align-items: center;
@@ -642,10 +642,13 @@ h3 {
 
 .sim-spend-label { grid-area: spend-label; }
 .sim-idle-label { grid-area: idle-label; }
+.sim-fx-label { grid-area: fx-label; }
 .sim-spend-value { grid-area: spend-value; }
 .sim-idle-value { grid-area: idle-value; }
+.sim-fx-value { grid-area: fx-value; }
 .sim-spend-range { grid-area: spend-range; }
 .sim-idle-range { grid-area: idle-range; }
+.sim-fx-range { grid-area: fx-range; }
 .simulator-preset { grid-area: idle-button; }
 
 .simulator-controls label {
@@ -2758,10 +2761,14 @@ td.row-action {
       "idle-label"
       "idle-value"
       "idle-range"
-      "idle-button";
+      "idle-button"
+      "fx-label"
+      "fx-value"
+      "fx-range";
   }
 
-  .sim-idle-label {
+  .sim-idle-label,
+  .sim-fx-label {
     margin-top: 16px;
   }
 

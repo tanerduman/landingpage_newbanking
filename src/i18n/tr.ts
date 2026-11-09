@@ -126,9 +126,11 @@ export const tr: Messages = {
   simulator: {
     spend: 'Aylık kart harcaman',
     idle: 'Boşta duran bakiyen',
+    fx: 'Aylık döviz alımın',
     fee: 'Paket ücreti',
     interest: 'Temel’e göre faiz',
     extras: 'Kampanya & taksit',
+    fxGain: 'Temel’e göre döviz',
     net: 'Temel’e göre net',
     best: 'En kârlı',
     pick: 'Bu paketi ekle',

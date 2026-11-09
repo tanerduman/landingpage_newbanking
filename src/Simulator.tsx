@@ -2,6 +2,9 @@ import { useMemo, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatDelta, formatMoney } from './i18n/format.ts'
 import {
+  FX_MAX,
+  FX_MIN,
+  FX_STEP,
   IDLE_MIN,
   IDLE_STEP,
   SAMPLE_IDLE_TRY,
@@ -27,6 +30,7 @@ export default function Simulator({
   onPick: (id: PlanId) => void
 }) {
   const { t, locale } = useI18n()
+  const [fx, setFx] = useState(0)
   const [manual, setManual] = useState<{ spend: number; idle: number; tick: number | null } | null>(null)
   const focused = focus ? plans.find((item) => item.id === focus.id) : undefined
   const preset = focus && focused && manual?.tick !== focus.tick ? minimumScenario(focused, cycleYearly) : null
@@ -39,10 +43,10 @@ export default function Simulator({
 
   const rows = useMemo(() => {
     return plans.map((plan) => {
-      const monthly = planBreakdown(plan, spend, idle, cycleYearly)
+      const monthly = planBreakdown(plan, spend, idle, cycleYearly, fx)
       return { id: plan.id, name: plan.name, ...monthly }
     })
-  }, [spend, idle, cycleYearly])
+  }, [spend, idle, cycleYearly, fx])
 
   const bestId = rows.reduce((best, row) => (row.net > best.net ? row : best), rows[0]).id
   const colName: Record<PlanColumnId, string> = {
@@ -61,8 +65,12 @@ export default function Simulator({
         <label className="sim-idle-label" htmlFor="sim-idle">
           {t.simulator.idle}
         </label>
+        <label className="sim-fx-label" htmlFor="sim-fx">
+          {t.simulator.fx}
+        </label>
         <strong className="sim-spend-value">{formatMoney(spend, locale)}</strong>
         <strong className="sim-idle-value">{formatMoney(idle, locale)}</strong>
+        <strong className="sim-fx-value">{formatMoney(fx, locale)}</strong>
         <input
           id="sim-spend"
           className="sim-spend-range"
@@ -82,6 +90,16 @@ export default function Simulator({
           step={IDLE_STEP}
           value={idle}
           onChange={(e) => choose(spend, Number(e.target.value))}
+        />
+        <input
+          id="sim-fx"
+          className="sim-fx-range"
+          type="range"
+          min={FX_MIN}
+          max={FX_MAX}
+          step={FX_STEP}
+          value={fx}
+          onChange={(e) => setFx(Number(e.target.value))}
         />
         <button type="button" className="simulator-preset" onClick={() => choose(spend, SAMPLE_IDLE_TRY)}>
           {t.simulator.idlePreset}
@@ -115,6 +133,10 @@ export default function Simulator({
               <div>
                 <dt>{t.simulator.extras}</dt>
                 <dd>{formatMoney(row.extras, locale)}</dd>
+              </div>
+              <div>
+                <dt>{t.simulator.fxGain}</dt>
+                <dd>{formatDelta(row.fx, locale)}</dd>
               </div>
             </dl>
             <p className="simulator-net">
