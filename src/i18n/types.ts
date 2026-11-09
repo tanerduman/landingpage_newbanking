@@ -314,6 +314,9 @@ export type Messages = {
     needKind: string
     message: string
     messagePh: string
+    dictate: string
+    dictateStop: string
+    dictateDenied: string
     submit: string
     sending: string
     successTitle: string

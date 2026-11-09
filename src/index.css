@@ -2226,6 +2226,44 @@ td.row-action {
   max-width: 420px;
 }
 
+.support-message-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.support-message-head label {
+  margin: 0;
+}
+
+.dictate-btn {
+  flex: none;
+  border: 1px solid #e5dfd2;
+  background: #fff;
+  color: #111;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dictate-btn.live {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--ink);
+}
+
+.support-dictate-note {
+  margin: 8px 0 0;
+  color: #5c574d;
+  font-size: 13px;
+}
+
 .login-error {
   color: #b42318;
   margin: 12px 0 0;
