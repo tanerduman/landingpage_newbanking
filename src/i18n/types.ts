@@ -162,6 +162,27 @@ export type Messages = {
     tradeLive: string
     tradeBsmv: string
   }
+  monthSlogan: {
+    aria: string
+    home: string
+    active: string
+    idle: string
+    sample: string
+    lineA: string
+    lineB: string
+    interest: string
+    yearly: string
+    fine: string
+    days: string
+    proof: string
+    proofHint: string
+    currency: string
+    currencyName: string
+    navHome: string
+    navCard: string
+    navFx: string
+    navMore: string
+  }
   homeCompare: {
     title: string
     lead: string

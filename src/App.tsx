@@ -5,6 +5,7 @@ import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import GoldExample from './GoldExample.tsx'
 import IdleExample from './IdleExample.tsx'
+import MonthSlogan from './MonthSlogan.tsx'
 import Simulator from './Simulator.tsx'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -468,6 +469,7 @@ export default function App() {
                 </figcaption>
               </figure>
             </div>
+            <MonthSlogan />
             <IdleExample onPick={openPlan} eurTry={fx.find((row) => row.base === 'EUR')?.rate ?? 0} />
             <GoldExample onPick={openPlan} />
           </div>

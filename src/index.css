@@ -1156,6 +1156,228 @@ th.center {
   object-fit: cover;
 }
 
+.month-slogan {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+  margin: 36px 0 8px;
+}
+
+.month-phone {
+  border-radius: 36px;
+  padding: 10px;
+  background: #000;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.month-screen {
+  background: var(--bg);
+  border-radius: 28px;
+  padding: 16px 14px 12px;
+}
+
+.month-status {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.month-screen h3 {
+  margin: 16px 0 0;
+  font-size: 32px;
+  letter-spacing: -0.04em;
+}
+
+.month-pill {
+  display: inline-flex;
+  margin: 10px 0 0;
+  background: var(--lime);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.month-balance {
+  margin: 18px 0 0;
+}
+
+.month-balance span,
+.month-band span,
+.month-proof span,
+.month-wallet span,
+.month-eq small,
+.month-fine,
+.month-note {
+  color: var(--muted);
+}
+
+.month-balance span,
+.month-wallet span {
+  display: block;
+  font-size: 12px;
+}
+
+.month-balance strong {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+
+.month-card {
+  margin-top: 14px;
+  background: #101012;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 14px;
+}
+
+.month-card em,
+.month-kicker {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.month-card em {
+  color: var(--gold);
+}
+
+.month-card > p:not(.month-fine),
+.month-band > p:not(.month-note) {
+  margin: 8px 0 0;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+.month-card > p:not(.month-fine) {
+  font-size: 26px;
+}
+
+.month-card b,
+.month-band b,
+.month-proof i {
+  color: var(--lime);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.month-card b {
+  display: block;
+}
+
+.month-eq {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.month-eq small {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.month-eq strong {
+  font-size: 14px;
+}
+
+.month-eq span {
+  color: var(--lime);
+  font-weight: 800;
+}
+
+.month-fine,
+.month-note {
+  margin: 10px 0 0;
+  font-family: Figtree, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.45;
+}
+
+.month-wallet {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.month-wallet b {
+  font-size: 14px;
+}
+
+.month-nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 4px 4px;
+  color: #5c574d;
+  font-size: 11px;
+}
+
+.month-nav span:first-child {
+  color: var(--lime);
+  font-weight: 700;
+}
+
+.month-band {
+  background:
+    radial-gradient(520px 180px at 0% 0%, rgba(216, 255, 74, 0.14), transparent 60%),
+    #101012;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 28px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 22px 28px;
+  align-items: center;
+}
+
+.month-band > div:first-child strong {
+  display: block;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.month-band > p:not(.month-note) {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 40px);
+}
+
+.month-proof {
+  text-align: right;
+}
+
+.month-proof strong {
+  display: block;
+  font-size: 18px;
+}
+
+.month-note {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
 .featured-shot .phone {
   width: min(300px, 100%);
   padding: 12px;
@@ -2367,6 +2589,19 @@ td.row-action {
   .nav-links,
   .nav-cta a.btn {
     display: none;
+  }
+
+  .month-slogan,
+  .month-band {
+    grid-template-columns: 1fr;
+  }
+
+  .month-phone {
+    max-width: 320px;
+  }
+
+  .month-proof {
+    text-align: left;
   }
 
   .menu-btn,
