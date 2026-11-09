@@ -18,7 +18,7 @@ export const plans: {
     name: 'Standard',
     monthly: 149,
     waiverSpend: 15_000,
-    overnight: 0.34,
+    overnight: 0.345,
     campaignRate: 0.02,
     installmentRate: 0.015,
   },
@@ -27,7 +27,7 @@ export const plans: {
     name: 'Plus',
     monthly: 299,
     waiverSpend: 30_000,
-    overnight: 0.36,
+    overnight: 0.3475,
     campaignRate: 0.04,
     installmentRate: 0.025,
     featured: false,
@@ -37,7 +37,7 @@ export const plans: {
     name: 'Premium',
     monthly: 499,
     waiverSpend: 50_000,
-    overnight: 0.38,
+    overnight: 0.35,
     campaignRate: 0.07,
     installmentRate: 0.03,
     featured: true,
@@ -55,7 +55,7 @@ export const planColumns: { id: PlanColumnId; name: string; price: string }[] = 
 export const SAMPLE_IDLE_TRY = 1_000_000
 
 export const overnightByColumn: Record<PlanColumnId, number> = {
-  account: 0.32,
+  account: 0.34,
   ...Object.fromEntries(plans.map((plan) => [plan.id, plan.overnight])),
 } as Record<PlanColumnId, number>
 
@@ -115,7 +115,7 @@ export const comparisonRows: {
     id: 'overnight',
     group: 'bank',
     icon: 'save',
-    values: { account: '%32', standard: '%34', plus: '%36', premium: '%38' },
+    values: { account: '%34', standard: '%34,5', plus: '%34,75', premium: '%35' },
   },
   {
     id: 'eft',

@@ -66,7 +66,7 @@ export const tr: Messages = {
     plusBlurb: 'Otomatik kampanya, 6 taksit ve doğrudan müşteri temsilcisi.',
     premiumBlurb: 'En yüksek gecelik faiz, %0,5 altın makası ve VIP şube sırası.',
     standardBanking: [
-      'Boşta duran paraya otomatik gecelik faiz %34',
+      'Boşta duran paraya otomatik gecelik faiz %34,5',
       'Sınırsız ücretsiz EFT/FAST',
       'ATM 250 €/gün',
       'Döviz 1.500 €/ay · %0,75',
@@ -74,7 +74,7 @@ export const tr: Messages = {
       'Hisse %0 · eurobond · ücretsiz canlı veri',
     ],
     plusBanking: [
-      'Boşta duran paraya otomatik gecelik faiz %36',
+      'Boşta duran paraya otomatik gecelik faiz %34,75',
       'Sınırsız ücretsiz EFT/FAST',
       'ATM 500 €/gün',
       'Döviz 5.000 €/ay · %0,35',
@@ -82,7 +82,7 @@ export const tr: Messages = {
       'Hisse %0 · eurobond · ücretsiz canlı veri',
     ],
     premiumBanking: [
-      'Boşta duran paraya otomatik gecelik faiz %38',
+      'Boşta duran paraya otomatik gecelik faiz %35',
       'Sınırsız ücretsiz EFT/FAST',
       'ATM 1.000 €/gün',
       'Döviz sınırsız · %0',
@@ -188,7 +188,7 @@ export const tr: Messages = {
     walletsCap: 'XAU — gram altın cüzdanı. Uygulamadan al; Premium’da makas %0,5.',
     walletsAlt: 'AURE uygulamasında çoklu cüzdanlar, gram altın ve gecelik faiz bildirimi',
     walletsGold: 'XAU · Gram altın',
-    walletsInterest: '🌙 Gecelik %38 faiz aktif',
+    walletsInterest: '🌙 Gecelik %35 faiz aktif',
     walletsEarned: 'Dün gece +43,90 ₺ kazandın',
     order: 'Emir özeti',
     orderCap: '✓ Sadece bu işlemde 120 ₺ kârdasın! Aylık paket ücretinin dörtte biri tek işlemde çıktı.',
@@ -254,7 +254,7 @@ export const tr: Messages = {
       },
       {
         q: 'Boşta duran param nasıl vadem bozulmadan otomatik gecelik faiz kazanıyor?',
-        a: 'Gündüz bakiyen harcamaya açık kalır, vade kırılmaz. Gece kalan tutara paketine göre %34–%38 örnek gecelik faiz işler; sabah yine kullanırsın.',
+        a: 'Gündüz bakiyen harcamaya açık kalır, vade kırılmaz. Gece kalan tutara paketine göre %34–%35 örnek gecelik faiz işler; sabah yine kullanırsın.',
       },
       {
         q: 'Sorun yaşadığımda yapay zeka (chatbot) ile mi konuşacağım, müşteri temsilcisine hemen ulaşabilir miyim?',
