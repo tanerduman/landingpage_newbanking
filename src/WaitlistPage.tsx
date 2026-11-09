@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -7,6 +7,7 @@ import {
   countByIntent,
   formatRequestTime,
   fetchWaitlist,
+  deleteWaitlistEntry,
   downloadSupportExcel,
   downloadWaitlistExcel,
   loginWaitlist,
@@ -41,6 +42,10 @@ export default function WaitlistPage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [cycleFilter, setCycleFilter] = useState<CycleFilter>('all')
   const [page, setPage] = useState(1)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState('')
+  const removedIds = useRef(new Set<string>())
 
   const pkgLabels: Record<SignupIntent, string> = {
     account: t.pkg.account,
@@ -79,7 +84,10 @@ export default function WaitlistPage() {
       }
       setAuthed(true)
       const [stats, tickets] = await Promise.all([fetchVisitStats(), fetchSupport()])
-      setEntries(list.entries)
+      setEntries(list.entries.filter((entry) => !removedIds.current.has(entry.id)))
+      for (const id of removedIds.current) {
+        if (!list.entries.some((entry) => entry.id === id)) removedIds.current.delete(id)
+      }
       setSupport(tickets.entries)
       setRemote(list.remote)
       setVisits(stats)
@@ -165,6 +173,30 @@ export default function WaitlistPage() {
   function changePanel(next: Panel) {
     setPanel(next)
     setPage(1)
+    setConfirmId(null)
+    setDeleteError('')
+  }
+
+  async function removeEntry(id: string) {
+    if (deletingId) return
+    if (confirmId !== id) {
+      setConfirmId(id)
+      setDeleteError('')
+      return
+    }
+    setDeletingId(id)
+    setDeleteError('')
+    try {
+      await deleteWaitlistEntry(id)
+      removedIds.current.add(id)
+      setEntries((current) => current.filter((entry) => entry.id !== id))
+      setConfirmId(null)
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : t.errors.delete_fail)
+      setConfirmId(null)
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   const filterLabel = packageFilters.find((item) => item.id === filter)?.label ?? t.pkg.all
@@ -438,12 +470,13 @@ export default function WaitlistPage() {
                 <th>{t.waitlist.email}</th>
                 <th>{t.waitlist.package}</th>
                 <th>{t.waitlist.period}</th>
+                <th className="row-action">{t.waitlist.action}</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="waitlist-empty">
+                  <td colSpan={6} className="waitlist-empty">
                     {t.waitlist.empty}
                   </td>
                 </tr>
@@ -461,12 +494,32 @@ export default function WaitlistPage() {
                         {cycleLabels[row.cycle] ?? t.cycle.monthly}
                       </span>
                     </td>
+                    <td className="row-action">
+                      <button
+                        type="button"
+                        className={`row-delete${confirmId === row.id ? ' armed' : ''}`}
+                        disabled={deletingId === row.id}
+                        aria-label={
+                          confirmId === row.id
+                            ? `${t.waitlist.deleteConfirm} ${row.name}`
+                            : `${t.waitlist.delete} ${row.name}`
+                        }
+                        onClick={() => void removeEntry(row.id)}
+                      >
+                        {deletingId === row.id
+                          ? t.waitlist.deleting
+                          : confirmId === row.id
+                            ? t.waitlist.deleteConfirm
+                            : t.waitlist.delete}
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
+        {deleteError && <p className="waitlist-action-error">{deleteError}</p>}
         {visible.length > PAGE_SIZE && (
           <div className="waitlist-pager">
             <span>

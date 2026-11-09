@@ -470,6 +470,10 @@ export const tr: Messages = {
     supportLead: 'Destek formundan gelen mesajlar.',
     supportEmpty: 'Henüz destek mesajı yok.',
     message: 'Açıklama',
+    action: 'İşlem',
+    delete: 'Sil',
+    deleteConfirm: 'Silinsin mi?',
+    deleting: 'Siliniyor',
   },
   errors: {
     too_big: 'İstek çok büyük.',
@@ -492,6 +496,7 @@ export const tr: Messages = {
     confirm_invalid: 'Onay kodu veya bağlantı geçersiz.',
     confirm_fail: 'Onay başarısız.',
     save_fail: 'Kayıt alınamadı.',
+    delete_fail: 'Talep silinemedi.',
     offline: 'Sunucuya bağlanılamadı.',
     unauthorized: 'Oturum gerekli.',
     auth_need: 'Kullanıcı adı ve şifre gerekli.',
