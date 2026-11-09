@@ -3,13 +3,21 @@ import App from './App.tsx'
 import CampaignsPage from './CampaignsPage.tsx'
 import ComparePage from './ComparePage.tsx'
 import ConfirmPage from './ConfirmPage.tsx'
+import SupportPage from './SupportPage.tsx'
 import WaitlistPage from './WaitlistPage.tsx'
 import { LocaleProvider } from './i18n/LocaleContext.tsx'
-import { isCampaignsLocation, isCompareLocation, isConfirmLocation, isWaitlistLocation } from './base.ts'
+import {
+  isCampaignsLocation,
+  isCompareLocation,
+  isConfirmLocation,
+  isSupportLocation,
+  isWaitlistLocation,
+} from './base.ts'
 import { recordVisit } from './visits.ts'
 
 function pageFromLocation() {
   if (isWaitlistLocation()) return 'waitlist'
+  if (isSupportLocation()) return 'support'
   if (isCompareLocation()) return 'compare'
   if (isCampaignsLocation()) return 'campaigns'
   if (isConfirmLocation()) return 'confirm'
@@ -41,6 +49,8 @@ export default function Root() {
       <CampaignsPage />
     ) : page === 'confirm' ? (
       <ConfirmPage />
+    ) : page === 'support' ? (
+      <SupportPage />
     ) : (
       <App />
     )

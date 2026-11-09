@@ -115,6 +115,10 @@ export default function App() {
             <a href="#app">{t.nav.app}</a>
             <a href={withBase('compare')}>{t.nav.compare}</a>
             <a href={withBase('campaigns')}>{t.nav.campaigns}</a>
+            <a className="nav-support" href={withBase('support')}>
+              {t.nav.support}
+              <span className="nav-new">{t.nav.newPage}</span>
+            </a>
             <a href="#faq">{t.nav.faq}</a>
           </nav>
           <div className="nav-cta">
@@ -145,6 +149,10 @@ export default function App() {
           </a>
           <a href={withBase('campaigns')} onClick={() => setMenu(false)}>
             {t.nav.campaigns}
+          </a>
+          <a className="nav-support" href={withBase('support')} onClick={() => setMenu(false)}>
+            {t.nav.support}
+            <span className="nav-new">{t.nav.newPage}</span>
           </a>
           <a href="#faq" onClick={() => setMenu(false)}>
             {t.nav.faq}

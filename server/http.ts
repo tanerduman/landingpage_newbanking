@@ -5,7 +5,7 @@ import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from 
 import { getFxRates } from './fx.ts'
 import { getGoldPrice } from './gold.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
-import { getStore, validateWaitlistInput } from './store.ts'
+import { getStore, validateSupportInput, validateWaitlistInput } from './store.ts'
 
 const buckets = new Map<string, { count: number; start: number }>()
 const WINDOW_MS = 60_000
@@ -15,6 +15,7 @@ const LIMITS: Record<string, number> = {
   'POST /api/confirm': 20,
   'POST /api/confirm-status': 60,
   'POST /api/login': 8,
+  'POST /api/support': 8,
 }
 
 const ALLOWED_ORIGINS = new Set([
@@ -229,6 +230,23 @@ async function handleConfirm(request: Request) {
   return json({ confirmed: true, email: result.email, intent: result.intent, store: getStore().kind }, 200, request)
 }
 
+async function handleSupport(request: Request) {
+  const store = getStore()
+  if (request.method === 'GET') {
+    const denied = requireAdmin(request)
+    if (denied) return denied
+    const entries = await store.listSupport()
+    return json({ entries, store: store.kind }, 200, request)
+  }
+  if (limited(request, 'POST /api/support')) return fail(request, 'too_many', 429)
+  const parsed = await readJson(request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  const valid = validateSupportInput(parsed.value)
+  if (typeof valid === 'string') return fail(request, valid, 400, parsed.value)
+  const row = await store.createSupport(valid)
+  return json({ ok: true, id: row.id, store: store.kind }, 201, request)
+}
+
 async function handleConfirmStatus(request: Request) {
   if (limited(request, 'POST /api/confirm-status')) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
@@ -264,6 +282,9 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
       return handleWaitlist(request)
     }
     if (path === '/api/login' && request.method === 'POST') return handleLogin(request)
+    if (path === '/api/support' && (request.method === 'GET' || request.method === 'POST')) {
+      return handleSupport(request)
+    }
     if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)
     if (path === '/api/confirm-status' && request.method === 'POST') return handleConfirmStatus(request)
   } catch {

@@ -102,6 +102,25 @@ img {
   color: var(--text);
 }
 
+.nav-links a.nav-support,
+.mobile-drawer a.nav-support {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-new {
+  background: var(--lime);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
 .nav-cta {
   display: flex;
   align-items: center;
@@ -1839,11 +1858,73 @@ footer {
   margin: 14px 0 6px;
 }
 
-.login-card input {
+.login-card input,
+.login-card textarea {
   width: 100%;
   border: 1px solid #e5dfd2;
   border-radius: 12px;
   padding: 12px 14px;
+  font: inherit;
+}
+
+.login-card textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.support-main {
+  display: grid;
+  place-items: start center;
+  padding: 48px 0 80px;
+}
+
+.support-card {
+  width: min(560px, 100%);
+}
+
+.support-card .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 28px 0 8px;
+}
+
+.admin-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-tabs button span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.admin-tabs button.active {
+  background: var(--lime);
+  color: var(--ink);
+  border-color: var(--lime);
+}
+
+.admin-tabs button.active span {
+  color: var(--ink);
+}
+
+.support-message {
+  white-space: pre-wrap;
+  max-width: 420px;
 }
 
 .login-error {
@@ -1852,6 +1933,8 @@ footer {
 }
 
 .login-submit {
+  display: flex;
+  justify-content: center;
   width: 100%;
   margin-top: 18px;
 }
@@ -2212,6 +2295,10 @@ footer {
   .mobile-drawer {
     display: none;
     padding: 8px 0 18px;
+  }
+
+  .mobile-drawer a.nav-support {
+    display: flex;
   }
 
   .mobile-drawer a,

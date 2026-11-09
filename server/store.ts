@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomInt, randomUUID } from 'node:crypto'
 import pg from 'pg'
 import { normalizeEmail } from './email.ts'
-import { isBillingCycle, isIntent, type BillingCycle, type VisitStats, type WaitlistRow } from './types.ts'
+import { isBillingCycle, isIntent, type BillingCycle, type SupportRow, type VisitStats, type WaitlistRow } from './types.ts'
 
 const { Pool } = pg
 
@@ -28,6 +28,8 @@ type Store = {
   confirmWaitlist(input: { token?: string; email?: string; code?: string }): Promise<WaitlistRow | string>
   listWaitlist(): Promise<WaitlistRow[]>
   isConfirmed(emailNorm: string): Promise<boolean>
+  createSupport(input: { name: string; email: string; emailNorm: string; message: string }): Promise<SupportRow>
+  listSupport(): Promise<SupportRow[]>
 }
 
 type WaitlistRecord = WaitlistRow & {
@@ -42,6 +44,7 @@ type Memory = {
   visitors: Map<string, { firstSeen: string; lastSeen: string }>
   sessions: Map<string, { visitorId: string; createdAt: string }>
   waitlist: WaitlistRecord[]
+  support: SupportRow[]
 }
 
 const CONFIRM_TTL_MS = 30 * 60_000
@@ -88,7 +91,7 @@ function statsFromMemory(data: Memory): VisitStats {
 }
 
 function memoryStore(): Store {
-  const data: Memory = { visitors: new Map(), sessions: new Map(), waitlist: [] }
+  const data: Memory = { visitors: new Map(), sessions: new Map(), waitlist: [], support: [] }
   return {
     kind: 'memory',
     async recordVisit(visitorId, sessionId) {
@@ -165,6 +168,20 @@ function memoryStore(): Store {
     async isConfirmed(emailNorm) {
       return data.waitlist.some((row) => row.emailNorm === emailNorm && row.confirmed)
     },
+    async createSupport(input) {
+      const row: SupportRow = {
+        id: randomUUID(),
+        name: input.name,
+        email: input.email,
+        message: input.message,
+        createdAt: new Date().toISOString(),
+      }
+      data.support.unshift(row)
+      return row
+    },
+    async listSupport() {
+      return data.support.slice(0, 2000)
+    },
   }
 }
 
@@ -195,6 +212,15 @@ CREATE TABLE IF NOT EXISTS waitlist (
 );
 CREATE INDEX IF NOT EXISTS waitlist_created_at_idx ON waitlist (created_at DESC);
 CREATE INDEX IF NOT EXISTS sessions_created_at_idx ON sessions (created_at DESC);
+CREATE TABLE IF NOT EXISTS support_requests (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  email_norm TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS support_requests_created_at_idx ON support_requests (created_at DESC);
 `
 
 const WAITLIST_MIGRATE = `
@@ -417,6 +443,45 @@ function postgresStore(url: string): Store {
       )
       return Number(result.rows[0]?.n ?? 0) > 0
     },
+    async createSupport(input) {
+      await ensure()
+      const id = randomUUID()
+      const created = await pool.query<{ created_at: Date }>(
+        `INSERT INTO support_requests (id, name, email, email_norm, message)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING created_at`,
+        [id, input.name, input.email, input.emailNorm, input.message],
+      )
+      return {
+        id,
+        name: input.name,
+        email: input.email,
+        message: input.message,
+        createdAt: new Date(created.rows[0]?.created_at ?? Date.now()).toISOString(),
+      }
+    },
+    async listSupport() {
+      await ensure()
+      const result = await pool.query<{
+        id: string
+        name: string
+        email: string
+        message: string
+        created_at: Date
+      }>(
+        `SELECT id, name, email, message, created_at
+         FROM support_requests
+         ORDER BY created_at DESC
+         LIMIT 2000`,
+      )
+      return result.rows.map((row) => ({
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        message: row.message,
+        createdAt: new Date(row.created_at).toISOString(),
+      }))
+    },
   }
 }
 
@@ -443,5 +508,17 @@ export function validateWaitlistInput(body: unknown) {
   else if (isBillingCycle(rawCycle) && rawCycle !== 'none') cycle = rawCycle
   else if (rawCycle && rawCycle !== 'monthly' && rawCycle !== 'yearly') return 'cycle'
   return { name, email, emailNorm: normalizeEmail(email), intent, cycle }
+}
+
+export function validateSupportInput(body: unknown) {
+  if (!body || typeof body !== 'object') return 'invalid'
+  const data = body as { name?: unknown; email?: unknown; message?: unknown }
+  const name = typeof data.name === 'string' ? data.name.trim() : ''
+  const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : ''
+  const message = typeof data.message === 'string' ? data.message.trim() : ''
+  if (name.length < 2 || name.length > 80) return 'name'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return 'email'
+  if (message.length < 8 || message.length > 2000) return 'message'
+  return { name, email, emailNorm: normalizeEmail(email), message }
 }
 

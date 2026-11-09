@@ -26,6 +26,11 @@ export function isCompareHash(hash = window.location.hash) {
   return value === '/compare' || value === 'compare'
 }
 
+export function isSupportHash(hash = window.location.hash) {
+  const value = hashValue(hash)
+  return value === '/support' || value === 'support' || value === '/destek' || value === 'destek'
+}
+
 export function isCampaignsHash(hash = window.location.hash) {
   const value = hashValue(hash)
   return value === '/campaigns' || value === 'campaigns' || value === '/kampanyalar' || value === 'kampanyalar'
@@ -37,6 +42,11 @@ export function isWaitlistLocation() {
 
 export function isCompareLocation() {
   return pathPage() === 'compare' || isCompareHash()
+}
+
+export function isSupportLocation() {
+  const page = pathPage()
+  return page === 'support' || page === 'destek' || isSupportHash()
 }
 
 export function isCampaignsLocation() {
