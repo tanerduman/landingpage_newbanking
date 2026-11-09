@@ -90,7 +90,6 @@ export type Messages = {
   simulator: {
     spend: string
     idle: string
-    salary: string
     fee: string
     waived: string
     interest: string

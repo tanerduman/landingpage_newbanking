@@ -49,7 +49,7 @@ export const en: Messages = {
     bannerCta: 'Start free',
     upgradeTitle: 'Upgrade the plan if you want.',
     upgradeLead: 'Plans are optional. Pay monthly, or get two months free on yearly — cancel any time.',
-    waiverNote: 'Salary in or a balance pledge makes plans 0 ₺!',
+    waiverNote: 'Pass the monthly spend and the plan fee is 0 ₺!',
     billingAria: 'Billing period',
     monthly: 'Monthly',
     yearly: 'Yearly',
@@ -127,7 +127,6 @@ export const en: Messages = {
   simulator: {
     spend: 'Monthly card spend',
     idle: 'Idle cash on the account',
-    salary: 'I’ll send my salary to AURE',
     fee: 'Plan fee',
     waived: '0 ₺ — waived',
     interest: 'Overnight interest',
@@ -246,7 +245,7 @@ export const en: Messages = {
     items: [
       {
         q: 'Do I have to take a plan?',
-        a: 'No. You open Basic at 0 ₺. Add Standard, Plus or Premium only when you want to earn more; salary in or a spend threshold can waive the fee.',
+        a: 'No. You open Basic at 0 ₺. Add Standard, Plus or Premium only when you want to earn more; a spend threshold can waive the fee.',
       },
       {
         q: 'Are there hidden fees or a year-end card charge?',
@@ -329,9 +328,9 @@ export const en: Messages = {
     cell: {
       unlimited0: 'Unlimited 0 ₺',
       none: 'None (already 0 ₺)',
-      waiverStd: 'Salary in or 15,000 ₺/mo spend',
-      waiverPlus: 'Salary in or 30,000 ₺/mo spend',
-      waiverPrem: 'Salary in or 50,000 ₺/mo spend',
+      waiverStd: '15,000 ₺/mo spend',
+      waiverPlus: '30,000 ₺/mo spend',
+      waiverPrem: '50,000 ₺/mo spend',
       delayed: 'Delayed',
       live: 'Free live data',
       inst3: '3 instalments',

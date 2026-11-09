@@ -4,8 +4,8 @@ import { formatMoney } from './i18n/format.ts'
 import { SAMPLE_IDLE_TRY, plans, type PlanColumnId } from './plans.ts'
 import type { PlanId } from './waitlist'
 
-function estimate(plan: (typeof plans)[number], spend: number, idle: number, salary: boolean) {
-  const waived = salary || spend >= plan.waiverSpend
+function estimate(plan: (typeof plans)[number], spend: number, idle: number) {
+  const waived = spend >= plan.waiverSpend
   const fee = waived ? 0 : plan.monthly
   const interest = (idle * plan.overnight) / 12
   const extras = spend * 0.4 * plan.campaignRate + spend * 0.2 * plan.installmentRate
@@ -22,11 +22,10 @@ export default function Simulator({
   const { t, locale } = useI18n()
   const [spend, setSpend] = useState(18_000)
   const [idle, setIdle] = useState(40_000)
-  const [salary, setSalary] = useState(false)
 
   const rows = useMemo(() => {
     return plans.map((plan) => {
-      const monthly = estimate(plan, spend, idle, salary)
+      const monthly = estimate(plan, spend, idle)
       if (!cycleYearly) return { id: plan.id, name: plan.name, ...monthly }
       const yearlyFee = monthly.waived ? 0 : plan.monthly * 10
       return {
@@ -39,7 +38,7 @@ export default function Simulator({
         net: monthly.interest + monthly.extras - yearlyFee / 12,
       }
     })
-  }, [spend, idle, salary, cycleYearly])
+  }, [spend, idle, cycleYearly])
 
   const bestId = rows.reduce((best, row) => (row.net > best.net ? row : best), rows[0]).id
   const colName: Record<PlanColumnId, string> = {
@@ -79,10 +78,6 @@ export default function Simulator({
           <button type="button" className="simulator-preset" onClick={() => setIdle(SAMPLE_IDLE_TRY)}>
             {t.simulator.idlePreset}
           </button>
-        </label>
-        <label className="simulator-check">
-          <input type="checkbox" checked={salary} onChange={(e) => setSalary(e.target.checked)} />
-          <span>{t.simulator.salary}</span>
         </label>
       </div>
       <div className="simulator-grid">
