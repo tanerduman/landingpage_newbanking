@@ -135,6 +135,7 @@ export const en: Messages = {
     sample: 'Sample simulator; rates are fictional.',
     perMonth: '/mo',
     idlePreset: '1,000,000 ₺ example',
+    minimum: 'Smallest spend and balance that each cover the {plan} fee on their own.',
   },
   idleExample: {
     kicker: 'Worked example',

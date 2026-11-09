@@ -1,7 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatMoney } from './i18n/format.ts'
-import { SAMPLE_IDLE_TRY, plans, type PlanColumnId } from './plans.ts'
+import {
+  IDLE_MIN,
+  IDLE_STEP,
+  SAMPLE_IDLE_TRY,
+  SPEND_MAX,
+  SPEND_MIN,
+  SPEND_STEP,
+  minimumScenario,
+  plans,
+  type PlanColumnId,
+} from './plans.ts'
 import type { PlanId } from './waitlist'
 
 function estimate(plan: (typeof plans)[number], spend: number, idle: number) {
@@ -13,14 +23,27 @@ function estimate(plan: (typeof plans)[number], spend: number, idle: number) {
 
 export default function Simulator({
   cycleYearly,
+  focus,
+  onFocus,
   onPick,
 }: {
   cycleYearly: boolean
+  focus: { id: PlanId; tick: number } | null
+  onFocus: (id: PlanId) => void
   onPick: (id: PlanId) => void
 }) {
   const { t, locale } = useI18n()
   const [spend, setSpend] = useState(18_000)
   const [idle, setIdle] = useState(40_000)
+
+  useEffect(() => {
+    if (!focus) return
+    const plan = plans.find((item) => item.id === focus.id)
+    if (!plan) return
+    const next = minimumScenario(plan, cycleYearly)
+    setSpend(next.spend)
+    setIdle(next.idle)
+  }, [focus, cycleYearly])
 
   const rows = useMemo(() => {
     return plans.map((plan) => {
@@ -61,9 +84,9 @@ export default function Simulator({
           id="sim-spend"
           className="sim-spend-range"
           type="range"
-          min={5000}
-          max={80000}
-          step={1000}
+          min={SPEND_MIN}
+          max={SPEND_MAX}
+          step={SPEND_STEP}
           value={spend}
           onChange={(e) => setSpend(Number(e.target.value))}
         />
@@ -71,9 +94,9 @@ export default function Simulator({
           id="sim-idle"
           className="sim-idle-range"
           type="range"
-          min={5000}
+          min={IDLE_MIN}
           max={SAMPLE_IDLE_TRY}
-          step={5000}
+          step={IDLE_STEP}
           value={idle}
           onChange={(e) => setIdle(Number(e.target.value))}
         />
@@ -81,9 +104,18 @@ export default function Simulator({
           {t.simulator.idlePreset}
         </button>
       </div>
+      {focus && (
+        <p className="simulator-minimum">
+          {t.simulator.minimum.replace('{plan}', colName[focus.id])}
+        </p>
+      )}
       <div className="simulator-grid">
         {rows.map((row) => (
-          <article key={row.id} className={`simulator-card ${row.id === bestId ? 'best' : ''}`}>
+          <article
+            key={row.id}
+            className={`simulator-card ${row.id === bestId ? 'best' : ''} ${focus?.id === row.id ? 'picked' : ''}`}
+            onClick={() => onFocus(row.id)}
+          >
             <div className="simulator-kicker">
               <h3>{colName[row.id]}</h3>
               {row.id === bestId && <b>{t.simulator.best}</b>}

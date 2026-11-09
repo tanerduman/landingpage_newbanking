@@ -135,6 +135,7 @@ export const tr: Messages = {
     sample: 'Örnek simülasyon; oranlar kurgusaldır.',
     perMonth: '/ay',
     idlePreset: '1.000.000 ₺ örneği',
+    minimum: '{plan} ücretini tek başına kapatan en küçük harcama ve bakiye.',
   },
   idleExample: {
     kicker: 'Örnek senaryo',

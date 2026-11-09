@@ -679,6 +679,7 @@ h3 {
 }
 
 .simulator-card {
+  cursor: pointer;
   background: #f7f3ea;
   border: 1px solid #e5dfd2;
   border-radius: 20px;
@@ -768,10 +769,18 @@ h3 {
   border-radius: 999px;
 }
 
-.simulator-card.best {
+.simulator-card.best,
+.simulator-card.picked {
   background: #fff;
   border-color: #111;
   box-shadow: 0 0 0 2px var(--lime);
+}
+
+.simulator-minimum {
+  margin: 0 0 16px;
+  color: #3f3c37;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .simulator-card .btn {
