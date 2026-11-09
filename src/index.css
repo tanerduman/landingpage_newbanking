@@ -628,12 +628,12 @@ h3 {
 
 .simulator-controls {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-areas:
-    "spend-label idle-label fx-label"
-    "spend-value idle-value fx-value"
-    "spend-range idle-range fx-range"
-    ". idle-button .";
+    "spend-label idle-label fx-label sell-label"
+    "spend-value idle-value fx-value sell-value"
+    "spend-range idle-range fx-range sell-range"
+    ". idle-button . sell-button";
   column-gap: 28px;
   row-gap: 6px;
   align-items: center;
@@ -643,13 +643,17 @@ h3 {
 .sim-spend-label { grid-area: spend-label; }
 .sim-idle-label { grid-area: idle-label; }
 .sim-fx-label { grid-area: fx-label; }
+.sim-sell-label { grid-area: sell-label; }
 .sim-spend-value { grid-area: spend-value; }
 .sim-idle-value { grid-area: idle-value; }
 .sim-fx-value { grid-area: fx-value; }
+.sim-sell-value { grid-area: sell-value; }
 .sim-spend-range { grid-area: spend-range; }
 .sim-idle-range { grid-area: idle-range; }
 .sim-fx-range { grid-area: fx-range; }
+.sim-sell-range { grid-area: sell-range; }
 .simulator-preset { grid-area: idle-button; }
+.simulator-sell-preset { grid-area: sell-button; }
 
 .simulator-controls label {
   font-size: 14px;
@@ -797,7 +801,8 @@ h3 {
   font-size: 13px;
 }
 
-.simulator-preset {
+.simulator-preset,
+.simulator-sell-preset {
   justify-self: start;
   width: fit-content;
   margin-top: 8px;
@@ -2668,6 +2673,26 @@ td.row-action {
   font-weight: 600;
 }
 
+@media (max-width: 1200px) {
+  .simulator-controls {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "spend-label idle-label"
+      "spend-value idle-value"
+      "spend-range idle-range"
+      ". idle-button"
+      "fx-label sell-label"
+      "fx-value sell-value"
+      "fx-range sell-range"
+      ". sell-button";
+  }
+
+  .sim-fx-label,
+  .sim-sell-label {
+    margin-top: 16px;
+  }
+}
+
 @media (max-width: 900px) {
   .rev-board {
     overflow-x: auto;
@@ -2769,11 +2794,16 @@ td.row-action {
       "idle-button"
       "fx-label"
       "fx-value"
-      "fx-range";
+      "fx-range"
+      "sell-label"
+      "sell-value"
+      "sell-range"
+      "sell-button";
   }
 
   .sim-idle-label,
-  .sim-fx-label {
+  .sim-fx-label,
+  .sim-sell-label {
     margin-top: 16px;
   }
 
