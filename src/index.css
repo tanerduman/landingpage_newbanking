@@ -636,17 +636,27 @@ h3 {
 
 .simulator-controls {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "spend-label idle-label"
+    "spend-value idle-value"
+    "spend-range idle-range"
+    ". idle-button";
   column-gap: 28px;
-  align-items: start;
+  row-gap: 6px;
+  align-items: center;
   margin-bottom: 22px;
 }
 
+.sim-spend-label { grid-area: spend-label; }
+.sim-idle-label { grid-area: idle-label; }
+.sim-spend-value { grid-area: spend-value; }
+.sim-idle-value { grid-area: idle-value; }
+.sim-spend-range { grid-area: spend-range; }
+.sim-idle-range { grid-area: idle-range; }
+.simulator-preset { grid-area: idle-button; }
+
 .simulator-controls label {
-  display: grid;
-  grid-row: span 4;
-  grid-template-rows: subgrid;
-  row-gap: 6px;
   font-size: 14px;
   font-weight: 600;
   color: #3f3c37;
@@ -666,6 +676,7 @@ h3 {
 .simulator-controls input[type='range'] {
   width: 100%;
   height: 8px;
+  margin: 0;
   accent-color: #5a8f12;
 }
 
@@ -789,7 +800,7 @@ h3 {
 .simulator-preset {
   justify-self: start;
   width: fit-content;
-  margin-top: 4px;
+  margin-top: 8px;
   border: 1px solid #111;
   background: var(--lime);
   color: var(--ink);
@@ -2645,7 +2656,18 @@ td.row-action {
     grid-template-columns: 1fr;
   }
 
-  .simulator-controls label + label {
+  .simulator-controls {
+    grid-template-areas:
+      "spend-label"
+      "spend-value"
+      "spend-range"
+      "idle-label"
+      "idle-value"
+      "idle-range"
+      "idle-button";
+  }
+
+  .sim-idle-label {
     margin-top: 16px;
   }
 
