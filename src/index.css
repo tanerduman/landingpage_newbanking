@@ -1988,6 +1988,21 @@ footer {
   background: #222228;
 }
 
+.kind-complaint {
+  background: #3a2420;
+  color: #ffb4a8;
+}
+
+.kind-suggestion {
+  background: #1d2a22;
+  color: var(--lime);
+}
+
+.kind-support {
+  background: #1c2433;
+  color: #c9d7ff;
+}
+
 .waitlist-empty {
   text-align: center;
   color: var(--muted);
