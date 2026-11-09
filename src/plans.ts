@@ -69,11 +69,12 @@ export const fxFeeByColumn: Record<PlanColumnId, number> = {
 /** Fallback gram gold until CollectAPI returns the live selling price. Basic stays 6,450 ₺/g in that sample. */
 export const SAMPLE_GOLD_GRAMS = 10
 export const SAMPLE_GOLD_TEMEL_TRY = 6_450
+/** Sale price is this far above the market gram price. */
 export const goldSpreadByColumn: Record<PlanColumnId, number> = {
-  account: 0.009,
-  standard: 0.004,
-  plus: 0.0015,
-  premium: 0,
+  account: 0.04,
+  standard: 0.02,
+  plus: 0.01,
+  premium: 0.005,
 }
 export const SAMPLE_GOLD_TRY =
   Math.round((SAMPLE_GOLD_TEMEL_TRY / (1 + goldSpreadByColumn.account)) * 100) / 100
@@ -138,7 +139,7 @@ export const comparisonRows: {
     id: 'goldSpread',
     group: 'bank',
     icon: 'save',
-    values: { account: '%0,90', standard: '%0,40', plus: '%0,15', premium: '%0' },
+    values: { account: '%4', standard: '%2', plus: '%1', premium: '%0,5' },
   },
   {
     id: 'stock',
