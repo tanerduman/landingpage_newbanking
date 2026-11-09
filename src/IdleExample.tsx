@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { formatEur, formatFx, formatMoney, formatRate } from './i18n/format.ts'
+import { formatDelta, formatEur, formatFx, formatMoney, formatRate } from './i18n/format.ts'
 import {
   SAMPLE_IDLE_TRY,
   fxFeeByColumn,
@@ -21,19 +21,21 @@ export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) =
   const market = eurTry > 0 ? eurTry : 0
 
   const rows = useMemo(() => {
-    const baseNet = (idle * overnightByColumn.account) / 12 - monthlyFeeOf('account')
+    const baseInterest = (idle * overnightByColumn.account) / 12
     const baseEur = market ? idle / (market * (1 + fxFeeByColumn.account)) : 0
     return planColumns.map((col) => {
       const interest = (idle * overnightByColumn[col.id]) / 12
+      const extraInterest = interest - baseInterest
       const fee = monthlyFeeOf(col.id)
-      const net = interest - fee
+      const net = col.id === 'account' ? interest - fee : extraInterest - fee
       const eur = market ? idle / (market * (1 + fxFeeByColumn[col.id])) : 0
       return {
         id: col.id,
         interest,
+        extraInterest,
         fee,
         net,
-        extra: Math.round(net) - Math.round(baseNet),
+        extra: col.id === 'account' ? 0 : net,
         eur,
         eurExtra: eur - baseEur,
         tryExtra: (eur - baseEur) * market,
@@ -84,14 +86,22 @@ export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) =
                   <dd>{formatRate(row.overnight, locale)}</dd>
                 </div>
                 <div>
+                  <dt>{row.id === 'account' ? t.idleExample.overnight : t.simulator.interest}</dt>
+                  <dd>
+                    {row.id === 'account'
+                      ? formatMoney(row.interest, locale)
+                      : formatDelta(row.extraInterest, locale)}
+                  </dd>
+                </div>
+                <div>
                   <dt>{t.idleExample.fee}</dt>
                   <dd>{row.fee === 0 ? t.pkg.free : formatMoney(row.fee, locale)}</dd>
                 </div>
               </dl>
               <p className="idle-net">
-                <span>{t.idleExample.net}</span>
+                <span>{row.id === 'account' ? t.idleExample.net : t.idleExample.vsBase}</span>
                 <strong>
-                  {formatMoney(row.net, locale)}
+                  {row.id === 'account' ? formatMoney(row.net, locale) : formatDelta(row.net, locale)}
                   <small>{t.simulator.perMonth}</small>
                 </strong>
               </p>
@@ -99,9 +109,6 @@ export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) =
                 <p className="idle-stay">{t.idleExample.stay}</p>
               ) : (
                 <>
-                  <p className="idle-delta">
-                    +{formatMoney(row.extra, locale)} {t.idleExample.more}
-                  </p>
                   <button
                     type="button"
                     className="btn btn-solid"
@@ -148,7 +155,7 @@ export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) =
 
         <p className="idle-foot">
           <span aria-hidden="true">✓</span>
-          {t.idleExample.footStart} {formatMoney(premium.extra, locale)} {t.idleExample.footNet}
+          {t.idleExample.footStart} {formatDelta(premium.extra, locale)} {t.idleExample.footNet}
           {market > 0 && (
             <>
               {' '}

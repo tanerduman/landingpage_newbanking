@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { formatMoney } from './i18n/format.ts'
+import { formatDelta, formatMoney } from './i18n/format.ts'
 import {
   IDLE_MIN,
   IDLE_STEP,
@@ -110,7 +110,7 @@ export default function Simulator({
               </div>
               <div>
                 <dt>{t.simulator.interest}</dt>
-                <dd>{formatMoney(row.interest, locale)}</dd>
+                <dd>{formatDelta(row.interest, locale)}</dd>
               </div>
               <div>
                 <dt>{t.simulator.extras}</dt>
@@ -120,7 +120,7 @@ export default function Simulator({
             <p className="simulator-net">
               <span>{t.simulator.net}</span>
               <strong>
-                {formatMoney(row.net, locale)}
+                {formatDelta(row.net, locale)}
                 <small>{t.simulator.perMonth}</small>
               </strong>
             </p>

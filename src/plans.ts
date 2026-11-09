@@ -47,6 +47,9 @@ export const planColumns: { id: PlanColumnId; name: string; price: string }[] = 
   { id: 'premium', name: 'Premium', price: '499 ₺/ay' },
 ]
 
+/** Overnight rate on the free Basic account. Paid-plan interest is shown as the extra above this. */
+export const ACCOUNT_OVERNIGHT = 0.34
+
 /** Worked example: idle cash on a Basic account. The EUR leg uses the live rate. */
 export const SAMPLE_IDLE_TRY = 1_000_000
 
@@ -60,7 +63,7 @@ function extrasPerSpend(plan: (typeof plans)[number]) {
 
 export function planBreakdown(plan: (typeof plans)[number], spend: number, idle: number, cycleYearly = false) {
   const fee = cycleYearly ? (plan.monthly * 10) / 12 : plan.monthly
-  const interest = (idle * plan.overnight) / 12
+  const interest = (idle * (plan.overnight - ACCOUNT_OVERNIGHT)) / 12
   const extras = spend * extrasPerSpend(plan)
   return { fee, interest, extras, net: interest + extras - fee }
 }
@@ -91,7 +94,7 @@ function stepUp(value: number, step: number, min: number, max: number) {
 /** Smallest spend and idle that each cover the plan fee on their own. */
 export function minimumScenario(plan: (typeof plans)[number], cycleYearly: boolean) {
   const fee = cycleYearly ? (plan.monthly * 10) / 12 : plan.monthly
-  const perIdle = plan.overnight / 12
+  const perIdle = (plan.overnight - ACCOUNT_OVERNIGHT) / 12
   const perSpend = extrasPerSpend(plan)
   return {
     spend: stepUp(fee / perSpend, SPEND_STEP, SPEND_MIN, SPEND_MAX),
@@ -100,7 +103,7 @@ export function minimumScenario(plan: (typeof plans)[number], cycleYearly: boole
 }
 
 export const overnightByColumn: Record<PlanColumnId, number> = {
-  account: 0.34,
+  account: ACCOUNT_OVERNIGHT,
   ...Object.fromEntries(plans.map((plan) => [plan.id, plan.overnight])),
 } as Record<PlanColumnId, number>
 

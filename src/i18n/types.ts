@@ -113,6 +113,7 @@ export type Messages = {
     fee: string
     rate: string
     net: string
+    vsBase: string
     spread: string
     eur: string
     more: string
