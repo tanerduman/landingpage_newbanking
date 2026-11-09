@@ -86,6 +86,11 @@ export default function App() {
     if (scroll) document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
+  function chooseCycle(next: Cycle) {
+    setCycle(next)
+    setFocus((current) => (current ? { id: current.id, tick: Date.now() } : current))
+  }
+
   function closeModal() {
     setModal(false)
   }
@@ -323,10 +328,10 @@ export default function App() {
               <div>
                 <p>{t.plans.upgradeLead}</p>
                 <div className="toggle" role="tablist" aria-label={t.plans.billingAria}>
-                  <button className={cycle === 'monthly' ? 'active' : ''} onClick={() => setCycle('monthly')}>
+                  <button className={cycle === 'monthly' ? 'active' : ''} onClick={() => chooseCycle('monthly')}>
                     {t.plans.monthly}
                   </button>
-                  <button className={cycle === 'yearly' ? 'active' : ''} onClick={() => setCycle('yearly')}>
+                  <button className={cycle === 'yearly' ? 'active' : ''} onClick={() => chooseCycle('yearly')}>
                     {t.plans.yearly} <span className="save-tag">{t.plans.saveTag}</span>
                   </button>
                 </div>

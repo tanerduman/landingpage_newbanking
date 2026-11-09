@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatMoney } from './i18n/format.ts'
 import {
@@ -33,17 +33,15 @@ export default function Simulator({
   onPick: (id: PlanId) => void
 }) {
   const { t, locale } = useI18n()
-  const [spend, setSpend] = useState(18_000)
-  const [idle, setIdle] = useState(40_000)
+  const [manual, setManual] = useState<{ spend: number; idle: number; tick: number | null } | null>(null)
+  const focused = focus ? plans.find((item) => item.id === focus.id) : undefined
+  const preset = focused && manual?.tick !== focus.tick ? minimumScenario(focused, cycleYearly) : null
+  const spend = preset?.spend ?? manual?.spend ?? 18_000
+  const idle = preset?.idle ?? manual?.idle ?? 40_000
 
-  useEffect(() => {
-    if (!focus) return
-    const plan = plans.find((item) => item.id === focus.id)
-    if (!plan) return
-    const next = minimumScenario(plan, cycleYearly)
-    setSpend(next.spend)
-    setIdle(next.idle)
-  }, [focus, cycleYearly])
+  function choose(nextSpend: number, nextIdle: number) {
+    setManual({ spend: nextSpend, idle: nextIdle, tick: focus?.tick ?? null })
+  }
 
   const rows = useMemo(() => {
     return plans.map((plan) => {
@@ -88,7 +86,7 @@ export default function Simulator({
           max={SPEND_MAX}
           step={SPEND_STEP}
           value={spend}
-          onChange={(e) => setSpend(Number(e.target.value))}
+          onChange={(e) => choose(Number(e.target.value), idle)}
         />
         <input
           id="sim-idle"
@@ -98,9 +96,9 @@ export default function Simulator({
           max={SAMPLE_IDLE_TRY}
           step={IDLE_STEP}
           value={idle}
-          onChange={(e) => setIdle(Number(e.target.value))}
+          onChange={(e) => choose(spend, Number(e.target.value))}
         />
-        <button type="button" className="simulator-preset" onClick={() => setIdle(SAMPLE_IDLE_TRY)}>
+        <button type="button" className="simulator-preset" onClick={() => choose(spend, SAMPLE_IDLE_TRY)}>
           {t.simulator.idlePreset}
         </button>
       </div>
@@ -141,7 +139,14 @@ export default function Simulator({
                 <small>{t.simulator.perMonth}</small>
               </strong>
             </p>
-            <button type="button" className="btn btn-solid" onClick={() => onPick(row.id)}>
+            <button
+              type="button"
+              className="btn btn-solid"
+              onClick={(event) => {
+                event.stopPropagation()
+                onPick(row.id)
+              }}
+            >
               {t.simulator.pick}
             </button>
           </article>
