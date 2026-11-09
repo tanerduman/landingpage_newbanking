@@ -7,6 +7,7 @@ import {
   countByIntent,
   formatRequestTime,
   fetchWaitlist,
+  downloadSupportExcel,
   downloadWaitlistExcel,
   isWaitlistAuthed,
   loginWaitlist,
@@ -205,6 +206,27 @@ export default function WaitlistPage() {
             >
               {t.waitlist.export}
             </button>
+            )}
+            {authed && panel === 'support' && (
+              <button
+                type="button"
+                className="btn btn-solid"
+                disabled={support.length === 0}
+                onClick={() =>
+                  downloadSupportExcel(support, {
+                    date: t.waitlist.excelDate,
+                    name: t.waitlist.excelName,
+                    email: t.waitlist.excelEmail,
+                    kind: t.support.kind,
+                    message: t.waitlist.message,
+                    sheet: t.waitlist.tabSupport,
+                    kinds: t.support.kinds,
+                    locale,
+                  })
+                }
+              >
+                {t.waitlist.export}
+              </button>
             )}
             <a className="btn btn-ghost" href={withBase()}>
               {t.nav.back}

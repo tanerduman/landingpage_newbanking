@@ -245,10 +245,35 @@ export function formatRequestTime(iso: string, locale: Locale = 'tr') {
 }
 
 function xmlCell(value: string) {
-  return `<Cell><Data ss:Type="String">${value
+  const text = value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')}</Data></Cell>`
+    .replaceAll('>', '&gt;')
+    .replaceAll('\r\n', '&#10;')
+    .replaceAll('\n', '&#10;')
+    .replaceAll('\r', '&#10;')
+  return `<Cell><Data ss:Type="String">${text}</Data></Cell>`
+}
+
+function downloadSheet(filename: string, sheet: string, header: string[], body: string[][]) {
+  const safeSheet = sheet.replaceAll(/[:"\\/?*[\]]/g, '').slice(0, 31) || 'Sheet'
+  const xml = `<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="${safeSheet}">
+  <Table>
+   <Row>${header.map(xmlCell).join('')}</Row>
+   ${body.map((line) => `<Row>${line.map(xmlCell).join('')}</Row>`).join('\n   ')}
+  </Table>
+ </Worksheet>
+</Workbook>`
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(link.href)
 }
 
 export function downloadWaitlistExcel(
@@ -274,23 +299,32 @@ export function downloadWaitlistExcel(
     copy.packages[row.intent],
     copy.cycles[row.cycle] ?? row.cycle,
   ])
-  const xml = `<?xml version="1.0"?>
-<?mso-application progid="Excel.Sheet"?>
-<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
- xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
- <Worksheet ss:Name="${copy.sheet.replaceAll('"', '')}">
-  <Table>
-   <Row>${header.map(xmlCell).join('')}</Row>
-   ${body.map((line) => `<Row>${line.map(xmlCell).join('')}</Row>`).join('\n   ')}
-  </Table>
- </Worksheet>
-</Workbook>`
-  const blob = new Blob([xml], { type: 'application/vnd.ms-excel' })
   const stamp = new Date().toISOString().slice(0, 10)
   const safeFilter = filterLabel.toLowerCase().replaceAll(' ', '-')
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `aure-talepler-${safeFilter}-${stamp}.xls`
-  link.click()
-  URL.revokeObjectURL(link.href)
+  downloadSheet(`aure-talepler-${safeFilter}-${stamp}.xls`, copy.sheet, header, body)
+}
+
+export function downloadSupportExcel(
+  rows: { createdAt: string; name: string; email: string; kind: 'complaint' | 'suggestion' | 'support'; message: string }[],
+  copy: {
+    date: string
+    name: string
+    email: string
+    kind: string
+    message: string
+    sheet: string
+    kinds: Record<'complaint' | 'suggestion' | 'support', string>
+    locale: Locale
+  },
+) {
+  const header = [copy.date, copy.name, copy.email, copy.kind, copy.message]
+  const body = rows.map((row) => [
+    formatRequestTime(row.createdAt, copy.locale),
+    row.name,
+    row.email,
+    copy.kinds[row.kind] ?? row.kind,
+    row.message,
+  ])
+  const stamp = new Date().toISOString().slice(0, 10)
+  downloadSheet(`aure-destek-${stamp}.xls`, copy.sheet, header, body)
 }
