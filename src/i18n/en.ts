@@ -498,6 +498,7 @@ export const en: Messages = {
     confirm_fail: 'Confirmation failed.',
     save_fail: 'Could not save the request.',
     delete_fail: 'Could not delete the request.',
+    support_delete_fail: 'Could not delete the support message.',
     offline: 'Could not reach the server.',
     unauthorized: 'Sign in required.',
     auth_need: 'Username and password are required.',
