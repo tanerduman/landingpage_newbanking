@@ -637,15 +637,16 @@ h3 {
 .simulator-controls {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  align-items: end;
+  column-gap: 28px;
+  align-items: start;
   margin-bottom: 22px;
 }
 
 .simulator-controls label {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  row-gap: 6px;
   font-size: 14px;
   font-weight: 600;
   color: #3f3c37;
@@ -786,7 +787,8 @@ h3 {
 }
 
 .simulator-preset {
-  align-self: start;
+  justify-self: start;
+  width: fit-content;
   margin-top: 4px;
   border: 1px solid #111;
   background: var(--lime);
@@ -2641,6 +2643,10 @@ td.row-action {
   .simulator-grid,
   .simulator-controls {
     grid-template-columns: 1fr;
+  }
+
+  .simulator-controls label + label {
+    margin-top: 16px;
   }
 
   .idle-grid {
