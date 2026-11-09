@@ -32,8 +32,20 @@ export async function submitSupport(input: { name: string; email: string; kind: 
       lang: readLocale(),
     }),
   })
-  const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
-  if (res?.ok && remote?.ok) return
+  const remote = await readApiJson<{
+    pending?: boolean
+    delivered?: boolean
+    devCode?: string
+    statusToken?: string
+    error?: string
+  }>(res)
+  if (res?.ok && remote?.pending) {
+    return {
+      delivered: Boolean(remote.delivered),
+      devCode: remote.devCode,
+      statusToken: remote.statusToken || '',
+    }
+  }
   throw new Error(failMessage(remote?.error))
 }
 

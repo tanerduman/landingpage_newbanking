@@ -291,6 +291,7 @@ export type Messages = {
     missing: string
     fail: string
     success: string
+    successSupport: string
     kicker: string
     intro: string
     email: string

@@ -46,13 +46,14 @@ type Store = {
   listWaitlist(): Promise<WaitlistRow[]>
   deleteWaitlist(id: string): Promise<boolean>
   isConfirmed(emailNorm: string): Promise<boolean>
-  createSupport(input: {
+  requestSupport(input: {
     name: string
     email: string
     emailNorm: string
     kind: SupportKind
     message: string
-  }): Promise<SupportRow>
+  }): Promise<WaitlistRequest>
+  confirmSupport(input: { token?: string; email?: string; code?: string }): Promise<SupportRow | string>
   listSupport(): Promise<SupportRow[]>
   deleteSupport(id: string): Promise<boolean>
   createAdminSession(input: AdminSessionInput): Promise<void>
@@ -84,11 +85,21 @@ type RateBucket = {
   windowMs: number
 }
 
+type SupportRecord = SupportRow & {
+  emailNorm: string
+  confirmed: boolean
+  confirmTokenHash: string | null
+  confirmCodeHash: string | null
+  confirmExpires: string | null
+  statusTokenHash: string | null
+  statusExpires: string | null
+}
+
 type Memory = {
   visitors: Map<string, { firstSeen: string; lastSeen: string }>
   sessions: Map<string, { visitorId: string; createdAt: string }>
   waitlist: WaitlistRecord[]
-  support: SupportRow[]
+  support: SupportRecord[]
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
 }
@@ -130,6 +141,32 @@ function publicRow(row: WaitlistRecord): WaitlistRow {
     cycle: row.cycle,
     createdAt: row.createdAt,
   }
+}
+
+function publicSupport(row: SupportRecord): SupportRow {
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    kind: row.kind,
+    message: row.message,
+    createdAt: row.createdAt,
+  }
+}
+
+function supportMatches(
+  row: SupportRecord,
+  input: { token?: string; email?: string; code?: string },
+  now: number,
+) {
+  if (row.confirmed) return false
+  if (!row.confirmExpires || Date.parse(row.confirmExpires) < now) return false
+  const tokenHash = input.token ? sha256(input.token) : null
+  const emailNorm = input.email ? normalizeEmail(input.email) : ''
+  const codeHash = input.code ? sha256(input.code.trim()) : null
+  if (tokenHash && row.confirmTokenHash === tokenHash) return true
+  if (codeHash && emailNorm && row.emailNorm === emailNorm && row.confirmCodeHash === codeHash) return true
+  return false
 }
 
 const globalStore = globalThis as typeof globalThis & { __aureStore?: Store }
@@ -253,20 +290,63 @@ function memoryStore(): Store {
     async isConfirmed(emailNorm) {
       return data.waitlist.some((row) => row.emailNorm === emailNorm && row.confirmed)
     },
-    async createSupport(input) {
-      const row: SupportRow = {
+    async requestSupport(input) {
+      const challenge = issueChallenge()
+      const existing = data.support.find((row) => row.emailNorm === input.emailNorm && !row.confirmed)
+      if (existing) {
+        existing.name = input.name
+        existing.email = input.email
+        existing.kind = input.kind
+        existing.message = input.message
+        existing.createdAt = new Date().toISOString()
+        existing.confirmTokenHash = challenge.tokenHash
+        existing.confirmCodeHash = challenge.codeHash
+        existing.confirmExpires = challenge.expires
+        existing.statusTokenHash = challenge.statusHash
+        existing.statusExpires = challenge.expires
+        return {
+          status: 'pending',
+          email: existing.email,
+          code: challenge.code,
+          token: challenge.token,
+          statusToken: challenge.statusToken,
+        }
+      }
+      const row: SupportRecord = {
         id: randomUUID(),
         name: input.name,
         email: input.email,
+        emailNorm: input.emailNorm,
         kind: input.kind,
         message: input.message,
         createdAt: new Date().toISOString(),
+        confirmed: false,
+        confirmTokenHash: challenge.tokenHash,
+        confirmCodeHash: challenge.codeHash,
+        confirmExpires: challenge.expires,
+        statusTokenHash: challenge.statusHash,
+        statusExpires: challenge.expires,
       }
       data.support.unshift(row)
-      return row
+      return {
+        status: 'pending',
+        email: row.email,
+        code: challenge.code,
+        token: challenge.token,
+        statusToken: challenge.statusToken,
+      }
+    },
+    async confirmSupport(input) {
+      const row = data.support.find((item) => supportMatches(item, input, Date.now()))
+      if (!row) return 'confirm_invalid'
+      row.confirmed = true
+      row.confirmTokenHash = null
+      row.confirmCodeHash = null
+      row.confirmExpires = null
+      return publicSupport(row)
     },
     async listSupport() {
-      return data.support.slice(0, 2000)
+      return data.support.filter((row) => row.confirmed).slice(0, 2000).map(publicSupport)
     },
     async deleteSupport(id) {
       const index = data.support.findIndex((row) => row.id === id)
@@ -311,10 +391,14 @@ function memoryStore(): Store {
     async confirmStatus(statusToken) {
       const hash = sha256(statusToken)
       const now = Date.now()
-      const row = data.waitlist.find(
+      const wait = data.waitlist.find(
         (item) => item.statusTokenHash === hash && item.statusExpires && Date.parse(item.statusExpires) > now,
       )
-      return Boolean(row?.confirmed)
+      if (wait) return wait.confirmed
+      const support = data.support.find(
+        (item) => item.statusTokenHash === hash && item.statusExpires && Date.parse(item.statusExpires) > now,
+      )
+      return Boolean(support?.confirmed)
     },
   }
 }
@@ -353,6 +437,12 @@ CREATE TABLE IF NOT EXISTS support_requests (
   email_norm TEXT NOT NULL,
   kind TEXT NOT NULL DEFAULT 'support',
   message TEXT NOT NULL,
+  confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+  confirm_token_hash TEXT,
+  confirm_code_hash TEXT,
+  confirm_expires TIMESTAMPTZ,
+  status_token_hash TEXT,
+  status_expires TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS support_requests_created_at_idx ON support_requests (created_at DESC);
@@ -391,6 +481,15 @@ ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS kind TEXT;
 UPDATE support_requests SET kind = 'support' WHERE kind IS NULL OR kind = '';
 ALTER TABLE support_requests ALTER COLUMN kind SET DEFAULT 'support';
 ALTER TABLE support_requests ALTER COLUMN kind SET NOT NULL;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS confirmed BOOLEAN;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS confirm_token_hash TEXT;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS confirm_code_hash TEXT;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS confirm_expires TIMESTAMPTZ;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS status_token_hash TEXT;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS status_expires TIMESTAMPTZ;
+UPDATE support_requests SET confirmed = TRUE WHERE confirmed IS NULL;
+ALTER TABLE support_requests ALTER COLUMN confirmed SET DEFAULT FALSE;
+ALTER TABLE support_requests ALTER COLUMN confirmed SET NOT NULL;
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS status_token_hash TEXT;
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS status_expires TIMESTAMPTZ;
 `
@@ -618,22 +717,106 @@ function postgresStore(url: string): Store {
       )
       return Number(result.rows[0]?.n ?? 0) > 0
     },
-    async createSupport(input) {
+    async requestSupport(input) {
       await ensure()
-      const id = randomUUID()
-      const created = await pool.query<{ created_at: Date }>(
-        `INSERT INTO support_requests (id, name, email, email_norm, kind, message)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         RETURNING created_at`,
-        [id, input.name, input.email, input.emailNorm, input.kind, input.message],
+      const found = await pool.query<{ id: string }>(
+        `SELECT id FROM support_requests
+         WHERE email_norm = $1 AND confirmed = FALSE
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [input.emailNorm],
+      )
+      const challenge = issueChallenge()
+      const existing = found.rows[0]
+      if (existing) {
+        await pool.query(
+          `UPDATE support_requests
+           SET name = $2, email = $3, kind = $4, message = $5, confirm_token_hash = $6, confirm_code_hash = $7,
+               confirm_expires = $8, status_token_hash = $9, status_expires = $10, created_at = NOW()
+           WHERE id = $1`,
+          [
+            existing.id,
+            input.name,
+            input.email,
+            input.kind,
+            input.message,
+            challenge.tokenHash,
+            challenge.codeHash,
+            challenge.expires,
+            challenge.statusHash,
+            challenge.expires,
+          ],
+        )
+        return {
+          status: 'pending' as const,
+          email: input.email,
+          code: challenge.code,
+          token: challenge.token,
+          statusToken: challenge.statusToken,
+        }
+      }
+      await pool.query(
+        `INSERT INTO support_requests
+           (id, name, email, email_norm, kind, message, confirmed, confirm_token_hash, confirm_code_hash, confirm_expires, status_token_hash, status_expires)
+         VALUES ($1, $2, $3, $4, $5, $6, FALSE, $7, $8, $9, $10, $11)`,
+        [
+          randomUUID(),
+          input.name,
+          input.email,
+          input.emailNorm,
+          input.kind,
+          input.message,
+          challenge.tokenHash,
+          challenge.codeHash,
+          challenge.expires,
+          challenge.statusHash,
+          challenge.expires,
+        ],
       )
       return {
-        id,
-        name: input.name,
+        status: 'pending' as const,
         email: input.email,
-        kind: input.kind,
-        message: input.message,
-        createdAt: new Date(created.rows[0]?.created_at ?? Date.now()).toISOString(),
+        code: challenge.code,
+        token: challenge.token,
+        statusToken: challenge.statusToken,
+      }
+    },
+    async confirmSupport(input) {
+      await ensure()
+      const tokenHash = input.token ? sha256(input.token) : null
+      const emailNorm = input.email ? normalizeEmail(input.email) : ''
+      const codeHash = input.code ? sha256(input.code.trim()) : null
+      const result = await pool.query<{
+        id: string
+        name: string
+        email: string
+        kind: string
+        message: string
+        created_at: Date
+      }>(
+        `UPDATE support_requests SET
+           confirmed = TRUE,
+           confirm_token_hash = NULL,
+           confirm_code_hash = NULL,
+           confirm_expires = NULL
+         WHERE confirmed = FALSE
+           AND confirm_expires > NOW()
+           AND (
+             ($1::text IS NOT NULL AND confirm_token_hash = $1)
+             OR ($2::text IS NOT NULL AND $3::text <> '' AND email_norm = $3 AND confirm_code_hash = $2)
+           )
+         RETURNING id, name, email, kind, message, created_at`,
+        [tokenHash, codeHash, emailNorm],
+      )
+      const row = result.rows[0]
+      if (!row) return 'confirm_invalid'
+      return {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        kind: isSupportKind(row.kind) ? row.kind : 'support',
+        message: row.message,
+        createdAt: new Date(row.created_at).toISOString(),
       }
     },
     async listSupport() {
@@ -648,6 +831,7 @@ function postgresStore(url: string): Store {
       }>(
         `SELECT id, name, email, COALESCE(kind, 'support') AS kind, message, created_at
          FROM support_requests
+         WHERE confirmed = TRUE
          ORDER BY created_at DESC
          LIMIT 2000`,
       )
@@ -719,13 +903,21 @@ function postgresStore(url: string): Store {
     },
     async confirmStatus(statusToken) {
       await ensure()
-      const result = await pool.query<{ confirmed: boolean }>(
+      const hash = sha256(statusToken)
+      const wait = await pool.query<{ confirmed: boolean }>(
         `SELECT confirmed FROM waitlist
          WHERE status_token_hash = $1 AND status_expires > NOW()
          LIMIT 1`,
-        [sha256(statusToken)],
+        [hash],
       )
-      return Boolean(result.rows[0]?.confirmed)
+      if (wait.rows[0]) return Boolean(wait.rows[0].confirmed)
+      const support = await pool.query<{ confirmed: boolean }>(
+        `SELECT confirmed FROM support_requests
+         WHERE status_token_hash = $1 AND status_expires > NOW()
+         LIMIT 1`,
+        [hash],
+      )
+      return Boolean(support.rows[0]?.confirmed)
     },
   }
 }
