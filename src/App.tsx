@@ -38,6 +38,7 @@ export default function App() {
   const { t, locale } = useI18n()
   const [cycle, setCycle] = useState<Cycle>('monthly')
   const [selected, setSelected] = useState<PlanId | null>(null)
+  const [focus, setFocus] = useState<{ id: PlanId; tick: number } | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
   const [faq, setFaq] = useState<number | null>(0)
   const [menu, setMenu] = useState(false)
@@ -77,6 +78,17 @@ export default function App() {
     setSelected(id)
     setIntent(id)
     setModal(true)
+  }
+
+  function focusPlan(id: PlanId, scroll = false) {
+    setSelected(id)
+    setFocus({ id, tick: Date.now() })
+    if (scroll) document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  function chooseCycle(next: Cycle) {
+    setCycle(next)
+    setFocus((current) => (current ? { id: current.id, tick: Date.now() } : current))
   }
 
   function closeModal() {
@@ -316,24 +328,29 @@ export default function App() {
               <div>
                 <p>{t.plans.upgradeLead}</p>
                 <div className="toggle" role="tablist" aria-label={t.plans.billingAria}>
-                  <button className={cycle === 'monthly' ? 'active' : ''} onClick={() => setCycle('monthly')}>
+                  <button className={cycle === 'monthly' ? 'active' : ''} onClick={() => chooseCycle('monthly')}>
                     {t.plans.monthly}
                   </button>
-                  <button className={cycle === 'yearly' ? 'active' : ''} onClick={() => setCycle('yearly')}>
+                  <button className={cycle === 'yearly' ? 'active' : ''} onClick={() => chooseCycle('yearly')}>
                     {t.plans.yearly} <span className="save-tag">{t.plans.saveTag}</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            <Simulator cycleYearly={cycle === 'yearly'} onPick={openPlan} />
+            <Simulator
+              cycleYearly={cycle === 'yearly'}
+              focus={focus}
+              onFocus={focusPlan}
+              onPick={openPlan}
+            />
 
             <div className="plans">
               {plans.map((plan) => (
                 <article
                   key={plan.id}
                   className={`plan-card ${selected === plan.id ? 'selected' : ''}`}
-                  onClick={() => setSelected(plan.id)}
+                  onClick={() => focusPlan(plan.id, true)}
                 >
                   <div className="plan-kicker">
                     {plan.featured ? t.plans.featured : t.plans.optional}

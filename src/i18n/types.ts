@@ -98,6 +98,7 @@ export type Messages = {
     sample: string
     perMonth: string
     idlePreset: string
+    minimum: string
   }
   idleExample: {
     kicker: string

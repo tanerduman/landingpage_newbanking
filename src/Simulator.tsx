@@ -1,7 +1,17 @@
 import { useMemo, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatMoney } from './i18n/format.ts'
-import { SAMPLE_IDLE_TRY, plans, type PlanColumnId } from './plans.ts'
+import {
+  IDLE_MIN,
+  IDLE_STEP,
+  SAMPLE_IDLE_TRY,
+  SPEND_MAX,
+  SPEND_MIN,
+  SPEND_STEP,
+  minimumScenario,
+  plans,
+  type PlanColumnId,
+} from './plans.ts'
 import type { PlanId } from './waitlist'
 
 function estimate(plan: (typeof plans)[number], spend: number, idle: number) {
@@ -13,14 +23,25 @@ function estimate(plan: (typeof plans)[number], spend: number, idle: number) {
 
 export default function Simulator({
   cycleYearly,
+  focus,
+  onFocus,
   onPick,
 }: {
   cycleYearly: boolean
+  focus: { id: PlanId; tick: number } | null
+  onFocus: (id: PlanId) => void
   onPick: (id: PlanId) => void
 }) {
   const { t, locale } = useI18n()
-  const [spend, setSpend] = useState(18_000)
-  const [idle, setIdle] = useState(40_000)
+  const [manual, setManual] = useState<{ spend: number; idle: number; tick: number | null } | null>(null)
+  const focused = focus ? plans.find((item) => item.id === focus.id) : undefined
+  const preset = focused && manual?.tick !== focus.tick ? minimumScenario(focused, cycleYearly) : null
+  const spend = preset?.spend ?? manual?.spend ?? 18_000
+  const idle = preset?.idle ?? manual?.idle ?? 40_000
+
+  function choose(nextSpend: number, nextIdle: number) {
+    setManual({ spend: nextSpend, idle: nextIdle, tick: focus?.tick ?? null })
+  }
 
   const rows = useMemo(() => {
     return plans.map((plan) => {
@@ -61,29 +82,38 @@ export default function Simulator({
           id="sim-spend"
           className="sim-spend-range"
           type="range"
-          min={5000}
-          max={80000}
-          step={1000}
+          min={SPEND_MIN}
+          max={SPEND_MAX}
+          step={SPEND_STEP}
           value={spend}
-          onChange={(e) => setSpend(Number(e.target.value))}
+          onChange={(e) => choose(Number(e.target.value), idle)}
         />
         <input
           id="sim-idle"
           className="sim-idle-range"
           type="range"
-          min={5000}
+          min={IDLE_MIN}
           max={SAMPLE_IDLE_TRY}
-          step={5000}
+          step={IDLE_STEP}
           value={idle}
-          onChange={(e) => setIdle(Number(e.target.value))}
+          onChange={(e) => choose(spend, Number(e.target.value))}
         />
-        <button type="button" className="simulator-preset" onClick={() => setIdle(SAMPLE_IDLE_TRY)}>
+        <button type="button" className="simulator-preset" onClick={() => choose(spend, SAMPLE_IDLE_TRY)}>
           {t.simulator.idlePreset}
         </button>
       </div>
+      {focus && (
+        <p className="simulator-minimum">
+          {t.simulator.minimum.replace('{plan}', colName[focus.id])}
+        </p>
+      )}
       <div className="simulator-grid">
         {rows.map((row) => (
-          <article key={row.id} className={`simulator-card ${row.id === bestId ? 'best' : ''}`}>
+          <article
+            key={row.id}
+            className={`simulator-card ${row.id === bestId ? 'best' : ''} ${focus?.id === row.id ? 'picked' : ''}`}
+            onClick={() => onFocus(row.id)}
+          >
             <div className="simulator-kicker">
               <h3>{colName[row.id]}</h3>
               {row.id === bestId && <b>{t.simulator.best}</b>}
@@ -109,7 +139,14 @@ export default function Simulator({
                 <small>{t.simulator.perMonth}</small>
               </strong>
             </p>
-            <button type="button" className="btn btn-solid" onClick={() => onPick(row.id)}>
+            <button
+              type="button"
+              className="btn btn-solid"
+              onClick={(event) => {
+                event.stopPropagation()
+                onPick(row.id)
+              }}
+            >
               {t.simulator.pick}
             </button>
           </article>
