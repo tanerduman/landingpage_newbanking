@@ -10,6 +10,8 @@ export type Messages = {
     app: string
     compare: string
     campaigns: string
+    support: string
+    newPage: string
     faq: string
     seePlans: string
     openFree: string
@@ -272,6 +274,23 @@ export type Messages = {
     success: string
     kicker: string
   }
+  support: {
+    kicker: string
+    title: string
+    lead: string
+    name: string
+    namePh: string
+    email: string
+    message: string
+    messagePh: string
+    submit: string
+    sending: string
+    successTitle: string
+    success: string
+    needName: string
+    needEmail: string
+    needMessage: string
+  }
   waitlist: {
     export: string
     kicker: string
@@ -312,6 +331,12 @@ export type Messages = {
     logout: string
     needUser: string
     needPass: string
+    tabsLabel: string
+    tabRequests: string
+    tabSupport: string
+    supportLead: string
+    supportEmpty: string
+    message: string
   }
   errors: Record<string, string>
 }

@@ -13,6 +13,14 @@ export type WaitlistRow = {
   createdAt: string
 }
 
+export type SupportRow = {
+  id: string
+  name: string
+  email: string
+  message: string
+  createdAt: string
+}
+
 export const INTENTS = ['account', 'standard', 'plus', 'premium'] as const
 export type Intent = (typeof INTENTS)[number]
 

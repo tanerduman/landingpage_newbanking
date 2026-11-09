@@ -16,11 +16,13 @@ import {
   type WaitlistEntry,
 } from './waitlist'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
+import { fetchSupport, type SupportEntry } from './support.ts'
 import WaitlistPie from './WaitlistPie.tsx'
 import LogoMark from './LogoMark.tsx'
 
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
+type Panel = 'requests' | 'support'
 
 const PAGE_SIZE = 10
 
@@ -32,6 +34,8 @@ export default function WaitlistPage() {
   const [loginError, setLoginError] = useState('')
   const [loginBusy, setLoginBusy] = useState(false)
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
+  const [support, setSupport] = useState<SupportEntry[]>([])
+  const [panel, setPanel] = useState<Panel>('requests')
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [remote, setRemote] = useState(false)
   const [filter, setFilter] = useState<Filter>('all')
@@ -69,12 +73,14 @@ export default function WaitlistPage() {
       if (!list.authorized) {
         setAuthed(false)
         setEntries([])
+        setSupport([])
         setRemote(false)
         return
       }
       setAuthed(true)
-      const stats = await fetchVisitStats()
+      const [stats, tickets] = await Promise.all([fetchVisitStats(), fetchSupport()])
       setEntries(list.entries)
+      setSupport(tickets.entries)
       setRemote(list.remote)
       setVisits(stats)
     }
@@ -122,6 +128,7 @@ export default function WaitlistPage() {
     logoutWaitlist()
     setAuthed(false)
     setEntries([])
+    setSupport([])
     setPassword('')
   }
 
@@ -138,6 +145,9 @@ export default function WaitlistPage() {
       }),
     [entries, filter, cycleFilter],
   )
+  const supportPageCount = Math.max(1, Math.ceil(support.length / PAGE_SIZE))
+  const supportPage = Math.min(page, supportPageCount)
+  const pagedSupport = support.slice((supportPage - 1) * PAGE_SIZE, supportPage * PAGE_SIZE)
   const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE))
   const currentPage = Math.min(page, pageCount)
   const paged = visible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
@@ -149,6 +159,11 @@ export default function WaitlistPage() {
 
   function changeCycle(next: CycleFilter) {
     setCycleFilter(next)
+    setPage(1)
+  }
+
+  function changePanel(next: Panel) {
+    setPanel(next)
     setPage(1)
   }
 
@@ -169,7 +184,7 @@ export default function WaitlistPage() {
                 {t.waitlist.logout}
               </button>
             )}
-            {authed && (
+            {authed && panel === 'requests' && (
             <button
               type="button"
               className="btn btn-solid"
@@ -228,6 +243,87 @@ export default function WaitlistPage() {
               </button>
             </form>
           </div>
+        ) : (
+          <>
+        <div className="admin-tabs" role="tablist" aria-label={t.waitlist.tabsLabel}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={panel === 'requests'}
+            className={panel === 'requests' ? 'active' : ''}
+            onClick={() => changePanel('requests')}
+          >
+            {t.waitlist.tabRequests}
+            <span>{entries.length}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={panel === 'support'}
+            className={panel === 'support' ? 'active' : ''}
+            onClick={() => changePanel('support')}
+          >
+            {t.waitlist.tabSupport}
+            <span>{support.length}</span>
+          </button>
+        </div>
+        {panel === 'support' ? (
+          <>
+            <div className="section-head">
+              <div>
+                <div className="eyebrow">
+                  <span className="dot" /> {t.support.kicker}
+                </div>
+                <h1>{t.waitlist.tabSupport}</h1>
+                <p className="lead">{t.waitlist.supportLead}</p>
+              </div>
+            </div>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t.waitlist.date}</th>
+                    <th>{t.waitlist.name}</th>
+                    <th>{t.waitlist.email}</th>
+                    <th>{t.waitlist.message}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {support.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="waitlist-empty">
+                        {t.waitlist.supportEmpty}
+                      </td>
+                    </tr>
+                  ) : (
+                    pagedSupport.map((row) => (
+                      <tr key={row.id}>
+                        <td>{formatRequestTime(row.createdAt, locale)}</td>
+                        <td>{row.name}</td>
+                        <td>{row.email}</td>
+                        <td className="support-message">{row.message}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {support.length > PAGE_SIZE && (
+              <div className="waitlist-pager">
+                <span>
+                  {(supportPage - 1) * PAGE_SIZE + 1}–{Math.min(supportPage * PAGE_SIZE, support.length)} / {support.length}
+                </span>
+                <div className="waitlist-pager-btns">
+                  <button type="button" disabled={supportPage <= 1} onClick={() => setPage(supportPage - 1)}>
+                    {t.waitlist.prev}
+                  </button>
+                  <button type="button" disabled={supportPage >= supportPageCount} onClick={() => setPage(supportPage + 1)}>
+                    {t.waitlist.next}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <>
         <div className="section-head">
@@ -372,6 +468,8 @@ export default function WaitlistPage() {
           </div>
         )}
         <p className="waitlist-note">{remote ? t.waitlist.noteRemote : t.waitlist.noteLocal}</p>
+          </>
+        )}
           </>
         )}
       </main>
