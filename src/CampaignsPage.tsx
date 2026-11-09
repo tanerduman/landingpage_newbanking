@@ -6,6 +6,7 @@ import { localizeFeature } from './i18n/format.ts'
 import { campaignDetails, planColumns, type PlanColumnId } from './plans.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import type { SignupIntent } from './waitlist'
+import LogoMark from './LogoMark.tsx'
 
 function firstPlanWithCampaign(rates: Record<PlanColumnId, string | boolean>): SignupIntent {
   if (rates.standard) return 'standard'
@@ -31,7 +32,7 @@ export default function CampaignsPage() {
       <header className="nav compare-nav">
         <div className="wrap nav-inner">
           <a className="logo" href={withBase()}>
-            <span className="logo-mark">A</span>
+            <LogoMark />
             AURE
           </a>
           <div className="waitlist-nav-actions">

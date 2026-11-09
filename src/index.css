@@ -87,12 +87,8 @@ img {
 .logo-mark {
   width: 28px;
   height: 28px;
-  display: grid;
-  place-items: center;
-  background: var(--lime);
-  color: var(--ink);
-  border-radius: 8px;
-  font-size: 16px;
+  display: block;
+  flex-shrink: 0;
 }
 
 .nav-links {

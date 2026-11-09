@@ -3,6 +3,7 @@ import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { confirmWaitlist } from './waitlist.ts'
+import LogoMark from './LogoMark.tsx'
 
 function tokenFromLocation() {
   const query = new URLSearchParams(window.location.search).get('token')
@@ -46,7 +47,7 @@ export default function ConfirmPage() {
       <header className="nav">
         <div className="wrap nav-inner">
           <a className="logo" href={withBase()}>
-            <span className="logo-mark">A</span>
+            <LogoMark />
             AURE
           </a>
           <div className="waitlist-nav-actions">

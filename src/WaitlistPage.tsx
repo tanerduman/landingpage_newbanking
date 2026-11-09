@@ -17,6 +17,7 @@ import {
 } from './waitlist'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 import WaitlistPie from './WaitlistPie.tsx'
+import LogoMark from './LogoMark.tsx'
 
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
@@ -158,7 +159,7 @@ export default function WaitlistPage() {
       <header className="nav">
         <div className="wrap nav-inner">
           <a className="logo" href={withBase()}>
-            <span className="logo-mark">A</span>
+            <LogoMark />
             AURE
           </a>
           <div className="waitlist-nav-actions">
