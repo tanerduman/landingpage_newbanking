@@ -4,10 +4,13 @@ import LangSwitch from './LangSwitch.tsx'
 import LogoMark from './LogoMark.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { submitSupport, SUPPORT_KINDS, type SupportKind } from './support.ts'
+import { useSpeechDraft } from './useSpeechDraft.ts'
 import { confirmWaitlist, fetchConfirmStatus, onWaitlistConfirmed } from './waitlist.ts'
 
+const MESSAGE_MAX = 2_000
+
 export default function SupportPage() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [kind, setKind] = useState<SupportKind | ''>('')
@@ -19,6 +22,20 @@ export default function SupportPage() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
+  const [micBlocked, setMicBlocked] = useState(false)
+  const { supported, listening, toggle, stop } = useSpeechDraft({
+    lang: locale === 'en' ? 'en-US' : 'tr-TR',
+    value: message,
+    onChange: setMessage,
+    maxLength: MESSAGE_MAX,
+    onBlocked: () => setMicBlocked(true),
+  })
+
+  useEffect(() => {
+    if (phase !== 'form') stop()
+  }, [phase, stop])
+
+  useEffect(() => () => stop(), [stop])
 
   useEffect(() => {
     if (phase !== 'code' || !statusToken || sent) return
@@ -166,14 +183,34 @@ export default function SupportPage() {
                       ))}
                     </div>
                   </fieldset>
-                  <label htmlFor="support-message">{t.support.message}</label>
+                  <div className="support-message-head">
+                    <label htmlFor="support-message">{t.support.message}</label>
+                    {supported && (
+                      <button
+                        type="button"
+                        className={`dictate-btn${listening ? ' live' : ''}`}
+                        aria-pressed={listening}
+                        onClick={() => {
+                          setMicBlocked(false)
+                          toggle()
+                        }}
+                      >
+                        {listening ? t.support.dictateStop : t.support.dictate}
+                      </button>
+                    )}
+                  </div>
                   <textarea
                     id="support-message"
                     value={message}
                     placeholder={t.support.messagePh}
                     rows={6}
-                    onChange={(e) => setMessage(e.target.value)}
+                    maxLength={MESSAGE_MAX}
+                    onChange={(e) => {
+                      stop()
+                      setMessage(e.target.value)
+                    }}
                   />
+                  {micBlocked && <p className="support-dictate-note">{t.support.dictateDenied}</p>}
                 </>
               ) : (
                 <>
