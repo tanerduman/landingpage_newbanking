@@ -7,7 +7,6 @@ export const plans: {
   id: PlanId
   name: string
   monthly: number
-  waiverSpend: number
   overnight: number
   campaignRate: number
   installmentRate: number
@@ -17,7 +16,6 @@ export const plans: {
     id: 'standard',
     name: 'Standard',
     monthly: 149,
-    waiverSpend: 15_000,
     overnight: 0.345,
     campaignRate: 0.02,
     installmentRate: 0.015,
@@ -26,7 +24,6 @@ export const plans: {
     id: 'plus',
     name: 'Plus',
     monthly: 299,
-    waiverSpend: 30_000,
     overnight: 0.3475,
     campaignRate: 0.04,
     installmentRate: 0.025,
@@ -36,7 +33,6 @@ export const plans: {
     id: 'premium',
     name: 'Premium',
     monthly: 499,
-    waiverSpend: 50_000,
     overnight: 0.35,
     campaignRate: 0.07,
     installmentRate: 0.03,
@@ -86,7 +82,7 @@ export function monthlyFeeOf(id: PlanColumnId): number {
 
 export const comparisonRows: {
   id:
-    | 'feeWaiver'
+    | 'planFee'
     | 'overnight'
     | 'eft'
     | 'fxLimit'
@@ -106,10 +102,10 @@ export const comparisonRows: {
   values: Record<PlanColumnId, FeatureValue>
 }[] = [
   {
-    id: 'feeWaiver',
+    id: 'planFee',
     group: 'bank',
     icon: 'save',
-    values: { account: 'none', standard: 'waiverStd', plus: 'waiverPlus', premium: 'waiverPrem' },
+    values: { account: '0 ₺', standard: '149 ₺', plus: '299 ₺', premium: '499 ₺' },
   },
   {
     id: 'overnight',

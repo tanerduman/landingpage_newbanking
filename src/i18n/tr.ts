@@ -49,7 +49,6 @@ export const tr: Messages = {
     bannerCta: 'Ücretsiz Başla',
     upgradeTitle: 'İstersen paketi yükselt.',
     upgradeLead: 'Paketler isteğe bağlı. Aylık öde veya yıllıkta 2 ay bizden olsun; istediğin an iptal et.',
-    waiverNote: 'Aylık harcama şartını geçince paket ücreti 0 ₺!',
     billingAria: 'Ödeme dönemi',
     monthly: 'Aylık',
     yearly: 'Yıllık',
@@ -128,7 +127,6 @@ export const tr: Messages = {
     spend: 'Aylık kart harcaman',
     idle: 'Boşta duran bakiyen',
     fee: 'Paket ücreti',
-    waived: '0 ₺ — muaf',
     interest: 'Gecelik faiz',
     extras: 'Kampanya & taksit',
     net: 'Aylık net kazanç',
@@ -245,7 +243,7 @@ export const tr: Messages = {
     items: [
       {
         q: 'Paket almak zorunda mıyım?',
-        a: 'Hayır. Hesabını 0 ₺’ye, Temel hesap olarak açarsın. Standard, Plus veya Premium’u yalnızca kazancı büyütmek istediğinde eklersin; harcama şartında paket ücreti 0 ₺ olabilir.',
+        a: 'Hayır. Hesabını 0 ₺’ye, Temel hesap olarak açarsın. Standard, Plus veya Premium’u yalnızca kazancı büyütmek istediğinde eklersin; paket ücretini her ay ödersin.',
       },
       {
         q: 'Gizli ücret veya yıl sonu kart aidatı var mı?',
@@ -309,7 +307,7 @@ export const tr: Messages = {
     tour: '%5 tur',
     tourHotel: '%10 tur + otel',
     rows: {
-      feeWaiver: 'Aylık ücret muafiyeti şartı',
+      planFee: 'Aylık paket ücreti',
       overnight: 'Otomatik gecelik faiz',
       eft: 'Ücretsiz EFT / FAST',
       fxLimit: 'Aylık döviz alım-satım limiti',
@@ -328,9 +326,6 @@ export const tr: Messages = {
     cell: {
       unlimited0: 'Sınırsız 0 ₺',
       none: 'Yok (zaten 0 ₺)',
-      waiverStd: '15.000 ₺/ay harcama',
-      waiverPlus: '30.000 ₺/ay harcama',
-      waiverPrem: '50.000 ₺/ay harcama',
       delayed: 'Gecikmeli',
       live: 'Ücretsiz canlı',
       inst3: '3 taksit',

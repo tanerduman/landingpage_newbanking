@@ -626,14 +626,6 @@ h3 {
   color: var(--ink);
 }
 
-.simulator-note {
-  margin: 0 0 22px;
-  font-weight: 800;
-  font-size: 18px;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-
 .simulator-controls {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -723,10 +715,6 @@ h3 {
   font-size: 15px;
   font-weight: 800;
   text-align: right;
-}
-
-.simulator-card dd.waived {
-  color: #3d6b0d;
 }
 
 .simulator-net {
