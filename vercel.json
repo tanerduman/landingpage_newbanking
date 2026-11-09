@@ -9,6 +9,7 @@
       "destination": "https://api.vercel.com/bot-protection/v1/proxy/:path*"
     },
     { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/region", "destination": "/region.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [

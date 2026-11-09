@@ -1,0 +1,198 @@
+<!doctype html>
+<!--
+  Shown to visitors outside Turkey.
+  Vercel Firewall must Redirect (not Deny) when country is not TR,
+  and the rule must skip /region and /region.html. Deny never reaches this file.
+-->
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>AURE — Yalnızca Türkiye</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23d8ff4a'/%3E%3Cpath d='M6.4 25 L16 7.2 L25.6 25 H21.4 L16 14.8 L10.6 25 Z' fill='%230b0b0c'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #070708;
+        --text: #f4f1ea;
+        --muted: #9a9589;
+        --lime: #d8ff4a;
+        --gold: #c8a46b;
+        --line: rgba(244, 241, 234, 0.12);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body { margin: 0; min-height: 100%; }
+
+      body {
+        min-height: 100vh;
+        color: var(--text);
+        background:
+          radial-gradient(880px 520px at 8% -12%, rgba(216, 255, 74, 0.16), transparent 58%),
+          radial-gradient(640px 460px at 110% 110%, rgba(200, 164, 107, 0.14), transparent 52%),
+          var(--bg);
+        font-family: Figtree, system-ui, sans-serif;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .mark {
+        position: fixed;
+        right: -8vw;
+        bottom: -18vh;
+        width: min(72vh, 680px);
+        height: auto;
+        pointer-events: none;
+        opacity: 0.9;
+      }
+
+      .shell {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        width: min(1040px, calc(100% - 48px));
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        padding: 28px 0 36px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        font-size: 15px;
+      }
+
+      .brand svg { width: 28px; height: 28px; display: block; }
+
+      main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 48px 0 32px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        margin: 0;
+        padding: 6px 12px 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 99px;
+        background: var(--lime);
+        box-shadow: 0 0 0 4px rgba(216, 255, 74, 0.14);
+      }
+
+      h1 {
+        margin: 22px 0 0;
+        max-width: 9.2em;
+        font-family: "Bricolage Grotesque", sans-serif;
+        font-weight: 800;
+        font-size: clamp(52px, 8vw, 104px);
+        line-height: 0.9;
+        letter-spacing: -0.05em;
+      }
+
+      h1 span { color: var(--lime); }
+
+      .columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        margin-top: 42px;
+        max-width: 760px;
+        padding-top: 28px;
+        border-top: 1px solid var(--line);
+      }
+
+      .columns p { margin: 8px 0 0; font-size: 17px; line-height: 1.55; }
+
+      .columns h2 {
+        margin: 0;
+        color: var(--gold);
+        font-family: Figtree, system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .en p { color: var(--muted); }
+
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        color: var(--muted);
+        font-size: 13px;
+        letter-spacing: 0.04em;
+      }
+
+      @media (max-width: 720px) {
+        .mark { display: none; }
+        .shell { width: min(1040px, calc(100% - 32px)); }
+        .columns { grid-template-columns: 1fr; gap: 22px; }
+        h1 { font-size: clamp(46px, 14vw, 72px); }
+        footer { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M6.4 25 L16 7.2 L25.6 25 H21.4 L16 14.8 L10.6 25 Z" fill="none" stroke="#d8ff4a" stroke-width="0.7" />
+    </svg>
+    <div class="shell">
+      <div class="brand">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#d8ff4a" />
+          <path d="M6.4 25 L16 7.2 L25.6 25 H21.4 L16 14.8 L10.6 25 Z" fill="#0b0b0c" />
+        </svg>
+        AURE
+      </div>
+      <main>
+        <p class="eyebrow"><span class="dot"></span> Yalnızca Türkiye</p>
+        <h1>Bu kapı <span>Türkiye’ye</span> açık.</h1>
+        <div class="columns">
+          <section>
+            <h2>Türkçe</h2>
+            <p>Bağlantın Türkiye dışındaki bir ağdan görünüyor. Ülke dışındaysan ya da VPN açıksa AURE buradan ileri açılmaz. VPN’i kapatıp yeniden dene.</p>
+          </section>
+          <section class="en" lang="en">
+            <h2>English</h2>
+            <p>Your connection appears to be outside Turkey. AURE does not open from abroad, or while a VPN is on. Turn the VPN off and try again.</p>
+          </section>
+        </div>
+      </main>
+      <footer>
+        <span>getaure.org</span>
+        <span>Turkey only</span>
+      </footer>
+    </div>
+  </body>
+</html>
