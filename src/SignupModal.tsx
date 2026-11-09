@@ -110,13 +110,13 @@ export function SignupModal({
         lang: locale,
         cycle: intent === 'account' ? 'none' : billing === 'yearly' ? 'yearly' : 'monthly',
       })
-      if (result.status === 'updated') {
-        onClose(t.signup.updated)
+      if (result.status === 'pending') {
+        setDevCode(result.devCode || '')
+        setStatusToken(result.statusToken || '')
+        setPhase('code')
         return
       }
-      setDevCode(result.devCode || '')
-      setStatusToken(result.statusToken || '')
-      setPhase('code')
+      onClose(t.signup.received)
     } catch (err) {
       setError(err instanceof Error ? err.message : t.signup.saveFail)
     } finally {

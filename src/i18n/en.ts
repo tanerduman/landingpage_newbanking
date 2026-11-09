@@ -413,6 +413,7 @@ export const en: Messages = {
     confirmFail: 'Confirmation failed.',
     saveFail: 'Could not save the request.',
     updated: 'This email is already confirmed; your plan choice was updated.',
+    received: 'Request received. New addresses get a confirmation code; confirmed ones have their plan choice updated.',
     successAccount: 'Your request is confirmed. The Basic account is on the waitlist.',
     successPlan: 'Your request is confirmed. {name} is on the waitlist.',
     devCode: 'Dev code:',

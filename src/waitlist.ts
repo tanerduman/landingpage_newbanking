@@ -93,17 +93,13 @@ export async function addWaitlistEntry(input: {
     body: JSON.stringify(payload),
   })
   const remote = await readApiJson<{
+    ok?: boolean
     pending?: boolean
-    updated?: boolean
     delivered?: boolean
     devCode?: string
     statusToken?: string
     error?: string
   }>(res)
-  if (res?.ok && remote?.updated) {
-    window.dispatchEvent(new Event('aure-waitlist'))
-    return { status: 'updated' as const }
-  }
   if (res?.ok && remote?.pending) {
     return {
       status: 'pending' as const,
@@ -111,6 +107,10 @@ export async function addWaitlistEntry(input: {
       devCode: remote.devCode,
       statusToken: remote.statusToken || '',
     }
+  }
+  if (res?.ok) {
+    window.dispatchEvent(new Event('aure-waitlist'))
+    return { status: 'received' as const }
   }
   throw new Error(failMessage(remote?.error, res ? 'save_fail' : 'offline'))
 }
@@ -257,7 +257,8 @@ export function formatRequestTime(iso: string, locale: Locale = 'tr') {
 }
 
 function xmlCell(value: string) {
-  const text = value
+  const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
+  const text = safe
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')

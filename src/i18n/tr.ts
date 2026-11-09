@@ -412,6 +412,7 @@ export const tr: Messages = {
     confirmFail: 'Onay başarısız.',
     saveFail: 'Kayıt alınamadı.',
     updated: 'Bu e-posta zaten onaylı; paket tercihin güncellendi.',
+    received: 'Talebin alındı. Yeni kayıtlarda e-postana onay kodu gider; onaylı adreslerde paket tercihi güncellenir.',
     successAccount: 'Talebiniz onaylandı. Temel hesabınız waitlist’te.',
     successPlan: 'Talebiniz onaylandı. {name} waitlist’e eklendi.',
     devCode: 'Geliştirme kodu:',
