@@ -348,6 +348,10 @@ export type Messages = {
     supportLead: string
     supportEmpty: string
     message: string
+    action: string
+    delete: string
+    deleteConfirm: string
+    deleting: string
   }
   errors: Record<string, string>
 }

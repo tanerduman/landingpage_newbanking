@@ -1777,6 +1777,43 @@ footer {
   padding: 36px 18px !important;
 }
 
+th.row-action,
+td.row-action {
+  text-align: right;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.row-delete {
+  min-width: 128px;
+  border: 1px solid #6b3030;
+  background: transparent;
+  color: #f3c1c1;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.row-delete.armed {
+  background: #8f2d2d;
+  border-color: #8f2d2d;
+  color: #fff;
+}
+
+.row-delete:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.waitlist-action-error {
+  color: #f0b4b4;
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
 .waitlist-note {
   color: var(--muted);
   font-size: 13px;

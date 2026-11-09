@@ -471,6 +471,10 @@ export const en: Messages = {
     supportLead: 'Messages sent from the support form.',
     supportEmpty: 'No support messages yet.',
     message: 'Description',
+    action: 'Action',
+    delete: 'Delete',
+    deleteConfirm: 'Delete this request?',
+    deleting: 'Deleting',
   },
   errors: {
     too_big: 'Request too large.',
@@ -493,6 +497,7 @@ export const en: Messages = {
     confirm_invalid: 'The confirmation code or link is invalid.',
     confirm_fail: 'Confirmation failed.',
     save_fail: 'Could not save the request.',
+    delete_fail: 'Could not delete the request.',
     offline: 'Could not reach the server.',
     unauthorized: 'Sign in required.',
     auth_need: 'Username and password are required.',

@@ -44,6 +44,7 @@ type Store = {
   }): Promise<WaitlistRequest>
   confirmWaitlist(input: { token?: string; email?: string; code?: string }): Promise<WaitlistRow | string>
   listWaitlist(): Promise<WaitlistRow[]>
+  deleteWaitlist(id: string): Promise<boolean>
   isConfirmed(emailNorm: string): Promise<boolean>
   createSupport(input: {
     name: string
@@ -241,6 +242,12 @@ function memoryStore(): Store {
     },
     async listWaitlist() {
       return data.waitlist.filter((row) => row.confirmed).map(publicRow)
+    },
+    async deleteWaitlist(id) {
+      const index = data.waitlist.findIndex((row) => row.id === id)
+      if (index === -1) return false
+      data.waitlist.splice(index, 1)
+      return true
     },
     async isConfirmed(emailNorm) {
       return data.waitlist.some((row) => row.emailNorm === emailNorm && row.confirmed)
@@ -590,6 +597,11 @@ function postgresStore(url: string): Store {
         cycle: isBillingCycle(row.cycle) ? row.cycle : 'monthly',
         createdAt: new Date(row.created_at).toISOString(),
       }))
+    },
+    async deleteWaitlist(id) {
+      await ensure()
+      const result = await pool.query('DELETE FROM waitlist WHERE id = $1', [id])
+      return (result.rowCount ?? 0) > 0
     },
     async isConfirmed(emailNorm) {
       await ensure()

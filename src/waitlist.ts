@@ -68,7 +68,7 @@ export function loadWaitlist(): WaitlistEntry[] {
 
 function failMessage(
   remoteError: string | undefined,
-  key: 'save_fail' | 'confirm_fail' | 'offline' | 'auth_bad',
+  key: 'save_fail' | 'confirm_fail' | 'offline' | 'auth_bad' | 'delete_fail',
 ) {
   const t = messages(readLocale())
   return remoteError || t.errors[key]
@@ -201,6 +201,19 @@ export async function loginWaitlist(user: string, password: string) {
 
 export async function logoutWaitlist() {
   await apiFetch('/api/logout', { method: 'POST' })
+}
+
+export async function deleteWaitlistEntry(id: string) {
+  const res = await apiFetch('/api/waitlist', {
+    method: 'DELETE',
+    body: JSON.stringify({ id }),
+  })
+  const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
+  if (res?.ok && remote?.ok) {
+    window.dispatchEvent(new Event('aure-waitlist'))
+    return
+  }
+  throw new Error(failMessage(remote?.error, res ? 'delete_fail' : 'offline'))
 }
 
 export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean; authorized: boolean }> {

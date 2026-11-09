@@ -60,7 +60,7 @@ function applyCors(request: Request, headers: Headers) {
     headers.set('vary', 'Origin')
     headers.set('access-control-allow-credentials', 'true')
     headers.set('access-control-allow-headers', 'Content-Type, x-is-human, x-path, x-method')
-    headers.set('access-control-allow-methods', 'GET, POST, OPTIONS')
+    headers.set('access-control-allow-methods', 'GET, POST, DELETE, OPTIONS')
   }
 }
 
@@ -83,6 +83,13 @@ async function rejectBot(request: Request, path: string) {
 
 function uuidLike(value: unknown): value is string {
   return typeof value === 'string' && /^[0-9a-f-]{8,80}$/i.test(value)
+}
+
+function waitlistId(value: unknown): value is string {
+  return (
+    typeof value === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  )
 }
 
 async function readJson(request: Request) {
@@ -186,6 +193,18 @@ async function handleWaitlist(request: Request) {
     const entries = await store.listWaitlist()
     return json({ entries, store: store.kind }, 200, request)
   }
+  if (request.method === 'DELETE') {
+    const denied = await requireAdmin(request)
+    if (denied) return denied
+    if (await overLimit(`waitlist-delete:ip:${clientKey(request)}`, 40, 60_000)) return fail(request, 'too_many', 429)
+    const parsed = await readJson(request)
+    if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    const id = (parsed.value as { id?: unknown } | null)?.id
+    if (!waitlistId(id)) return fail(request, 'invalid', 400, parsed.value)
+    const removed = await store.deleteWaitlist(id)
+    if (!removed) return fail(request, 'not_found', 404, parsed.value)
+    return json({ ok: true }, 200, request)
+  }
   if (await overLimit(`waitlist:ip:${clientKey(request)}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
@@ -285,7 +304,7 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
     if (path === '/api/visits' && (request.method === 'GET' || request.method === 'POST')) {
       return handleVisits(request)
     }
-    if (path === '/api/waitlist' && (request.method === 'GET' || request.method === 'POST')) {
+    if (path === '/api/waitlist' && (request.method === 'GET' || request.method === 'POST' || request.method === 'DELETE')) {
       return handleWaitlist(request)
     }
     if (path === '/api/login' && request.method === 'POST') return handleLogin(request)
