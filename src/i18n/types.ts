@@ -89,9 +89,11 @@ export type Messages = {
   simulator: {
     spend: string
     idle: string
+    fx: string
     fee: string
     interest: string
     extras: string
+    fxGain: string
     net: string
     best: string
     pick: string

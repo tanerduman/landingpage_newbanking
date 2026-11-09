@@ -56,16 +56,40 @@ export const SAMPLE_IDLE_TRY = 1_000_000
 export const SPEND_MAX = 80_000
 export const SPEND_STEP = 1_000
 export const IDLE_STEP = 5_000
+export const FX_MIN = 0
+export const FX_MAX = SAMPLE_IDLE_TRY
+export const FX_STEP = 5_000
 
 function extrasPerSpend(plan: (typeof plans)[number]) {
   return plan.campaignRate * 0.4 + plan.installmentRate * 0.2
 }
 
-export function planBreakdown(plan: (typeof plans)[number], spend: number, idle: number, cycleYearly = false) {
+export const fxFeeByColumn: Record<PlanColumnId, number> = {
+  account: 0.0149,
+  standard: 0.0075,
+  plus: 0.0035,
+  premium: 0,
+}
+
+export function fxSavingTry(planId: PlanColumnId, fxTry: number) {
+  if (fxTry <= 0) return 0
+  const fee = fxFeeByColumn[planId]
+  const base = fxFeeByColumn.account
+  return fxTry * (1 / (1 + fee) - 1 / (1 + base))
+}
+
+export function planBreakdown(
+  plan: (typeof plans)[number],
+  spend: number,
+  idle: number,
+  cycleYearly = false,
+  fxTry = 0,
+) {
   const fee = cycleYearly ? (plan.monthly * 10) / 12 : plan.monthly
   const interest = (idle * (plan.overnight - ACCOUNT_OVERNIGHT)) / 12
   const extras = spend * extrasPerSpend(plan)
-  return { fee, interest, extras, net: interest + extras - fee }
+  const fx = fxSavingTry(plan.id, fxTry)
+  return { fee, interest, extras, fx, net: interest + extras + fx - fee }
 }
 
 export function planNet(plan: (typeof plans)[number], spend: number, idle: number, cycleYearly = false) {
@@ -106,13 +130,6 @@ export const overnightByColumn: Record<PlanColumnId, number> = {
   account: ACCOUNT_OVERNIGHT,
   ...Object.fromEntries(plans.map((plan) => [plan.id, plan.overnight])),
 } as Record<PlanColumnId, number>
-
-export const fxFeeByColumn: Record<PlanColumnId, number> = {
-  account: 0.0149,
-  standard: 0.0075,
-  plus: 0.0035,
-  premium: 0,
-}
 
 /** Fallback gram gold until CollectAPI returns the live selling price. Basic stays 6,450 ₺/g in that sample. */
 export const SAMPLE_GOLD_GRAMS = 10

@@ -126,9 +126,11 @@ export const en: Messages = {
   simulator: {
     spend: 'Monthly card spend',
     idle: 'Idle cash on the account',
+    fx: 'Monthly FX purchases',
     fee: 'Plan fee',
     interest: 'Overnight vs Basic',
     extras: 'Offers & instalments',
+    fxGain: 'FX vs Basic',
     net: 'Net vs Basic',
     best: 'Best value',
     pick: 'Add this plan',
