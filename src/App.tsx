@@ -10,6 +10,7 @@ import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatFx, formatMoney, localizeFeature } from './i18n/format.ts'
 import { type PlanId, type SignupIntent } from './waitlist'
+import LogoMark from './LogoMark.tsx'
 
 type Cycle = 'monthly' | 'yearly'
 
@@ -26,10 +27,7 @@ function Cell({ value, yes }: { value: string | boolean; yes: string }) {
 function CardBrand() {
   return (
     <span className="card-brand">
-      <svg className="card-brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="#d8ff4a" />
-        <path d="M8 22.5L16 7.5L24 22.5H20.2L16 14.4L11.8 22.5H8Z" fill="#0b0b0c" />
-      </svg>
+      <LogoMark className="card-brand-mark" />
       AURE
     </span>
   )
@@ -108,7 +106,7 @@ export default function App() {
       <header className="nav">
         <div className="wrap nav-inner">
           <a className="logo" href="#top">
-            <span className="logo-mark">A</span>
+            <LogoMark />
             AURE
           </a>
           <nav className="nav-links">
