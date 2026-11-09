@@ -65,10 +65,10 @@ function extrasPerSpend(plan: (typeof plans)[number]) {
 }
 
 export const fxFeeByColumn: Record<PlanColumnId, number> = {
-  account: 0.0149,
-  standard: 0.0075,
-  plus: 0.0035,
-  premium: 0,
+  account: 0.04,
+  standard: 0.02,
+  plus: 0.01,
+  premium: 0.005,
 }
 
 export function fxSavingTry(planId: PlanColumnId, fxTry: number) {
@@ -198,7 +198,7 @@ export const comparisonRows: {
     id: 'fxFee',
     group: 'bank',
     icon: 'fx',
-    values: { account: '%1,49', standard: '%0,75', plus: '%0,35', premium: '%0' },
+    values: { account: '%4', standard: '%2', plus: '%1', premium: '%0,5' },
   },
   {
     id: 'goldSpread',
