@@ -9,17 +9,11 @@ import {
   SPEND_MIN,
   SPEND_STEP,
   minimumScenario,
+  planBreakdown,
   plans,
   type PlanColumnId,
 } from './plans.ts'
 import type { PlanId } from './waitlist'
-
-function estimate(plan: (typeof plans)[number], spend: number, idle: number) {
-  const fee = plan.monthly
-  const interest = (idle * plan.overnight) / 12
-  const extras = spend * 0.4 * plan.campaignRate + spend * 0.2 * plan.installmentRate
-  return { fee, interest, extras, net: interest + extras - fee }
-}
 
 export default function Simulator({
   cycleYearly,
@@ -45,17 +39,8 @@ export default function Simulator({
 
   const rows = useMemo(() => {
     return plans.map((plan) => {
-      const monthly = estimate(plan, spend, idle)
-      if (!cycleYearly) return { id: plan.id, name: plan.name, ...monthly }
-      const yearlyFee = plan.monthly * 10
-      return {
-        id: plan.id,
-        name: plan.name,
-        fee: yearlyFee / 12,
-        interest: monthly.interest,
-        extras: monthly.extras,
-        net: monthly.interest + monthly.extras - yearlyFee / 12,
-      }
+      const monthly = planBreakdown(plan, spend, idle, cycleYearly)
+      return { id: plan.id, name: plan.name, ...monthly }
     })
   }, [spend, idle, cycleYearly])
 
