@@ -343,6 +343,7 @@ export default function App() {
               focus={focus}
               onFocus={focusPlan}
               onPick={openPlan}
+              eurTry={fx.find((row) => row.base === 'EUR')?.rate ?? 0}
             />
 
             <div className="plans">

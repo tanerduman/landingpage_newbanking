@@ -117,6 +117,8 @@ export type Messages = {
     net: string
     vsBase: string
     spread: string
+    spreadUpto: string
+    spreadRest: string
     eur: string
     more: string
     stay: string

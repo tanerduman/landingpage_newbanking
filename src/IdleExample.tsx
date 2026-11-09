@@ -2,8 +2,11 @@ import { useMemo } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatDelta, formatEur, formatFx, formatMoney, formatRate } from './i18n/format.ts'
 import {
+  SAMPLE_EUR_TRY,
   SAMPLE_IDLE_TRY,
+  eurFromTry,
   fxFeeByColumn,
+  fxLimitEurByColumn,
   monthlyFeeOf,
   overnightByColumn,
   planColumns,
@@ -18,17 +21,18 @@ function isPlanId(id: PlanColumnId): id is PlanId {
 export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) => void; eurTry: number }) {
   const { t, locale } = useI18n()
   const idle = SAMPLE_IDLE_TRY
-  const market = eurTry > 0 ? eurTry : 0
+  const live = eurTry > 0
+  const market = live ? eurTry : SAMPLE_EUR_TRY
 
   const rows = useMemo(() => {
     const baseInterest = (idle * overnightByColumn.account) / 12
-    const baseEur = market ? idle / (market * (1 + fxFeeByColumn.account)) : 0
+    const baseEur = eurFromTry('account', idle, market)
     return planColumns.map((col) => {
       const interest = (idle * overnightByColumn[col.id]) / 12
       const extraInterest = interest - baseInterest
       const fee = monthlyFeeOf(col.id)
       const net = col.id === 'account' ? interest - fee : extraInterest - fee
-      const eur = market ? idle / (market * (1 + fxFeeByColumn[col.id])) : 0
+      const eur = eurFromTry(col.id, idle, market)
       return {
         id: col.id,
         interest,
@@ -40,6 +44,7 @@ export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) =
         eurExtra: eur - baseEur,
         tryExtra: (eur - baseEur) * market,
         fxFee: fxFeeByColumn[col.id],
+        fxLimit: fxLimitEurByColumn[col.id],
         overnight: overnightByColumn[col.id],
       }
     })
@@ -126,25 +131,38 @@ export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) =
 
         <p className="idle-label">{t.idleExample.fx}</p>
         <p className="idle-fx-hint">
-          {market ? t.idleExample.fxHint.replace('{rate}', formatFx(market, locale)) : t.idleExample.fxHintWait}
+          {(live ? t.idleExample.fxHint : t.idleExample.fxHintWait).replace('{rate}', formatFx(market, locale))}
         </p>
         <div className="idle-grid idle-fx">
           {rows.map((row) => (
             <article key={`fx-${row.id}`} className={`idle-card ${row.id === 'premium' ? 'featured' : ''} ${row.id === 'account' ? 'base' : ''}`}>
               <h3>{colName[row.id]}</h3>
               <dl>
-                <div>
-                  <dt>{t.idleExample.spread}</dt>
-                  <dd className={row.fxFee === 0 ? 'zero' : row.id === 'account' ? 'spread' : ''}>
-                    {formatRate(row.fxFee, locale)}
-                  </dd>
-                </div>
+                {row.fxLimit == null ? (
+                  <div>
+                    <dt>{t.idleExample.spread}</dt>
+                    <dd className={row.fxFee === 0 ? 'zero' : row.id === 'account' ? 'spread' : ''}>
+                      {formatRate(row.fxFee, locale)}
+                    </dd>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <dt>{t.idleExample.spreadUpto.replace('{limit}', formatEur(row.fxLimit, locale))}</dt>
+                      <dd>{formatRate(row.fxFee, locale)}</dd>
+                    </div>
+                    <div>
+                      <dt>{t.idleExample.spreadRest}</dt>
+                      <dd className="spread">{formatRate(fxFeeByColumn.account, locale)}</dd>
+                    </div>
+                  </>
+                )}
               </dl>
               <p className="idle-net">
                 <span>{t.idleExample.eur}</span>
-                <strong>{market ? formatEur(row.eur, locale) : '—'}</strong>
+                <strong>{formatEur(row.eur, locale)}</strong>
               </p>
-              {market > 0 && row.id !== 'account' && (
+              {row.id !== 'account' && (
                 <p className="idle-delta">
                   +{formatEur(row.eurExtra, locale)} · +{formatMoney(row.tryExtra, locale)} {t.idleExample.more}
                 </p>
@@ -155,13 +173,8 @@ export default function IdleExample({ onPick, eurTry }: { onPick: (id: PlanId) =
 
         <p className="idle-foot">
           <span aria-hidden="true">✓</span>
-          {t.idleExample.footStart} {formatDelta(premium.extra, locale)} {t.idleExample.footNet}
-          {market > 0 && (
-            <>
-              {' '}
-              {t.idleExample.footMid} {formatMoney(premium.tryExtra, locale)} {t.idleExample.footEnd}
-            </>
-          )}
+          {t.idleExample.footStart} {formatDelta(premium.extra, locale)} {t.idleExample.footNet}{' '}
+          {t.idleExample.footMid} {formatMoney(premium.tryExtra, locale)} {t.idleExample.footEnd}
         </p>
         <p className="idle-sample">{t.idleExample.sample}</p>
       </div>
