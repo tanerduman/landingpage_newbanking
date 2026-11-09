@@ -340,6 +340,10 @@ export type Messages = {
     pieYearTitle: string
     pieRequests: string
     pieChart: string
+    pieKind: string
+    pieKindTitle: string
+    pieKindChart: string
+    supportFilterEmpty: string
     date: string
     name: string
     email: string
