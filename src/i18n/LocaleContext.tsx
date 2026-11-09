@@ -12,12 +12,7 @@ const LocaleContext = createContext<{
 })
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => {
-    if (typeof document !== 'undefined' && isLocaleAttr()) {
-      return document.documentElement.lang === 'en' ? 'en' : 'tr'
-    }
-    return readLocale()
-  })
+  const [locale, setLocaleState] = useState<Locale>(() => readLocale())
 
   useEffect(() => {
     writeLocale(locale)
@@ -33,11 +28,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   )
 
   return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>
-}
-
-function isLocaleAttr() {
-  const lang = document.documentElement.lang
-  return lang === 'tr' || lang === 'en'
 }
 
 export function useI18n() {

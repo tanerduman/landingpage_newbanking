@@ -273,6 +273,10 @@ export type Messages = {
     fail: string
     success: string
     kicker: string
+    intro: string
+    email: string
+    code: string
+    submit: string
   }
   support: {
     kicker: string

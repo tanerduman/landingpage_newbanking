@@ -1,13 +1,16 @@
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto'
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 
 const TTL_MS = 12 * 60 * 60 * 1000
+
+export const ADMIN_COOKIE = 'aure_session'
+export const ADMIN_TTL_MS = TTL_MS
 
 function sha(value: string) {
   return createHash('sha256').update(value).digest()
 }
 
-function sessionSecret() {
-  return process.env.WAITLIST_SESSION_SECRET || process.env.WAITLIST_PASSWORD || ''
+export function sessionSecret() {
+  return process.env.WAITLIST_SESSION_SECRET || ''
 }
 
 function expectedUser() {
@@ -22,6 +25,10 @@ export function credentialsConfigured() {
   return Boolean(expectedUser() && expectedPassword() && sessionSecret())
 }
 
+export function passwordFingerprint() {
+  return createHash('sha256').update(expectedPassword()).digest('hex')
+}
+
 export function checkCredentials(user: string, password: string) {
   if (!credentialsConfigured()) return false
   const userOk = timingSafeEqual(sha(user), sha(expectedUser()))
@@ -29,33 +36,51 @@ export function checkCredentials(user: string, password: string) {
   return userOk && passOk
 }
 
-export function issueToken(user: string) {
-  const exp = Date.now() + TTL_MS
-  const payload = `${user}:${exp}`
-  const sig = createHmac('sha256', sessionSecret()).update(payload).digest('hex')
-  return Buffer.from(`${payload}:${sig}`).toString('base64url')
+export function newSessionId() {
+  return randomBytes(32).toString('base64url')
 }
 
-export function readAdmin(request: Request) {
-  const header = request.headers.get('authorization') || ''
-  const token = header.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : ''
-  if (!token || !sessionSecret()) return null
-  let raw = ''
-  try {
-    raw = Buffer.from(token, 'base64url').toString('utf8')
-  } catch {
-    return null
+export function sessionKey(id: string) {
+  return createHmac('sha256', sessionSecret()).update(id).digest('hex')
+}
+
+export function readCookie(request: Request, name: string) {
+  const header = request.headers.get('cookie') || ''
+  for (const part of header.split(';')) {
+    const trimmed = part.trim()
+    const eq = trimmed.indexOf('=')
+    if (eq === -1) continue
+    if (trimmed.slice(0, eq) !== name) continue
+    try {
+      return decodeURIComponent(trimmed.slice(eq + 1))
+    } catch {
+      return ''
+    }
   }
-  const parts = raw.split(':')
-  const sig = parts.pop() || ''
-  const expRaw = parts.pop() || ''
-  const user = parts.join(':')
-  const exp = Number(expRaw)
-  if (!user || !sig || !Number.isFinite(exp) || exp < Date.now()) return null
-  const payload = `${user}:${exp}`
-  const expected = createHmac('sha256', sessionSecret()).update(payload).digest('hex')
-  const left = Buffer.from(sig)
-  const right = Buffer.from(expected)
-  if (left.length !== right.length || !timingSafeEqual(left, right)) return null
-  return { user, exp }
+  return ''
+}
+
+function cookieSecure(request: Request) {
+  const proto = request.headers.get('x-forwarded-proto') || ''
+  if (proto === 'https') return true
+  if (proto === 'http') return false
+  const host = (request.headers.get('host') || '').toLowerCase()
+  if (host.startsWith('localhost') || host.startsWith('127.0.0.1')) return false
+  try {
+    return new URL(request.url).protocol === 'https:'
+  } catch {
+    return true
+  }
+}
+
+export function sessionCookie(id: string, request: Request, clear = false) {
+  const bits = [
+    `${ADMIN_COOKIE}=${clear ? '' : encodeURIComponent(id)}`,
+    'HttpOnly',
+    'SameSite=Strict',
+    'Path=/api',
+    `Max-Age=${clear ? 0 : Math.floor(TTL_MS / 1000)}`,
+  ]
+  if (cookieSecure(request)) bits.push('Secure')
+  return bits.join('; ')
 }

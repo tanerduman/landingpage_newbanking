@@ -27,6 +27,7 @@ export function SignupModal({
   const [phase, setPhase] = useState<'form' | 'code'>('form')
   const [code, setCode] = useState('')
   const [devCode, setDevCode] = useState('')
+  const [statusToken, setStatusToken] = useState('')
   const [billing, setBilling] = useState<BillingCycle>(intent === 'account' ? 'none' : cycle)
   const plan = plans.find((p) => p.id === intent)
   const planName = intent === 'account' ? t.pkg.account : (plan?.name ?? t.pkg.standard)
@@ -48,7 +49,7 @@ export function SignupModal({
   }, [])
 
   useEffect(() => {
-    if (phase !== 'code' || !email) return
+    if (phase !== 'code' || !statusToken) return
     finishedRef.current = false
     function finish() {
       if (finishedRef.current) return
@@ -57,11 +58,11 @@ export function SignupModal({
     }
     const stop = onWaitlistConfirmed(email, finish)
     const timer = window.setInterval(() => {
-      void fetchConfirmStatus(email).then((confirmed) => {
+      void fetchConfirmStatus(statusToken).then((confirmed) => {
         if (confirmed) finish()
       })
     }, 2500)
-    void fetchConfirmStatus(email).then((confirmed) => {
+    void fetchConfirmStatus(statusToken).then((confirmed) => {
       if (confirmed) finish()
     })
     return () => {
@@ -69,7 +70,7 @@ export function SignupModal({
       stop()
       window.clearInterval(timer)
     }
-  }, [phase, email, successToast])
+  }, [phase, email, statusToken, successToast])
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -113,6 +114,7 @@ export function SignupModal({
         return
       }
       setDevCode(result.devCode || '')
+      setStatusToken(result.statusToken || '')
       setPhase('code')
     } catch (err) {
       setError(err instanceof Error ? err.message : t.signup.saveFail)

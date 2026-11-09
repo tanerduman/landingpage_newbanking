@@ -11,25 +11,28 @@ function apiPlugin(env: Record<string, string>) {
   if (env.WAITLIST_USER) process.env.WAITLIST_USER = env.WAITLIST_USER
   if (env.WAITLIST_PASSWORD) process.env.WAITLIST_PASSWORD = env.WAITLIST_PASSWORD
   if (env.WAITLIST_SESSION_SECRET) process.env.WAITLIST_SESSION_SECRET = env.WAITLIST_SESSION_SECRET
-  async function attach(server: ViteDevServer | PreviewServer) {
-    server.middlewares.use(async (req, res, next) => {
+  function attach(server: ViteDevServer | PreviewServer) {
+    server.middlewares.use((req, res, next) => {
       if (!req.url?.startsWith('/api')) {
         next()
         return
       }
-      try {
-        const request = await nodeToWebRequest(req)
-        const response = await handleApiRequest(request)
-        if (!response) {
-          next()
-          return
-        }
-        await writeNodeResponse(response, res)
-      } catch {
-        res.statusCode = 500
-        res.setHeader('content-type', 'application/json; charset=utf-8')
-        res.end(JSON.stringify({ error: 'Sunucu hatası.' }))
-      }
+      void nodeToWebRequest(req)
+        .then((request) => handleApiRequest(request))
+        .then(async (response) => {
+          if (!response) {
+            next()
+            return
+          }
+          if (res.headersSent) return
+          await writeNodeResponse(response, res)
+        })
+        .catch(() => {
+          if (res.headersSent) return
+          res.statusCode = 500
+          res.setHeader('content-type', 'application/json; charset=utf-8')
+          res.end(JSON.stringify({ error: 'Sunucu hatası.' }))
+        })
     })
   }
 
@@ -48,6 +51,7 @@ export default defineConfig(({ mode }) => {
   server: {
     host: true,
     port: 5173,
+    cors: false,
   },
   preview: {
     host: true,

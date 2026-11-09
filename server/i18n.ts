@@ -80,17 +80,17 @@ export function confirmMailCopy(locale: ApiLocale, code: string, link: string) {
   if (locale === 'en') {
     return {
       subject: 'Confirm your AURE request',
-      text: `Your confirmation code: ${code}\n\nOr open this link:\n${link}\n\nThe code is valid for 30 minutes.`,
+      text: `Your confirmation code: ${code}\n\nOpen the confirmation page and enter this code:\n${link}\n\nThe code is valid for 30 minutes.`,
       html: `<p>Use this code to confirm your AURE waitlist request:</p>
 <p style="font-size:28px;letter-spacing:0.12em;font-weight:700">${safeCode}</p>
-<p><a href="${safeLink}">Confirmation link</a> — valid for 30 minutes.</p>`,
+<p><a href="${safeLink}">Open the confirmation page</a> and enter the code. It is valid for 30 minutes.</p>`,
     }
   }
   return {
     subject: 'AURE talep onayın',
-    text: `Talebini onaylamak için kod: ${code}\n\nVeya bu bağlantıya tıkla:\n${link}\n\nKod 30 dakika geçerli.`,
+    text: `Talebini onaylamak için kod: ${code}\n\nOnay sayfasını açıp bu kodu yaz:\n${link}\n\nKod 30 dakika geçerli.`,
     html: `<p>AURE waitlist talebini onaylamak için kodun:</p>
 <p style="font-size:28px;letter-spacing:0.12em;font-weight:700">${safeCode}</p>
-<p><a href="${safeLink}">Onay bağlantısı</a> — 30 dakika geçerli.</p>`,
+<p><a href="${safeLink}">Onay sayfasını aç</a> ve kodu yaz. Kod 30 dakika geçerli.</p>`,
   }
 }
