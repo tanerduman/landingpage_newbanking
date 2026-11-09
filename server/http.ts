@@ -18,23 +18,32 @@ import { getGoldPrice } from './gold.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
 import { getStore, validateSupportInput, validateWaitlistInput } from './store.ts'
 
-const ALLOWED_ORIGINS = new Set([
-  'https://www.getaure.org',
+const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
+const LOCAL_ORIGINS = new Set([
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:4173',
   'http://127.0.0.1:4173',
 ])
 
+function corsOriginAllowed(origin: string) {
+  if (PROD_ORIGINS.has(origin)) return true
+  return !isProduction() && LOCAL_ORIGINS.has(origin)
+}
+
+function firstHop(header: string | null) {
+  if (!header) return ''
+  const hop = header.split(',')[0]?.trim() ?? ''
+  return hop.slice(0, 80)
+}
+
 function clientKey(request: Request) {
+  const vercel = firstHop(request.headers.get('x-vercel-forwarded-for'))
+  if (vercel) return vercel
+  const forwarded = firstHop(request.headers.get('x-forwarded-for'))
+  if (forwarded) return forwarded
   const real = request.headers.get('x-real-ip')?.trim()
   if (real) return real.slice(0, 80)
-  const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) {
-    const parts = forwarded.split(',').map((part) => part.trim()).filter(Boolean)
-    const last = parts[parts.length - 1]
-    if (last) return last.slice(0, 80)
-  }
   return 'unknown'
 }
 
@@ -56,7 +65,7 @@ function fail(request: Request, code: string, status: number, body?: unknown) {
 
 function applyCors(request: Request, headers: Headers) {
   const origin = request.headers.get('origin')
-  if (origin && ALLOWED_ORIGINS.has(origin)) {
+  if (origin && corsOriginAllowed(origin)) {
     headers.set('access-control-allow-origin', origin)
     headers.set('vary', 'Origin')
     headers.set('access-control-allow-credentials', 'true')
@@ -215,7 +224,7 @@ async function handleWaitlist(request: Request) {
   if (await overLimit(`waitlist:email:${valid.emailNorm}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const result = await store.requestWaitlist(valid)
   if (result.status === 'updated') {
-    return json({ updated: true, store: store.kind }, 200, request)
+    return json({ ok: true }, 200, request)
   }
   const link = `${publicAppUrl(request)}/confirm`
   const sent = await sendWaitlistConfirm({
@@ -232,17 +241,19 @@ async function handleWaitlist(request: Request) {
     return fail(request, 'mail_off', 503, parsed.value)
   }
   const localDev = !process.env.VERCEL
-  return json(
-    {
-      pending: true,
-      delivered: sent.ok,
-      statusToken: result.statusToken,
-      store: store.kind,
-      ...(localDev && !sent.ok ? { devCode: result.code } : {}),
-    },
-    201,
-    request,
-  )
+  if (localDev) {
+    return json(
+      {
+        pending: true,
+        delivered: sent.ok,
+        statusToken: result.statusToken,
+        ...(sent.ok ? {} : { devCode: result.code }),
+      },
+      200,
+      request,
+    )
+  }
+  return json({ ok: true }, 200, request)
 }
 
 async function handleConfirm(request: Request) {

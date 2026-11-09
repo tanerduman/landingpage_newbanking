@@ -292,6 +292,7 @@ export type Messages = {
     confirmFail: string
     saveFail: string
     updated: string
+    received: string
     successAccount: string
     successPlan: string
     devCode: string

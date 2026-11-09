@@ -1,8 +1,15 @@
 export const botProtectedRoutes = [
   { path: '/api/waitlist', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
+  { path: '/api/waitlist', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
+  { path: '/api/waitlist', method: 'DELETE', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
+  { path: '/api/support', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
+  { path: '/api/support', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
+  { path: '/api/support', method: 'DELETE', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/login', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/confirm', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/confirm-status', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/visits', method: 'POST', advancedOptions: { checkLevel: 'basic' as const } },
-  { path: '/api/support', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
+  { path: '/api/visits', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
+  { path: '/api/rates', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
+  { path: '/api/gold', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
 ]
