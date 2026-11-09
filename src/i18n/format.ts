@@ -45,9 +45,9 @@ export function formatEur(amount: number, locale: Locale) {
 }
 
 export function formatRate(rate: number, locale: Locale) {
-  const pct = rate * 100
+  const pct = Math.round(rate * 10000) / 100
   const n = pct.toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR', {
-    minimumFractionDigits: pct % 1 === 0 ? 0 : 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })
   return locale === 'en' ? `${n}%` : `%${n}`

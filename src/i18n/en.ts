@@ -66,7 +66,7 @@ export const en: Messages = {
     plusBlurb: 'Auto offers, 6 instalments and a human on the line.',
     premiumBlurb: 'Highest overnight rate, 0% gold spread and VIP branch priority.',
     standardBanking: [
-      'Automatic overnight interest on idle cash 34%',
+      'Automatic overnight interest on idle cash 34.5%',
       'Unlimited free EFT/FAST',
       'ATM 250 €/day',
       'FX 1,500 €/mo · 0.75%',
@@ -74,7 +74,7 @@ export const en: Messages = {
       'Stocks 0% · eurobonds · free live data',
     ],
     plusBanking: [
-      'Automatic overnight interest on idle cash 36%',
+      'Automatic overnight interest on idle cash 34.75%',
       'Unlimited free EFT/FAST',
       'ATM 500 €/day',
       'FX 5,000 €/mo · 0.35%',
@@ -82,7 +82,7 @@ export const en: Messages = {
       'Stocks 0% · eurobonds · free live data',
     ],
     premiumBanking: [
-      'Automatic overnight interest on idle cash 38%',
+      'Automatic overnight interest on idle cash 35%',
       'Unlimited free EFT/FAST',
       'ATM 1,000 €/day',
       'FX unlimited · 0%',
@@ -188,7 +188,7 @@ export const en: Messages = {
     walletsCap: 'XAU — gram gold wallet. Buy it in the app; 0% spread on Premium.',
     walletsAlt: 'AURE app with wallets, gram gold and an overnight interest notice',
     walletsGold: 'XAU · Gram gold',
-    walletsInterest: '🌙 Overnight 38% is on',
+    walletsInterest: '🌙 Overnight 35% is on',
     walletsEarned: 'Last night you earned +43.90 ₺',
     order: 'Order summary',
     orderCap: '✓ You are 120 ₺ ahead on this trade alone. A quarter of the monthly plan fee, in one deal.',
@@ -254,7 +254,7 @@ export const en: Messages = {
       },
       {
         q: 'How does idle cash earn overnight interest without breaking a term?',
-        a: 'By day the balance stays spendable. Overnight, leftover cash earns the plan rate (sample 34–38%). In the morning it is yours again.',
+        a: 'By day the balance stays spendable. Overnight, leftover cash earns the plan rate (sample 34–35%). In the morning it is yours again.',
       },
       {
         q: 'If I have a problem, do I talk to a chatbot or can I reach a person?',
