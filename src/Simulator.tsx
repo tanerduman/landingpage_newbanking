@@ -7,6 +7,7 @@ import {
   FX_STEP,
   IDLE_MIN,
   IDLE_STEP,
+  SAMPLE_EUR_TRY,
   SAMPLE_IDLE_TRY,
   SPEND_MAX,
   SPEND_MIN,
@@ -23,11 +24,13 @@ export default function Simulator({
   focus,
   onFocus,
   onPick,
+  eurTry,
 }: {
   cycleYearly: boolean
   focus: { id: PlanId; tick: number } | null
   onFocus: (id: PlanId) => void
   onPick: (id: PlanId) => void
+  eurTry: number
 }) {
   const { t, locale } = useI18n()
   const [fx, setFx] = useState(0)
@@ -36,6 +39,7 @@ export default function Simulator({
   const preset = focus && focused && manual?.tick !== focus.tick ? minimumScenario(focused, cycleYearly) : null
   const spend = preset?.spend ?? manual?.spend ?? 18_000
   const idle = preset?.idle ?? manual?.idle ?? 40_000
+  const market = eurTry > 0 ? eurTry : SAMPLE_EUR_TRY
 
   function choose(nextSpend: number, nextIdle: number) {
     setManual({ spend: nextSpend, idle: nextIdle, tick: focus?.tick ?? null })
@@ -43,10 +47,10 @@ export default function Simulator({
 
   const rows = useMemo(() => {
     return plans.map((plan) => {
-      const monthly = planBreakdown(plan, spend, idle, cycleYearly, fx)
+      const monthly = planBreakdown(plan, spend, idle, cycleYearly, fx, market)
       return { id: plan.id, name: plan.name, ...monthly }
     })
-  }, [spend, idle, cycleYearly, fx])
+  }, [spend, idle, cycleYearly, fx, market])
 
   const bestId = rows.reduce((best, row) => (row.net > best.net ? row : best), rows[0]).id
   const colName: Record<PlanColumnId, string> = {

@@ -71,11 +71,31 @@ export const fxFeeByColumn: Record<PlanColumnId, number> = {
   premium: 0.005,
 }
 
-export function fxSavingTry(planId: PlanColumnId, fxTry: number) {
-  if (fxTry <= 0) return 0
+/** EUR bought each month at the plan spread. Null means the plan rate applies to the whole amount. */
+export const fxLimitEurByColumn: Record<PlanColumnId, number | null> = {
+  account: null,
+  standard: 1_500,
+  plus: 5_000,
+  premium: null,
+}
+
+/** Fallback EUR/TRY until /api/rates returns a live quote. */
+export const SAMPLE_EUR_TRY = 55.92
+
+export function eurFromTry(planId: PlanColumnId, tryAmount: number, market: number) {
+  if (tryAmount <= 0 || market <= 0) return 0
   const fee = fxFeeByColumn[planId]
-  const base = fxFeeByColumn.account
-  return fxTry * (1 / (1 + fee) - 1 / (1 + base))
+  const eurAt = (tryAmt: number, spread: number) => tryAmt / (market * (1 + spread))
+  const cap = fxLimitEurByColumn[planId]
+  if (cap == null) return eurAt(tryAmount, fee)
+  const tryAtCap = cap * market * (1 + fee)
+  if (tryAmount <= tryAtCap) return eurAt(tryAmount, fee)
+  return cap + eurAt(tryAmount - tryAtCap, fxFeeByColumn.account)
+}
+
+export function fxSavingTry(planId: PlanColumnId, fxTry: number, market: number) {
+  if (planId === 'account' || fxTry <= 0 || market <= 0) return 0
+  return (eurFromTry(planId, fxTry, market) - eurFromTry('account', fxTry, market)) * market
 }
 
 export function planBreakdown(
@@ -84,11 +104,12 @@ export function planBreakdown(
   idle: number,
   cycleYearly = false,
   fxTry = 0,
+  eurTry = 0,
 ) {
   const fee = cycleYearly ? (plan.monthly * 10) / 12 : plan.monthly
   const interest = (idle * (plan.overnight - ACCOUNT_OVERNIGHT)) / 12
   const extras = spend * extrasPerSpend(plan)
-  const fx = fxSavingTry(plan.id, fxTry)
+  const fx = fxSavingTry(plan.id, fxTry, eurTry)
   return { fee, interest, extras, fx, net: interest + extras + fx - fee }
 }
 
@@ -156,6 +177,7 @@ export const comparisonRows: {
     | 'eft'
     | 'fxLimit'
     | 'fxFee'
+    | 'fxFeeOver'
     | 'goldSpread'
     | 'stock'
     | 'liveData'
@@ -199,6 +221,12 @@ export const comparisonRows: {
     group: 'bank',
     icon: 'fx',
     values: { account: '%4', standard: '%2', plus: '%1', premium: '%0,5' },
+  },
+  {
+    id: 'fxFeeOver',
+    group: 'bank',
+    icon: 'fx',
+    values: { account: '%4', standard: '%4', plus: '%4', premium: '%0,5' },
   },
   {
     id: 'goldSpread',
