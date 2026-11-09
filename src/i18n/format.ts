@@ -21,6 +21,11 @@ export function formatMoney(amount: number, locale: Locale) {
   return `${sign}${Math.abs(rounded).toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR')} ₺`
 }
 
+export function formatDelta(amount: number, locale: Locale) {
+  const text = formatMoney(amount, locale)
+  return amount > 0 ? `+${text}` : text
+}
+
 export function formatTry(amount: number, locale: Locale) {
   const sign = amount < 0 ? '−' : ''
   const abs = Math.abs(amount)
