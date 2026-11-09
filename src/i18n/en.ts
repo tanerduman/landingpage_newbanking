@@ -433,6 +433,7 @@ export const en: Messages = {
     needKind: 'Choose a request type.',
     message: 'Description',
     messagePh: 'Say or type briefly what you need.',
+    charsOf: '{used} / {max} characters',
     dictate: 'Speak it',
     dictateStop: 'Stop',
     dictateDenied: 'The microphone is unavailable. You can type the description.',
