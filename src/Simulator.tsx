@@ -52,33 +52,37 @@ export default function Simulator({
     <div className="simulator" id="simulator">
       <p className="simulator-note">{t.plans.waiverNote}</p>
       <div className="simulator-controls">
-        <label>
-          <span>{t.simulator.spend}</span>
-          <strong>{formatMoney(spend, locale)}</strong>
-          <input
-            type="range"
-            min={5000}
-            max={80000}
-            step={1000}
-            value={spend}
-            onChange={(e) => setSpend(Number(e.target.value))}
-          />
+        <label className="sim-spend-label" htmlFor="sim-spend">
+          {t.simulator.spend}
         </label>
-        <label>
-          <span>{t.simulator.idle}</span>
-          <strong>{formatMoney(idle, locale)}</strong>
-          <input
-            type="range"
-            min={5000}
-            max={SAMPLE_IDLE_TRY}
-            step={5000}
-            value={idle}
-            onChange={(e) => setIdle(Number(e.target.value))}
-          />
-          <button type="button" className="simulator-preset" onClick={() => setIdle(SAMPLE_IDLE_TRY)}>
-            {t.simulator.idlePreset}
-          </button>
+        <label className="sim-idle-label" htmlFor="sim-idle">
+          {t.simulator.idle}
         </label>
+        <strong className="sim-spend-value">{formatMoney(spend, locale)}</strong>
+        <strong className="sim-idle-value">{formatMoney(idle, locale)}</strong>
+        <input
+          id="sim-spend"
+          className="sim-spend-range"
+          type="range"
+          min={5000}
+          max={80000}
+          step={1000}
+          value={spend}
+          onChange={(e) => setSpend(Number(e.target.value))}
+        />
+        <input
+          id="sim-idle"
+          className="sim-idle-range"
+          type="range"
+          min={5000}
+          max={SAMPLE_IDLE_TRY}
+          step={5000}
+          value={idle}
+          onChange={(e) => setIdle(Number(e.target.value))}
+        />
+        <button type="button" className="simulator-preset" onClick={() => setIdle(SAMPLE_IDLE_TRY)}>
+          {t.simulator.idlePreset}
+        </button>
       </div>
       <div className="simulator-grid">
         {rows.map((row) => (
