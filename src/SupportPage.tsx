@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import LogoMark from './LogoMark.tsx'
+import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { submitSupport, SUPPORT_KINDS, type SupportKind } from './support.ts'
 import { useSpeechDraft } from './useSpeechDraft.ts'
@@ -69,7 +70,7 @@ export default function SupportPage() {
   async function submit(e: FormEvent) {
     e.preventDefault()
     if (phase === 'code') {
-      if (!/^\d{6}$/.test(code.trim())) {
+      if (!CONFIRM_CODE_RE.test(code.trim())) {
         setError(t.signup.needCode)
         return
       }
@@ -240,8 +241,9 @@ export default function SupportPage() {
                     inputMode="numeric"
                     autoComplete="one-time-code"
                     value={code}
-                    placeholder="123456"
-                    onChange={(e) => setCode(e.target.value)}
+                    maxLength={CONFIRM_CODE_DIGITS}
+                    placeholder="12345678"
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, CONFIRM_CODE_DIGITS))}
                   />
                   {devCode ? (
                     <p className="confirm-dev">

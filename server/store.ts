@@ -1,5 +1,7 @@
-import { createHash, randomBytes, randomInt, randomUUID, timingSafeEqual } from 'node:crypto'
+import { randomBytes, randomInt, randomUUID, timingSafeEqual } from 'node:crypto'
 import pg from 'pg'
+import { secretDigest } from './auth.ts'
+import { CONFIRM_CODE_DIGITS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
 import { normalizeEmail } from './email.ts'
 import {
   isBillingCycle,
@@ -104,24 +106,19 @@ type Memory = {
   rates: Map<string, RateBucket>
 }
 
-const CONFIRM_TTL_MS = 30 * 60_000
-
-function sha256(value: string) {
-  return createHash('sha256').update(value).digest('hex')
-}
-
 function issueChallenge() {
   const token = randomBytes(24).toString('hex')
-  const code = String(randomInt(100000, 1000000))
+  const span = 10 ** CONFIRM_CODE_DIGITS
+  const code = String(randomInt(0, span)).padStart(CONFIRM_CODE_DIGITS, '0')
   const statusToken = randomBytes(24).toString('hex')
   const expires = new Date(Date.now() + CONFIRM_TTL_MS).toISOString()
   return {
     token,
     code,
     statusToken,
-    tokenHash: sha256(token),
-    codeHash: sha256(code),
-    statusHash: sha256(statusToken),
+    tokenHash: secretDigest(token),
+    codeHash: secretDigest(code),
+    statusHash: secretDigest(statusToken),
     expires,
   }
 }
@@ -161,9 +158,9 @@ function supportMatches(
 ) {
   if (row.confirmed) return false
   if (!row.confirmExpires || Date.parse(row.confirmExpires) < now) return false
-  const tokenHash = input.token ? sha256(input.token) : null
+  const tokenHash = input.token ? secretDigest(input.token) : null
   const emailNorm = input.email ? normalizeEmail(input.email) : ''
-  const codeHash = input.code ? sha256(input.code.trim()) : null
+  const codeHash = input.code ? secretDigest(input.code.trim()) : null
   if (tokenHash && row.confirmTokenHash === tokenHash) return true
   if (codeHash && emailNorm && row.emailNorm === emailNorm && row.confirmCodeHash === codeHash) return true
   return false
@@ -261,9 +258,9 @@ function memoryStore(): Store {
     },
     async confirmWaitlist(input) {
       const now = Date.now()
-      const tokenHash = input.token ? sha256(input.token) : null
+      const tokenHash = input.token ? secretDigest(input.token) : null
       const emailNorm = input.email ? normalizeEmail(input.email) : ''
-      const codeHash = input.code ? sha256(input.code.trim()) : null
+      const codeHash = input.code ? secretDigest(input.code.trim()) : null
       const row = data.waitlist.find((item) => {
         if (item.confirmed) return false
         if (!item.confirmExpires || Date.parse(item.confirmExpires) < now) return false
@@ -389,7 +386,7 @@ function memoryStore(): Store {
       return bucket.count > limit
     },
     async confirmStatus(statusToken) {
-      const hash = sha256(statusToken)
+      const hash = secretDigest(statusToken)
       const now = Date.now()
       const wait = data.waitlist.find(
         (item) => item.statusTokenHash === hash && item.statusExpires && Date.parse(item.statusExpires) > now,
@@ -642,9 +639,9 @@ function postgresStore(url: string): Store {
     },
     async confirmWaitlist(input) {
       await ensure()
-      const tokenHash = input.token ? sha256(input.token) : null
+      const tokenHash = input.token ? secretDigest(input.token) : null
       const emailNorm = input.email ? normalizeEmail(input.email) : ''
-      const codeHash = input.code ? sha256(input.code.trim()) : null
+      const codeHash = input.code ? secretDigest(input.code.trim()) : null
       const result = await pool.query<{
         id: string
         name: string
@@ -783,9 +780,9 @@ function postgresStore(url: string): Store {
     },
     async confirmSupport(input) {
       await ensure()
-      const tokenHash = input.token ? sha256(input.token) : null
+      const tokenHash = input.token ? secretDigest(input.token) : null
       const emailNorm = input.email ? normalizeEmail(input.email) : ''
-      const codeHash = input.code ? sha256(input.code.trim()) : null
+      const codeHash = input.code ? secretDigest(input.code.trim()) : null
       const result = await pool.query<{
         id: string
         name: string
@@ -903,7 +900,7 @@ function postgresStore(url: string): Store {
     },
     async confirmStatus(statusToken) {
       await ensure()
-      const hash = sha256(statusToken)
+      const hash = secretDigest(statusToken)
       const wait = await pool.query<{ confirmed: boolean }>(
         `SELECT confirmed FROM waitlist
          WHERE status_token_hash = $1 AND status_expires > NOW()

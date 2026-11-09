@@ -17,6 +17,12 @@ export function isProduction() {
   return process.env.VERCEL_ENV === 'production'
 }
 
+const CANONICAL_PRODUCTION_URL = 'https://www.getaure.org'
+
+function stripSlash(url: string) {
+  return url.replace(/\/+$/, '')
+}
+
 export async function sendWaitlistConfirm(input: {
   to: string
   code: string
@@ -47,13 +53,11 @@ export async function sendWaitlistConfirm(input: {
   return { ok: true as const, skipped: false as const }
 }
 
-export function publicAppUrl(request: Request) {
-  const envUrl = (process.env.APP_URL || '').replace(/\/+$/, '')
+export function publicAppUrl(_request?: Request) {
+  const envUrl = stripSlash(process.env.APP_URL || '')
   if (envUrl) return envUrl
-  const origin = request.headers.get('origin')
-  if (origin) return origin.replace(/\/+$/, '')
-  const host = request.headers.get('x-forwarded-host') || request.headers.get('host')
-  const proto = request.headers.get('x-forwarded-proto') || 'https'
-  if (host) return `${proto}://${host}`
-  return 'https://getaure.org'
+  if (isProduction()) return CANONICAL_PRODUCTION_URL
+  const vercelUrl = stripSlash(process.env.VERCEL_URL || '')
+  if (vercelUrl) return vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`
+  return 'http://127.0.0.1:5173'
 }
