@@ -50,11 +50,38 @@ export const planColumns: { id: PlanColumnId; name: string; price: string }[] = 
 /** Worked example: idle cash on a Basic account. The EUR leg uses the live rate. */
 export const SAMPLE_IDLE_TRY = 1_000_000
 
-export const SPEND_MIN = 5_000
 export const SPEND_MAX = 80_000
 export const SPEND_STEP = 1_000
-export const IDLE_MIN = 5_000
 export const IDLE_STEP = 5_000
+
+function extrasPerSpend(plan: (typeof plans)[number]) {
+  return plan.campaignRate * 0.4 + plan.installmentRate * 0.2
+}
+
+export function planBreakdown(plan: (typeof plans)[number], spend: number, idle: number, cycleYearly = false) {
+  const fee = cycleYearly ? (plan.monthly * 10) / 12 : plan.monthly
+  const interest = (idle * plan.overnight) / 12
+  const extras = spend * extrasPerSpend(plan)
+  return { fee, interest, extras, net: interest + extras - fee }
+}
+
+export function planNet(plan: (typeof plans)[number], spend: number, idle: number, cycleYearly = false) {
+  return planBreakdown(plan, spend, idle, cycleYearly).net
+}
+
+function floorsWithoutLoss() {
+  for (let idle = IDLE_STEP; idle <= SAMPLE_IDLE_TRY; idle += IDLE_STEP) {
+    for (let spend = SPEND_STEP; spend <= SPEND_MAX; spend += SPEND_STEP) {
+      if (plans.every((plan) => planNet(plan, spend, idle) >= 0)) return { spend, idle }
+    }
+  }
+  return { spend: SPEND_MAX, idle: SAMPLE_IDLE_TRY }
+}
+
+const floors = floorsWithoutLoss()
+/** Lowest slider values where Standard, Plus and Premium all stay non-negative. */
+export const SPEND_MIN = floors.spend
+export const IDLE_MIN = floors.idle
 
 function stepUp(value: number, step: number, min: number, max: number) {
   const stepped = Math.ceil(value / step - 1e-9) * step
@@ -65,7 +92,7 @@ function stepUp(value: number, step: number, min: number, max: number) {
 export function minimumScenario(plan: (typeof plans)[number], cycleYearly: boolean) {
   const fee = cycleYearly ? (plan.monthly * 10) / 12 : plan.monthly
   const perIdle = plan.overnight / 12
-  const perSpend = plan.campaignRate * 0.4 + plan.installmentRate * 0.2
+  const perSpend = extrasPerSpend(plan)
   return {
     spend: stepUp(fee / perSpend, SPEND_STEP, SPEND_MIN, SPEND_MAX),
     idle: stepUp(fee / perIdle, IDLE_STEP, IDLE_MIN, SAMPLE_IDLE_TRY),
