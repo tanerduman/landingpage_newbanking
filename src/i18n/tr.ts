@@ -432,6 +432,7 @@ export const tr: Messages = {
     needKind: 'Talep türünü seç.',
     message: 'Açıklama',
     messagePh: 'Kısaca neye ihtiyacın olduğunu söyle veya yaz.',
+    charsOf: '{used} / {max} karakter',
     dictate: 'Sesle anlat',
     dictateStop: 'Durdur',
     dictateDenied: 'Mikrofon kullanılamadı. Açıklamayı yazabilirsin.',

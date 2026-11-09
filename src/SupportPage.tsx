@@ -8,6 +8,7 @@ import { useSpeechDraft } from './useSpeechDraft.ts'
 import { confirmWaitlist, fetchConfirmStatus, onWaitlistConfirmed } from './waitlist.ts'
 
 const MESSAGE_MAX = 2_000
+const MESSAGE_WARN = Math.round(MESSAGE_MAX * 0.9)
 
 export default function SupportPage() {
   const { t, locale } = useI18n()
@@ -30,6 +31,10 @@ export default function SupportPage() {
     maxLength: MESSAGE_MAX,
     onBlocked: () => setMicBlocked(true),
   })
+  const usedChars = message.length
+  const countLocale = locale === 'en' ? 'en-GB' : 'tr-TR'
+  const usedLabel = usedChars.toLocaleString(countLocale)
+  const maxLabel = MESSAGE_MAX.toLocaleString(countLocale)
 
   useEffect(() => {
     if (phase !== 'form') stop()
@@ -205,11 +210,23 @@ export default function SupportPage() {
                     placeholder={t.support.messagePh}
                     rows={6}
                     maxLength={MESSAGE_MAX}
+                    aria-describedby="support-message-count"
                     onChange={(e) => {
                       stop()
-                      setMessage(e.target.value)
+                      setMessage(e.target.value.slice(0, MESSAGE_MAX))
                     }}
                   />
+                  <div
+                    className={`message-meter${usedChars >= MESSAGE_WARN ? ' warn' : ''}`}
+                    aria-label={t.support.charsOf.replace('{used}', usedLabel).replace('{max}', maxLabel)}
+                  >
+                    <span className="message-meter-track" aria-hidden="true">
+                      <span className="message-meter-fill" style={{ width: `${(usedChars / MESSAGE_MAX) * 100}%` }} />
+                    </span>
+                    <span id="support-message-count" className="message-meter-count">
+                      {usedLabel} <span>/ {maxLabel}</span>
+                    </span>
+                  </div>
                   {micBlocked && <p className="support-dictate-note">{t.support.dictateDenied}</p>}
                 </>
               ) : (
