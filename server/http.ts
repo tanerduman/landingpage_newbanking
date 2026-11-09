@@ -1,27 +1,23 @@
 import { checkBotId } from 'botid/server'
 import { botProtectedRoutes } from '../src/botProtection.ts'
-import { checkCredentials, credentialsConfigured, issueToken, readAdmin } from './auth.ts'
-import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
+import {
+  credentialsConfigured,
+  checkCredentials,
+  newSessionId,
+  passwordFingerprint,
+  readCookie,
+  ADMIN_COOKIE,
+  ADMIN_TTL_MS,
+  sessionCookie,
+  sessionKey,
+} from './auth.ts'
+import { isProduction, publicAppUrl, sendWaitlistConfirm } from './email.ts'
 import { getFxRates } from './fx.ts'
 import { getGoldPrice } from './gold.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
 import { getStore, validateSupportInput, validateWaitlistInput } from './store.ts'
 
-const buckets = new Map<string, { count: number; start: number }>()
-const WINDOW_MS = 60_000
-const LIMITS: Record<string, number> = {
-  'POST /api/visits': 40,
-  'POST /api/waitlist': 12,
-  'POST /api/confirm': 20,
-  'POST /api/confirm-status': 60,
-  'POST /api/login': 8,
-  'POST /api/support': 8,
-}
-
 const ALLOWED_ORIGINS = new Set([
-  'https://tanerduman.github.io',
-  'https://landingpage-newbanking.vercel.app',
-  'https://getaure.org',
   'https://www.getaure.org',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -30,29 +26,25 @@ const ALLOWED_ORIGINS = new Set([
 ])
 
 function clientKey(request: Request) {
+  const real = request.headers.get('x-real-ip')?.trim()
+  if (real) return real.slice(0, 80)
   const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) return forwarded.split(',')[0]?.trim() || 'unknown'
-  return request.headers.get('x-real-ip') || 'unknown'
-}
-
-function limited(request: Request, route: string) {
-  const max = LIMITS[route]
-  if (!max) return false
-  const key = `${route}:${clientKey(request)}`
-  const now = Date.now()
-  const bucket = buckets.get(key)
-  if (!bucket || now - bucket.start > WINDOW_MS) {
-    buckets.set(key, { count: 1, start: now })
-    return false
+  if (forwarded) {
+    const parts = forwarded.split(',').map((part) => part.trim()).filter(Boolean)
+    const last = parts[parts.length - 1]
+    if (last) return last.slice(0, 80)
   }
-  bucket.count += 1
-  if (buckets.size > 4000) buckets.clear()
-  return bucket.count > max
+  return 'unknown'
 }
 
-function json(data: unknown, status = 200, request?: Request) {
+async function overLimit(key: string, limit: number, windowMs: number) {
+  return getStore().hitRateLimit(key, limit, windowMs)
+}
+
+function json(data: unknown, status = 200, request?: Request, cookies?: string[]) {
   const headers = new Headers({ 'content-type': 'application/json; charset=utf-8' })
   if (request) applyCors(request, headers)
+  for (const cookie of cookies ?? []) headers.append('set-cookie', cookie)
   return new Response(JSON.stringify(data), { status, headers })
 }
 
@@ -61,22 +53,13 @@ function fail(request: Request, code: string, status: number, body?: unknown) {
   return json({ error: apiError(code, locale), code }, status, request)
 }
 
-function originAllowed(origin: string) {
-  if (ALLOWED_ORIGINS.has(origin)) return true
-  try {
-    const host = new URL(origin).hostname
-    return host === 'vercel.app' || host.endsWith('.vercel.app')
-  } catch {
-    return false
-  }
-}
-
 function applyCors(request: Request, headers: Headers) {
   const origin = request.headers.get('origin')
-  if (origin && originAllowed(origin)) {
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
     headers.set('access-control-allow-origin', origin)
     headers.set('vary', 'Origin')
-    headers.set('access-control-allow-headers', 'Authorization, Content-Type, x-is-human, x-path, x-method')
+    headers.set('access-control-allow-credentials', 'true')
+    headers.set('access-control-allow-headers', 'Content-Type, x-is-human, x-path, x-method')
     headers.set('access-control-allow-methods', 'GET, POST, OPTIONS')
   }
 }
@@ -116,10 +99,11 @@ async function readJson(request: Request) {
 }
 
 async function handleHealth(request: Request) {
-  return json({ ok: true, store: getStore().kind }, 200, request)
+  return json({ ok: true }, 200, request)
 }
 
 async function handleRates(request: Request) {
+  if (await overLimit(`rates:ip:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
   const result = await getFxRates()
   if (!result.ok) {
     return json({ error: result.code }, result.status, request)
@@ -128,6 +112,7 @@ async function handleRates(request: Request) {
 }
 
 async function handleGold(request: Request) {
+  if (await overLimit(`gold:ip:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
   const result = await getGoldPrice()
   if (!result.ok) {
     return json({ error: result.code }, result.status, request)
@@ -135,13 +120,18 @@ async function handleGold(request: Request) {
   return json(result.payload, 200, request)
 }
 
-function requireAdmin(request: Request) {
-  if (readAdmin(request)) return null
-  return fail(request, 'unauthorized', 401)
+async function requireAdmin(request: Request) {
+  if (!credentialsConfigured()) return fail(request, 'unauthorized', 401)
+  const id = readCookie(request, ADMIN_COOKIE)
+  if (!id) return fail(request, 'unauthorized', 401)
+  const session = await getStore().readAdminSession(sessionKey(id), passwordFingerprint())
+  if (!session) return fail(request, 'unauthorized', 401)
+  return null
 }
 
 async function handleLogin(request: Request) {
-  if (limited(request, 'POST /api/login')) return fail(request, 'too_many', 429)
+  const ip = clientKey(request)
+  if (await overLimit(`login:ip:${ip}`, 10, 300_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   if (!credentialsConfigured()) return fail(request, 'auth_off', 503, parsed.value)
@@ -149,19 +139,33 @@ async function handleLogin(request: Request) {
   const user = typeof body?.user === 'string' ? body.user.trim() : ''
   const password = typeof body?.password === 'string' ? body.password : ''
   if (!user || !password) return fail(request, 'auth_need', 400, body)
+  if (await overLimit(`login:user:${user.toLowerCase()}`, 10, 300_000)) return fail(request, 'too_many', 429)
   if (!checkCredentials(user, password)) return fail(request, 'auth_bad', 401, body)
-  return json({ token: issueToken(user) }, 200, request)
+  const id = newSessionId()
+  await getStore().createAdminSession({
+    user,
+    passwordHash: passwordFingerprint(),
+    idHash: sessionKey(id),
+    expiresAt: new Date(Date.now() + ADMIN_TTL_MS).toISOString(),
+  })
+  return json({ ok: true }, 200, request, [sessionCookie(id, request)])
+}
+
+async function handleLogout(request: Request) {
+  const id = readCookie(request, ADMIN_COOKIE)
+  if (id && credentialsConfigured()) await getStore().deleteAdminSession(sessionKey(id))
+  return json({ ok: true }, 200, request, [sessionCookie('', request, true)])
 }
 
 async function handleVisits(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    const denied = requireAdmin(request)
+    const denied = await requireAdmin(request)
     if (denied) return denied
     const stats = await store.getStats()
     return json({ ...stats, store: store.kind }, 200, request)
   }
-  if (limited(request, 'POST /api/visits')) return fail(request, 'too_many', 429)
+  if (await overLimit(`visits:ip:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   const body = parsed.value as { visitorId?: unknown; sessionId?: unknown } | null
@@ -177,22 +181,23 @@ async function handleVisits(request: Request) {
 async function handleWaitlist(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    const denied = requireAdmin(request)
+    const denied = await requireAdmin(request)
     if (denied) return denied
     const entries = await store.listWaitlist()
     return json({ entries, store: store.kind }, 200, request)
   }
-  if (limited(request, 'POST /api/waitlist')) return fail(request, 'too_many', 429)
+  if (await overLimit(`waitlist:ip:${clientKey(request)}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   const locale = localeFromRequest(request, parsed.value)
   const valid = validateWaitlistInput(parsed.value)
   if (typeof valid === 'string') return fail(request, valid, 400, parsed.value)
+  if (await overLimit(`waitlist:email:${valid.emailNorm}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const result = await store.requestWaitlist(valid)
   if (result.status === 'updated') {
     return json({ updated: true, store: store.kind }, 200, request)
   }
-  const link = `${publicAppUrl(request)}/confirm?token=${result.token}`
+  const link = `${publicAppUrl(request)}/confirm`
   const sent = await sendWaitlistConfirm({ to: result.email, code: result.code || '', link, locale })
   if (!sent.ok && isProduction() && !sent.skipped) {
     return fail(request, 'mail_fail', 503, parsed.value)
@@ -200,12 +205,14 @@ async function handleWaitlist(request: Request) {
   if (!sent.ok && sent.skipped && isProduction()) {
     return fail(request, 'mail_off', 503, parsed.value)
   }
+  const localDev = !process.env.VERCEL
   return json(
     {
       pending: true,
       delivered: sent.ok,
+      statusToken: result.statusToken,
       store: store.kind,
-      ...(!isProduction() && !sent.ok ? { devCode: result.code } : {}),
+      ...(localDev && !sent.ok ? { devCode: result.code } : {}),
     },
     201,
     request,
@@ -213,7 +220,7 @@ async function handleWaitlist(request: Request) {
 }
 
 async function handleConfirm(request: Request) {
-  if (limited(request, 'POST /api/confirm')) return fail(request, 'too_many', 429)
+  if (await overLimit(`confirm:ip:${clientKey(request)}`, 15, 600_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   const body = parsed.value as { token?: unknown; email?: unknown; code?: unknown } | null
@@ -233,12 +240,12 @@ async function handleConfirm(request: Request) {
 async function handleSupport(request: Request) {
   const store = getStore()
   if (request.method === 'GET') {
-    const denied = requireAdmin(request)
+    const denied = await requireAdmin(request)
     if (denied) return denied
     const entries = await store.listSupport()
     return json({ entries, store: store.kind }, 200, request)
   }
-  if (limited(request, 'POST /api/support')) return fail(request, 'too_many', 429)
+  if (await overLimit(`support:ip:${clientKey(request)}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
   const valid = validateSupportInput(parsed.value)
@@ -248,21 +255,21 @@ async function handleSupport(request: Request) {
 }
 
 async function handleConfirmStatus(request: Request) {
-  if (limited(request, 'POST /api/confirm-status')) return fail(request, 'too_many', 429)
+  if (await overLimit(`status:ip:${clientKey(request)}`, 60, 60_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
-  const email = typeof (parsed.value as { email?: unknown } | null)?.email === 'string'
-    ? (parsed.value as { email: string }).email
-    : ''
-  if (!email) return fail(request, 'email_need', 400, parsed.value)
-  const confirmed = await getStore().isConfirmed(normalizeEmail(email))
-  return json({ confirmed, store: getStore().kind }, 200, request)
+  const statusToken =
+    typeof (parsed.value as { statusToken?: unknown } | null)?.statusToken === 'string'
+      ? (parsed.value as { statusToken: string }).statusToken.trim()
+      : ''
+  if (statusToken.length < 20 || statusToken.length > 200) return json({ confirmed: false }, 200, request)
+  const confirmed = await getStore().confirmStatus(statusToken)
+  return json({ confirmed }, 200, request)
 }
 
 export async function handleApiRequest(request: Request): Promise<Response | null> {
   const url = new URL(request.url)
   const path = url.pathname.replace(/\/+$/, '') || '/'
-
   if (request.method === 'OPTIONS' && path.startsWith('/api/')) {
     const headers = new Headers()
     applyCors(request, headers)
@@ -282,6 +289,7 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
       return handleWaitlist(request)
     }
     if (path === '/api/login' && request.method === 'POST') return handleLogin(request)
+    if (path === '/api/logout' && request.method === 'POST') return handleLogout(request)
     if (path === '/api/support' && (request.method === 'GET' || request.method === 'POST')) {
       return handleSupport(request)
     }

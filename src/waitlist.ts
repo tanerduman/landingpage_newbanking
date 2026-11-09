@@ -1,4 +1,4 @@
-import { apiFetch, getAdminToken, readApiJson, setAdminToken } from './api.ts'
+import { apiFetch, readApiJson } from './api.ts'
 import { messages, readLocale, type Locale } from './i18n/index.ts'
 
 export type PlanId = 'standard' | 'plus' | 'premium'
@@ -97,6 +97,7 @@ export async function addWaitlistEntry(input: {
     updated?: boolean
     delivered?: boolean
     devCode?: string
+    statusToken?: string
     error?: string
   }>(res)
   if (res?.ok && remote?.updated) {
@@ -104,7 +105,12 @@ export async function addWaitlistEntry(input: {
     return { status: 'updated' as const }
   }
   if (res?.ok && remote?.pending) {
-    return { status: 'pending' as const, delivered: Boolean(remote.delivered), devCode: remote.devCode }
+    return {
+      status: 'pending' as const,
+      delivered: Boolean(remote.delivered),
+      devCode: remote.devCode,
+      statusToken: remote.statusToken || '',
+    }
   }
   throw new Error(failMessage(remote?.error, res ? 'save_fail' : 'offline'))
 }
@@ -159,10 +165,11 @@ export function onWaitlistConfirmed(email: string, callback: () => void) {
   }
 }
 
-export async function fetchConfirmStatus(email: string) {
+export async function fetchConfirmStatus(statusToken: string) {
+  if (!statusToken) return false
   const res = await apiFetch('/api/confirm-status', {
     method: 'POST',
-    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+    body: JSON.stringify({ statusToken }),
   })
   const remote = await readApiJson<{ confirmed?: boolean }>(res)
   return Boolean(res?.ok && remote?.confirmed)
@@ -187,34 +194,21 @@ export async function loginWaitlist(user: string, password: string) {
     method: 'POST',
     body: JSON.stringify({ user: user.trim(), password }),
   })
-  const remote = await readApiJson<{ token?: string; error?: string }>(res)
-  if (res?.ok && remote?.token) {
-    setAdminToken(remote.token)
-    return
-  }
+  const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
+  if (res?.ok && remote?.ok) return
   throw new Error(failMessage(remote?.error, res ? 'auth_bad' : 'offline'))
 }
 
-export function logoutWaitlist() {
-  setAdminToken(null)
-}
-
-export function isWaitlistAuthed() {
-  return Boolean(getAdminToken())
+export async function logoutWaitlist() {
+  await apiFetch('/api/logout', { method: 'POST' })
 }
 
 export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean; authorized: boolean }> {
   const res = await apiFetch('/api/waitlist')
-  if (res?.status === 401) {
-    setAdminToken(null)
-    return { entries: [], remote: false, authorized: false }
-  }
+  if (res?.status === 401 || !res?.ok) return { entries: [], remote: false, authorized: false }
   const remote = await readApiJson<{ entries: WaitlistEntry[] }>(res)
-  if (res?.ok && remote?.entries) {
-    return { entries: remote.entries.map(normalizeEntry), remote: true, authorized: true }
-  }
-  if (!getAdminToken()) return { entries: [], remote: false, authorized: false }
-  return { entries: [], remote: false, authorized: true }
+  if (remote?.entries) return { entries: remote.entries.map(normalizeEntry), remote: true, authorized: true }
+  return { entries: [], remote: false, authorized: false }
 }
 
 export function countByIntent(entries: WaitlistEntry[]) {

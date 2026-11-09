@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -17,8 +17,11 @@ function tokenFromLocation() {
 export default function ConfirmPage() {
   const { t } = useI18n()
   const token = tokenFromLocation()
-  const [status, setStatus] = useState<'working' | 'ok' | 'error' | 'missing'>(token ? 'working' : 'missing')
+  const [status, setStatus] = useState<'form' | 'working' | 'ok' | 'error'>(token ? 'working' : 'form')
   const [detail, setDetail] = useState('')
+  const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
+  const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     if (!token) return
@@ -32,15 +35,38 @@ export default function ConfirmPage() {
       })
   }, [token])
 
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setDetail(t.signup.needEmail)
+      setStatus('error')
+      return
+    }
+    if (!/^\d{6}$/.test(code.trim())) {
+      setDetail(t.signup.needCode)
+      setStatus('error')
+      return
+    }
+    setBusy(true)
+    setDetail('')
+    try {
+      await confirmWaitlist({ email, code })
+      setStatus('ok')
+    } catch (err) {
+      setStatus('error')
+      setDetail(err instanceof Error ? err.message : '')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const title = status === 'ok' ? t.confirm.okTitle : status === 'working' ? t.confirm.working : t.confirm.errTitle
   const message =
     status === 'working'
       ? t.confirm.wait
       : status === 'ok'
         ? t.confirm.success
-        : status === 'missing'
-          ? t.confirm.missing
-          : detail || t.confirm.fail
+        : detail || t.confirm.fail
 
   return (
     <div className="page waitlist-page">
@@ -59,11 +85,44 @@ export default function ConfirmPage() {
         </div>
       </header>
       <main className="wrap waitlist-main">
-        <p className="eyebrow">
-          <span className="dot" /> {t.confirm.kicker}
-        </p>
-        <h1>{title}</h1>
-        <p className="lead">{message}</p>
+        {status === 'form' || (status === 'error' && !token) ? (
+          <form className="login-card" onSubmit={submit}>
+            <p className="eyebrow">
+              <span className="dot" /> {t.confirm.kicker}
+            </p>
+            <h1>{t.confirm.kicker}</h1>
+            <p className="lead">{t.confirm.intro}</p>
+            <label htmlFor="confirm-email">{t.confirm.email}</label>
+            <input
+              id="confirm-email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <label htmlFor="confirm-code">{t.confirm.code}</label>
+            <input
+              id="confirm-code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="123456"
+            />
+            {status === 'error' && detail ? <p className="login-error">{detail}</p> : null}
+            <button type="submit" className="btn btn-solid login-submit" disabled={busy}>
+              {t.confirm.submit}
+            </button>
+          </form>
+        ) : (
+          <>
+            <p className="eyebrow">
+              <span className="dot" /> {t.confirm.kicker}
+            </p>
+            <h1>{title}</h1>
+            <p className="lead">{message}</p>
+          </>
+        )}
       </main>
     </div>
   )
