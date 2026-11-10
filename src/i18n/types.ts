@@ -11,7 +11,6 @@ export type Messages = {
     app: string
     compare: string
     campaigns: string
-    calculator: string
     partners: string
     support: string
     newPage: string
@@ -27,7 +26,6 @@ export type Messages = {
     eyebrow: string
     title: string
     lead: string
-    simulatorCta: string
     cardAccount: string
     pillSupport: string
     pillSupportSub: string
@@ -126,9 +124,6 @@ export type Messages = {
     idlePreset: string
     fxSellPreset: string
     minimum: string
-  }
-  calculator: {
-    lead: string
   }
   idleExample: {
     kicker: string

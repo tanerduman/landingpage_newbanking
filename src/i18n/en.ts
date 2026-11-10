@@ -12,7 +12,6 @@ export const en: Messages = {
     app: 'App',
     compare: 'Compare',
     campaigns: 'Offers',
-    calculator: 'Calculator',
     partners: 'Partnerships',
     support: 'Support',
     newPage: 'New',
@@ -28,7 +27,6 @@ export const en: Messages = {
     eyebrow: 'Free account',
     title: 'Open a free account first.\nThen pick a plan.',
     lead: 'Start on Basic. Move to Standard, Plus or Premium whenever you want. For now we only take requests.',
-    simulatorCta: 'See your gain (simulator)',
     cardAccount: 'AURE Account',
     pillSupport: '✨ No chatbot',
     pillSupportSub: 'Live support in seconds',
@@ -246,9 +244,6 @@ export const en: Messages = {
     idlePreset: '1,000,000 ₺ example',
     fxSellPreset: '20,000 € example',
     minimum: 'Smallest spend and balance that each cover the {plan} fee on their own.',
-  },
-  calculator: {
-    lead: 'See how much a plan leaves you versus Basic, from card spend, idle cash and FX.',
   },
   idleExample: {
     kicker: 'Worked example',
