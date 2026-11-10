@@ -228,13 +228,6 @@ export const tr: Messages = {
     navFx: 'Döviz',
     navMore: 'Daha fazla',
   },
-  homeCompare: {
-    title: 'Temel hesap da bir seçenek.',
-    lead: 'Gecelik faiz, taksit, canlı veri ve desteği yan yana gör.',
-    feature: 'Özellik',
-    all: 'Tüm özellikleri karşılaştır',
-    yes: 'Var',
-  },
   lifestyle: {
     title: 'Hesabın hep ücretsiz. Paketler ise kazancını katlar.',
     lead: 'Temel hesap 0 ₺ kalır. Paket; gecelik faiz, taksit ve otomatik kampanyayı büyütür.',

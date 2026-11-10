@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { withBase } from './base.ts'
-import { comparisonRows, planColumns, plans } from './plans.ts'
+import { plans } from './plans.ts'
 import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import GoldExample from './GoldExample.tsx'
@@ -8,7 +8,7 @@ import IdleExample from './IdleExample.tsx'
 import MonthSlogan from './MonthSlogan.tsx'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { formatFx, formatMoney, localizeFeature } from './i18n/format.ts'
+import { formatFx, formatMoney } from './i18n/format.ts'
 import { type PlanId, type SignupIntent } from './waitlist'
 import LogoMark from './LogoMark.tsx'
 
@@ -17,12 +17,6 @@ type Cycle = 'monthly' | 'yearly'
 const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
 
 type FxQuote = { base: string; quote: string; rate: number }
-
-function Cell({ value, yes }: { value: string | boolean; yes: string }) {
-  if (value === true) return <span className="yes">{yes}</span>
-  if (value === false) return <span className="no">—</span>
-  return <span>{value}</span>
-}
 
 function CardBrand() {
   return (
@@ -451,46 +445,6 @@ export default function App() {
             <MonthSlogan />
             <IdleExample onPick={openPlan} eurTry={fx.find((row) => row.base === 'EUR')?.rate ?? 0} />
             <GoldExample onPick={openPlan} />
-          </div>
-        </section>
-
-        <section className="section" id="compare" style={{ paddingTop: 0 }}>
-          <div className="wrap">
-            <div className="section-head">
-              <h2>{t.homeCompare.title}</h2>
-              <p>{t.homeCompare.lead}</p>
-            </div>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t.homeCompare.feature}</th>
-                    {planColumns.map((col) => (
-                      <th key={col.id} className="center">
-                        {col.id === 'account' ? t.pkg.account : col.name}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {comparisonRows.map((row) => (
-                    <tr key={row.id}>
-                      <td>{t.compare.rows[row.id]}</td>
-                      {planColumns.map((col) => (
-                        <td key={`${row.id}-${col.id}`} className="center">
-                          <Cell value={localizeFeature(row.values[col.id], t, locale)} yes={t.homeCompare.yes} />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p style={{ marginTop: 18 }}>
-              <a className="btn btn-solid" href={withBase('compare')}>
-                {t.homeCompare.all}
-              </a>
-            </p>
           </div>
         </section>
 
