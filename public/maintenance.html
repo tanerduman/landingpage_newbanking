@@ -1,9 +1,8 @@
 <!doctype html>
 <!--
-  Shown while maintenance is on.
-  Vercel Firewall must Redirect (not Deny) every path that does not start with /maintenance
-  to /maintenance with a temporary 307. Leave the rule disabled until maintenance.
-  Pause Project never reaches this file.
+  Shown while MAINTENANCE=1. The proxy sends every other path here and,
+  when the flag is off, sends this path back to /. Leave the Firewall
+  maintenance rule disabled so it does not fight the proxy.
 -->
 <html lang="tr">
   <head>

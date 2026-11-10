@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
+    "@vercel/functions": "^3.11.1",
     "botid": "^1.5.12",
     "pg": "^8.23.1",
     "react": "^19.3.1",

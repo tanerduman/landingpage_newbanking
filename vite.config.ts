@@ -1,8 +1,10 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type PreviewServer, type ViteDevServer } from 'vite'
 import { handleApiRequest, nodeToWebRequest, writeNodeResponse } from './server/http.ts'
+import { maintenanceAction, maintenanceEnabled } from './server/maintenance.ts'
 
 function apiPlugin(env: Record<string, string>) {
+  const maintenance = maintenanceEnabled(process.env.MAINTENANCE || env.MAINTENANCE)
   if (env.FREECURRENCYAPI_KEY) process.env.FREECURRENCYAPI_KEY = env.FREECURRENCYAPI_KEY
   if (env.COLLECTAPI_KEY) process.env.COLLECTAPI_KEY = env.COLLECTAPI_KEY
   if (env.RESEND_API_KEY) process.env.RESEND_API_KEY = env.RESEND_API_KEY
@@ -13,6 +15,17 @@ function apiPlugin(env: Record<string, string>) {
   if (env.WAITLIST_SESSION_SECRET) process.env.WAITLIST_SESSION_SECRET = env.WAITLIST_SESSION_SECRET
   function attach(server: ViteDevServer | PreviewServer) {
     server.middlewares.use((req, res, next) => {
+      const pathname = new URL(req.url || '/', 'http://localhost').pathname
+      const target = maintenanceAction(pathname, maintenance)
+      if (target) {
+        res.statusCode = 307
+        res.setHeader('Location', target)
+        res.end()
+        return
+      }
+      if (pathname === '/maintenance') {
+        req.url = '/maintenance.html'
+      }
       if (!req.url?.startsWith('/api')) {
         next()
         return
