@@ -25,7 +25,7 @@ export const tr: Messages = {
     fiction: 'Gerçek banka hesabı açılmaz ve para yatırılamaz. Bu sayfa yalnızca ürün modelini gösterir.',
     eyebrow: '0 ₺ EFT/Havale · Sürpriz Aidat Yok · Taahhüt Yok',
     title: 'Paran, her yerde daha güçlü.',
-    lead: 'Boşta duran parana her gece otomatik faiz, e-ticarette peşin fiyatına taksit, sıfır komisyonlu yatırım ve doğrudan insan desteği.',
+    lead: 'Boşta duran parana her gece otomatik faiz, e-ticarette peşin fiyatına taksit, düşük komisyonlu yatırım ve doğrudan insan desteği.',
     simulatorCta: 'Kazancını Hesapla (Simülatör)',
     statEft: 'EFT & Kart Aidatı',
     statInterest: 'Her Gece Otomatik Faiz',
