@@ -2687,10 +2687,29 @@ td.row-action {
   margin: 0 0 28px;
 }
 
+.compare-sheet {
+  background: #f4f3f0;
+  color: #111;
+}
+
+.compare-sheet .compare-main h1 {
+  color: #111;
+}
+
+.plans-more {
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.plans-more a {
+  color: var(--lime);
+  font-weight: 700;
+}
+
 .rev-board {
   background: #fff;
-  border-radius: 28px;
   border: 1px solid #eceae4;
+  border-radius: 28px;
 }
 
 .rev-head,
@@ -2702,7 +2721,7 @@ td.row-action {
 
 .rev-head {
   position: sticky;
-  top: 72px;
+  top: 112px;
   z-index: 8;
   background: #fff;
   border-bottom: 1px solid #eceae4;
@@ -2722,29 +2741,63 @@ td.row-action {
 
 .rev-plan h2 {
   font-size: 22px;
-  margin: 0 0 4px;
+  margin: 0 0 14px;
 }
 
-.rev-plan p {
-  margin: 0 0 14px;
-  color: #6b675e;
-  font-size: 14px;
+.rev-plan.is-featured {
+  background: #fbfdf2;
+}
+
+.rev-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  margin-bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #111;
+  color: #d8ff4a;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.rev-badge-spacer {
+  visibility: hidden;
 }
 
 .rev-get {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 88px;
-  padding: 10px 18px;
+  width: min(148px, 100%);
+  min-height: 40px;
+  padding: 10px 16px;
   border: 0;
   border-radius: 999px;
   background: #111;
   color: #fff;
   font: inherit;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   cursor: pointer;
+}
+
+.rev-get:hover {
+  background: #2a2a2a;
+}
+
+.rev-picked {
+  display: grid;
+  place-items: center;
+  margin-top: 12px;
+  color: #111;
+}
+
+.rev-picked .rev-mark {
+  width: 16px;
+  height: 16px;
 }
 
 .rev-section {
@@ -2755,8 +2808,11 @@ td.row-action {
   border-top: 1px solid #eceae4;
 }
 
-.rev-section span {
+.rev-section-label {
   grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .rev-row {
@@ -2764,6 +2820,7 @@ td.row-action {
 }
 
 .rev-feat {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -2784,8 +2841,42 @@ td.row-action {
   place-items: center;
   background: #efece6;
   color: #111;
-  font-size: 12px;
-  font-weight: 800;
+}
+
+.rev-ico svg {
+  width: 16px;
+  height: 16px;
+}
+
+.rev-info {
+  margin-left: auto;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #c8c4bb;
+  border-radius: 50%;
+  background: transparent;
+  color: #8a857c;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.rev-hint {
+  position: absolute;
+  left: 18px;
+  bottom: calc(100% - 6px);
+  z-index: 9;
+  width: min(280px, 70vw);
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #111;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
 }
 
 .rev-cell {
@@ -2798,8 +2889,19 @@ td.row-action {
   color: #2c2a26;
 }
 
+.rev-cell.is-featured {
+  background: #fbfdf2;
+}
+
 .rev-check {
-  font-weight: 800;
+  display: grid;
+  place-items: center;
+  color: #111;
+}
+
+.rev-mark {
+  width: 18px;
+  height: 18px;
 }
 
 .rev-dash {
@@ -2919,9 +3021,25 @@ td.row-action {
   }
 }
 
+.compare-foot {
+  border-top-color: #e6e4de;
+  color: #6b675e;
+}
+
+.compare-foot .foot-linkedin {
+  color: #111;
+}
+
 @media (max-width: 900px) {
   .rev-board {
     overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: 168px;
+  }
+
+  .rev-plan,
+  .rev-cell {
+    scroll-snap-align: start;
   }
 
   .rev-head {
@@ -2932,7 +3050,38 @@ td.row-action {
   .rev-head,
   .rev-row,
   .rev-section {
-    min-width: 880px;
+    grid-template-columns: 168px repeat(4, 136px);
+    min-width: 712px;
+  }
+
+  .rev-plan {
+    padding: 16px 8px 12px;
+  }
+
+  .rev-get {
+    width: 100%;
+    padding: 8px 6px;
+    font-size: 13px;
+  }
+
+  .rev-feat {
+    padding: 14px 10px;
+    font-size: 13px;
+  }
+
+  .rev-feat,
+  .rev-corner {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+  }
+
+  .rev-section-label {
+    position: sticky;
+    left: 18px;
+    z-index: 2;
+    width: max-content;
+    background: #f6f5f2;
   }
 }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { withBase } from './base.ts'
 import { plans, type PlanColumnId } from './plans.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
@@ -179,6 +180,9 @@ export default function App() {
               })}
             </div>
             <p className="plans-note">{t.plans.homeNote}</p>
+            <p className="plans-more">
+              <a href={withBase('karsilastir')}>{t.plans.compareLink}</a>
+            </p>
           </div>
         </section>
       </main>

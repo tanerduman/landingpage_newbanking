@@ -214,6 +214,9 @@ export const comparisonRows: {
     | 'migros'
     | 'migrosOnline'
     | 'divan'
+    | 'atm'
+    | 'cashback'
+    | 'miles'
   group: 'bank' | 'travel' | 'brand'
   icon: string
   values: Record<PlanColumnId, FeatureValue>
@@ -235,6 +238,12 @@ export const comparisonRows: {
     group: 'bank',
     icon: 'send',
     values: { account: 'unlimited0', standard: 'unlimited0', plus: 'unlimited0', premium: 'unlimited0' },
+  },
+  {
+    id: 'atm',
+    group: 'bank',
+    icon: 'atm',
+    values: { account: false, standard: '250 €/gün', plus: '500 €/gün', premium: '1.000 €/gün' },
   },
   {
     id: 'fxLimit',
@@ -283,6 +292,18 @@ export const comparisonRows: {
     group: 'travel',
     icon: 'card',
     values: { account: false, standard: 'inst3', plus: 'inst36', premium: 'inst36' },
+  },
+  {
+    id: 'cashback',
+    group: 'travel',
+    icon: 'save',
+    values: { account: false, standard: false, plus: '%10', premium: '%10' },
+  },
+  {
+    id: 'miles',
+    group: 'travel',
+    icon: 'plane',
+    values: { account: false, standard: false, plus: false, premium: '2×' },
   },
   {
     id: 'autoCampaign',
