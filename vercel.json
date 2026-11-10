@@ -10,6 +10,7 @@
     },
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/region", "destination": "/region.html" },
+    { "source": "/maintenance", "destination": "/maintenance.html" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -27,6 +28,14 @@
     },
     {
       "source": "/waitlist",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/maintenance",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/maintenance.html",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     }
   ]
