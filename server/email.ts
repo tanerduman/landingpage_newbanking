@@ -1,4 +1,4 @@
-import { confirmMailCopy } from './i18n.ts'
+import { confirmMailCopy, receiptMailCopy, type ReceiptInput } from './i18n.ts'
 
 export function normalizeEmail(email: string) {
   const trimmed = email.trim().toLowerCase()
@@ -32,6 +32,38 @@ function stripSlash(url: string) {
   return url.replace(/\/+$/, '')
 }
 
+async function postResend(mail: { to: string; subject: string; text: string; html: string }) {
+  const key = process.env.RESEND_API_KEY || ''
+  const from = process.env.MAIL_FROM || 'AURE <onboarding@resend.dev>'
+  if (!key) return { ok: false as const, skipped: true as const }
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${key}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: [mail.to],
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.html,
+      }),
+    })
+    if (!res.ok) {
+      const detail = (await res.text().catch(() => '')).slice(0, 400)
+      console.error(`resend send failed ${res.status} ${detail}`)
+      return { ok: false as const, skipped: false as const }
+    }
+    return { ok: true as const, skipped: false as const }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'network'
+    console.error(`resend send failed ${message}`)
+    return { ok: false as const, skipped: false as const }
+  }
+}
+
 export async function sendWaitlistConfirm(input: {
   to: string
   code: string
@@ -39,31 +71,14 @@ export async function sendWaitlistConfirm(input: {
   locale: 'tr' | 'en'
   purpose?: 'waitlist' | 'support'
 }) {
-  const key = process.env.RESEND_API_KEY || ''
-  const from = process.env.MAIL_FROM || 'AURE <onboarding@resend.dev>'
-  if (!key) return { ok: false as const, skipped: true as const }
   const copy = confirmMailCopy(input.locale, input.code, input.link, input.purpose || 'waitlist')
+  return postResend({ to: input.to, subject: copy.subject, text: copy.text, html: copy.html })
+}
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${key}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      from,
-      to: [input.to],
-      subject: copy.subject,
-      text: copy.text,
-      html: copy.html,
-    }),
-  })
-  if (!res.ok) {
-    const detail = (await res.text().catch(() => '')).slice(0, 400)
-    console.error(`resend send failed ${res.status} ${detail}`)
-    return { ok: false as const, skipped: false as const }
-  }
-  return { ok: true as const, skipped: false as const }
+/** Informational note after a correct OTP. Uses the same Resend key and sender as the code mail. */
+export async function sendRequestReceipt(input: { to: string; locale: 'tr' | 'en'; detail: ReceiptInput }) {
+  const copy = receiptMailCopy(input.locale, input.detail)
+  return postResend({ to: input.to, subject: copy.subject, text: copy.text, html: copy.html })
 }
 
 export function publicAppUrl(_request?: Request) {
