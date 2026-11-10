@@ -20,8 +20,6 @@ export type Messages = {
     language: string
   }
   hero: {
-    fictionLabel: string
-    fiction: string
     eyebrow: string
     title: string
     lead: string
