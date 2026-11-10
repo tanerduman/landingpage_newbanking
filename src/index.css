@@ -2161,6 +2161,7 @@ td.row-action {
 }
 
 .support-card {
+  position: relative;
   width: min(560px, 100%);
 }
 
