@@ -101,55 +101,168 @@ function labeled(map: Record<string, string>, key: string) {
   return map[key] || key
 }
 
+const RECEIPT_HOME = 'https://www.getaure.org'
+const PLAIN_SIGN = 'AURE · getaure.org'
+
+function receiptRows(rows: { label: string; value: string; message?: boolean }[]) {
+  return rows
+    .map((row, index) => {
+      const border = index === rows.length - 1 ? '' : 'border-bottom:1px solid rgba(244,241,234,0.08);'
+      const valueStyle = row.message
+        ? 'margin-top:8px;font-size:15px;line-height:1.6;font-weight:400;color:#f4f1ea;white-space:pre-wrap;'
+        : 'margin-top:6px;font-size:20px;line-height:1.2;font-weight:700;color:#f4f1ea;'
+      return `<tr>
+<td style="padding:18px 20px;${border}font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+<div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#9a9589;">${row.label}</div>
+<div style="${valueStyle}">${row.value}</div>
+</td>
+</tr>`
+    })
+    .join('')
+}
+
+/** Dark card used after the OTP checks out. The logo sits in the footer. */
+function receiptCard(
+  locale: ApiLocale,
+  home: string,
+  logo: string,
+  parts: {
+    eyebrow: string
+    hello: string
+    lead: string
+    rows: { label: string; value: string; message?: boolean }[]
+    closing?: string
+  },
+) {
+  const legal =
+    locale === 'en'
+      ? 'A fictional product — it does not provide real banking services.'
+      : 'Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.'
+  const below = parts.closing
+    ? `<tr><td style="padding:18px 40px 28px;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#9a9589;">${parts.closing}</td></tr>`
+    : `<tr><td style="height:28px;font-size:0;line-height:0;">&nbsp;</td></tr>`
+  return `<!DOCTYPE html>
+<html lang="${locale}">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="dark">
+<meta name="supported-color-schemes" content="dark">
+<title>AURE</title>
+</head>
+<body style="margin:0;padding:0;background:#070708;" bgcolor="#070708">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#070708" style="background:#070708;">
+<tr>
+<td align="center" style="padding:28px 16px;">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" bgcolor="#111114" style="width:100%;max-width:560px;background:#111114;border:1px solid rgba(244,241,234,0.12);border-radius:22px;overflow:hidden;">
+<tr><td bgcolor="#d8ff4a" style="height:4px;background:#d8ff4a;font-size:0;line-height:0;">&nbsp;</td></tr>
+<tr>
+<td style="padding:34px 40px 0;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td style="border:1px solid rgba(244,241,234,0.14);border-radius:999px;padding:6px 12px;">
+<table role="presentation" cellpadding="0" cellspacing="0"><tr>
+<td bgcolor="#d8ff4a" style="width:7px;height:7px;background:#d8ff4a;border-radius:50%;font-size:0;line-height:0;">&nbsp;</td>
+<td style="padding-left:8px;font-size:13px;letter-spacing:0.02em;color:#9a9589;">${parts.eyebrow}</td>
+</tr></table>
+</td>
+</tr></table>
+<p style="margin:20px 0 10px;font-size:30px;line-height:1.15;letter-spacing:-0.03em;font-weight:700;color:#f4f1ea;">${parts.hello}</p>
+<p style="margin:0;font-size:16px;line-height:1.6;color:#9a9589;">${parts.lead}</p>
+</td>
+</tr>
+<tr>
+<td style="padding:22px 40px 0;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#18181c" style="background:#18181c;border-radius:16px;">
+${receiptRows(parts.rows)}
+</table>
+</td>
+</tr>
+${below}
+<tr><td style="padding:0 40px;"><div style="height:1px;background:rgba(244,241,234,0.1);font-size:0;line-height:0;">&nbsp;</div></td></tr>
+<tr>
+<td align="center" style="padding:22px 40px 28px;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+<a href="${escapeHtml(home)}" style="text-decoration:none;">
+<table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>
+<td style="vertical-align:middle;"><img src="${escapeHtml(logo)}" width="32" height="32" alt="" style="display:block;border:0;width:32px;height:32px;"></td>
+<td style="padding-left:10px;vertical-align:middle;font-size:14px;font-weight:800;letter-spacing:0.16em;color:#f4f1ea;">AURE</td>
+</tr></table>
+</a>
+<p style="margin:12px 0 0;font-size:12px;line-height:1.5;color:#9a9589;">${legal}</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</body>
+</html>`
+}
+
 /** Sent after the OTP checks out. It describes the request and carries no code. */
-export function receiptMailCopy(locale: ApiLocale, input: ReceiptInput) {
-  const name = escapeHtml(oneLine(input.name))
-  const hello = locale === 'en' ? `Hello ${name},` : `Merhaba ${name},`
+export function receiptMailCopy(locale: ApiLocale, input: ReceiptInput, home = RECEIPT_HOME) {
+  const origin = home.replace(/\/+$/, '') || RECEIPT_HOME
+  const logo = `${origin}/email-logo.png`
+  const displayName = oneLine(input.name)
+  const hello = locale === 'en' ? `Hello ${escapeHtml(displayName)},` : `Merhaba ${escapeHtml(displayName)},`
   if (input.purpose === 'support') {
-    const kind = escapeHtml(labeled(KIND_LABEL[locale], input.kind))
-    const message = escapeHtml(input.message.trim())
+    const kind = labeled(KIND_LABEL[locale], input.kind)
+    const message = input.message.trim()
     if (locale === 'en') {
       return {
         subject: 'Your AURE support note is on the list',
-        text: `Hello ${oneLine(input.name)},\n\nYour code checked out. The support note is on the list.\n\nType: ${labeled(KIND_LABEL.en, input.kind)}\nMessage:\n${input.message.trim()}`,
-        html: `<p>${hello}</p>
-<p>Your code checked out. The support note is on the list.</p>
-<p>Type: ${kind}</p>
-<p style="white-space:pre-wrap">${message}</p>`,
+        text: `Hello ${displayName},\n\nYour code checked out. The support note is on the list.\n\nType: ${kind}\nMessage:\n${message}\n\n${PLAIN_SIGN}`,
+        html: receiptCard(locale, origin, logo, {
+          eyebrow: 'Support note',
+          hello,
+          lead: 'Your code checked out. The support note is on the list.',
+          rows: [
+            { label: 'Type', value: escapeHtml(kind) },
+            { label: 'Message', value: escapeHtml(message), message: true },
+          ],
+        }),
       }
     }
     return {
       subject: 'AURE destek kaydın listede',
-      text: `Merhaba ${oneLine(input.name)},\n\nOnay kodun doğrulandı. Destek kaydın listeye eklendi.\n\nTür: ${labeled(KIND_LABEL.tr, input.kind)}\nAçıklama:\n${input.message.trim()}`,
-      html: `<p>${hello}</p>
-<p>Onay kodun doğrulandı. Destek kaydın listeye eklendi.</p>
-<p>Tür: ${kind}</p>
-<p style="white-space:pre-wrap">${message}</p>`,
+      text: `Merhaba ${displayName},\n\nOnay kodun doğrulandı. Destek kaydın listeye eklendi.\n\nTür: ${kind}\nAçıklama:\n${message}\n\n${PLAIN_SIGN}`,
+      html: receiptCard(locale, origin, logo, {
+        eyebrow: 'Destek kaydı',
+        hello,
+        lead: 'Onay kodun doğrulandı. Destek kaydın listeye eklendi.',
+        rows: [
+          { label: 'Tür', value: escapeHtml(kind) },
+          { label: 'Açıklama', value: escapeHtml(message), message: true },
+        ],
+      }),
     }
   }
   const plan = labeled(PLAN_LABEL[locale], input.intent)
   const cycle = CYCLE_LABEL[locale][input.cycle] || ''
-  const safePlan = escapeHtml(plan)
-  const safeCycle = escapeHtml(cycle)
   const periodText = cycle ? (locale === 'en' ? `Period: ${cycle}\n` : `Dönem: ${cycle}\n`) : ''
-  const periodHtml = cycle ? `<br>${locale === 'en' ? 'Period' : 'Dönem'}: ${safeCycle}` : ''
+  const rows = [{ label: locale === 'en' ? 'Plan' : 'Paket', value: escapeHtml(plan) }]
+  if (cycle) rows.push({ label: locale === 'en' ? 'Period' : 'Dönem', value: escapeHtml(cycle) })
   if (locale === 'en') {
     return {
       subject: 'Your AURE request is on the waitlist',
-      text: `Hello ${oneLine(input.name)},\n\nYour code checked out. The request is on the waitlist.\n\nPlan: ${plan}\n${periodText}\nWe are not opening accounts yet. The request stays on the waitlist.`,
-      html: `<p>${hello}</p>
-<p>Your code checked out. The request is on the waitlist.</p>
-<p>Plan: ${safePlan}${periodHtml}</p>
-<p>We are not opening accounts yet. The request stays on the waitlist.</p>`,
+      text: `Hello ${displayName},\n\nYour code checked out. The request is on the waitlist.\n\nPlan: ${plan}\n${periodText}\nWe are not opening accounts yet. The request stays on the waitlist.\n\n${PLAIN_SIGN}`,
+      html: receiptCard(locale, origin, logo, {
+        eyebrow: 'Request confirmed',
+        hello,
+        lead: 'Your code checked out. The request is on the waitlist.',
+        rows,
+        closing: 'We are not opening accounts yet. The request stays on the waitlist.',
+      }),
     }
   }
   return {
     subject: 'AURE talebin waitlist’te',
-    text: `Merhaba ${oneLine(input.name)},\n\nOnay kodun doğrulandı. Talebin bekleme listesine yazıldı.\n\nPaket: ${plan}\n${periodText}\nŞimdilik hesap açmıyoruz. Talebin bekleme listesinde duruyor.`,
-    html: `<p>${hello}</p>
-<p>Onay kodun doğrulandı. Talebin bekleme listesine yazıldı.</p>
-<p>Paket: ${safePlan}${periodHtml}</p>
-<p>Şimdilik hesap açmıyoruz. Talebin bekleme listesinde duruyor.</p>`,
+    text: `Merhaba ${displayName},\n\nOnay kodun doğrulandı. Talebin bekleme listesine yazıldı.\n\nPaket: ${plan}\n${periodText}\nŞimdilik hesap açmıyoruz. Talebin bekleme listesinde duruyor.\n\n${PLAIN_SIGN}`,
+    html: receiptCard(locale, origin, logo, {
+      eyebrow: 'Talep onaylandı',
+      hello,
+      lead: 'Onay kodun doğrulandı. Talebin bekleme listesine yazıldı.',
+      rows,
+      closing: 'Şimdilik hesap açmıyoruz. Talebin bekleme listesinde duruyor.',
+    }),
   }
 }
 
