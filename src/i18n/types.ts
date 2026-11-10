@@ -5,6 +5,7 @@ export type Messages = {
   title: string
   description: string
   nav: {
+    how: string
     plans: string
     features: string
     app: string
@@ -16,11 +17,13 @@ export type Messages = {
     faq: string
     seePlans: string
     openFree: string
+    request: string
     menu: string
     back: string
     language: string
   }
   hero: {
+    eyebrow: string
     title: string
     lead: string
     simulatorCta: string
@@ -29,6 +32,10 @@ export type Messages = {
     pillSupportSub: string
     pillInterest: string
     pillInterestSub: string
+  }
+  how: {
+    title: string
+    steps: { title: string; body: string }[]
   }
   fx: {
     eyebrow: string
@@ -53,6 +60,17 @@ export type Messages = {
     travel: string
     brands: string
     addPlan: string
+    homeTitle: string
+    homeLead: string
+    homeNote: string
+    request: string
+    recommended: string
+    freeLabel: string
+    basicName: string
+    accountPerks: string[]
+    standardPerks: string[]
+    plusPerks: string[]
+    premiumPerks: string[]
     standardBlurb: string
     plusBlurb: string
     premiumBlurb: string
