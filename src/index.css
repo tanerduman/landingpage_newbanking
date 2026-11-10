@@ -265,26 +265,6 @@ h3 {
   flex-wrap: wrap;
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-top: 42px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
-}
-
-.stats strong {
-  display: block;
-  font-family: "Bricolage Grotesque", sans-serif;
-  font-size: 28px;
-}
-
-.stats span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
 .stage {
   position: relative;
   min-height: 560px;
@@ -2754,7 +2734,6 @@ td.row-action {
   .plans,
   .lifestyle,
   .feature-grid,
-  .stats,
   .phones,
   .waitlist-stats,
   .traffic-stats,
@@ -2813,7 +2792,6 @@ td.row-action {
   .plans,
   .lifestyle,
   .feature-grid,
-  .stats,
   .phones,
   .waitlist-stats,
   .traffic-stats,

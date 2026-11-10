@@ -24,9 +24,6 @@ export type Messages = {
     title: string
     lead: string
     simulatorCta: string
-    statEft: string
-    statInterest: string
-    statOffers: string
     cardAccount: string
     pillSupport: string
     pillSupportSub: string
