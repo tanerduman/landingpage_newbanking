@@ -250,7 +250,7 @@ export const comparisonRows: {
     id: 'fxLimit',
     group: 'bank',
     icon: 'fx',
-    values: { account: '250 €/ay', standard: '1.500 €/ay', plus: '5.000 €/ay', premium: 'Sınırsız' },
+    values: { account: false, standard: '1.500 €/ay', plus: '5.000 €/ay', premium: 'Sınırsız' },
   },
   {
     id: 'fxFee',

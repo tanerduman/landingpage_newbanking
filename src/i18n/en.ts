@@ -446,7 +446,7 @@ export const en: Messages = {
       overnight: 'Your balance stays spendable during the day. Whatever is left overnight earns the plan rate.',
       eft: 'EFT and FAST have no fee. There is no card fee.',
       atm: 'Daily fee-free cash limit. Basic is 15,000 TL, and each plan above adds 5,000 TL.',
-      fxLimit: 'The monthly FX amount that uses the plan spread. On Premium the whole amount uses the plan spread.',
+      fxLimit: 'The monthly amount at the plan spread. Basic has no such amount. Standard is 1,500 €, Plus is 5,000 €, and Premium uses the plan spread on the whole amount.',
       fxFee: 'Buy spread inside the limit. Basic 4%, Standard 2%, Plus 1%, Premium 0.5%.',
       fxFeeOver: 'Amount above the limit uses the Basic spread. Premium has no cap.',
       fxSellFee: 'The sell spread applies to the whole amount. Basic 2.5%, Standard 1.5%, Plus 1%, Premium 0.5%.',

@@ -446,7 +446,7 @@ export const tr: Messages = {
       overnight: 'Gündüz bakiyen harcamaya açık kalır. Gece kalan tutara paketine göre faiz işler.',
       eft: 'EFT ve FAST kesintisizdir. Kart aidatı yoktur.',
       atm: 'Günlük ücretsiz nakit çekim limiti. Temel 15.000 TL, her üst pakette 5.000 TL artar.',
-      fxLimit: 'Paket makasının geçerli olduğu aylık döviz tutarı. Premium’da tutarın tamamı paket makasındadır.',
+      fxLimit: 'Özel makasın geçerli olduğu aylık tutar. Temel pakette böyle bir tutar yok. Standard 1.500 €, Plus 5.000 €; Premium’da tutarın tamamı paket makasındadır.',
       fxFee: 'Alışta, limit içindeki makas. Temel %4, Standard %2, Plus %1, Premium %0,5.',
       fxFeeOver: 'Limit üstü tutar Temel makasıyla işler. Premium’da üst sınır yoktur.',
       fxSellFee: 'Satışta makas tutarın tamamına uygulanır. Temel %2,5, Standard %1,5, Plus %1, Premium %0,5.',
