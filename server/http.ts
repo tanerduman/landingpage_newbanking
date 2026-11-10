@@ -11,7 +11,7 @@ import {
   sessionCookie,
   sessionKey,
 } from './auth.ts'
-import { isProduction, normalizeEmail, publicAppUrl, sendWaitlistConfirm } from './email.ts'
+import { isProduction, normalizeEmail, publicAppUrl, sendRequestReceipt, sendWaitlistConfirm } from './email.ts'
 import { CONFIRM_CODE_RE, CONFIRM_EMAIL_ATTEMPTS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
 import { getFxRates } from './fx.ts'
 import { getGoldPrice } from './gold.ts'
@@ -276,12 +276,23 @@ async function handleConfirm(request: Request) {
     email: email || undefined,
     code: code || undefined,
   }
+  const locale = localeFromRequest(request, parsed.value)
   const waitlist = await getStore().confirmWaitlist(lookup)
   if (typeof waitlist !== 'string') {
+    await sendRequestReceipt({
+      to: waitlist.email,
+      locale,
+      detail: { purpose: 'waitlist', name: waitlist.name, intent: waitlist.intent, cycle: waitlist.cycle },
+    })
     return json({ confirmed: true, purpose: 'waitlist' }, 200, request)
   }
   const support = await getStore().confirmSupport(lookup)
   if (typeof support === 'string') return fail(request, support, 400, body)
+  await sendRequestReceipt({
+    to: support.email,
+    locale,
+    detail: { purpose: 'support', name: support.name, kind: support.kind, message: support.message },
+  })
   return json({ confirmed: true, purpose: 'support' }, 200, request)
 }
 

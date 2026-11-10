@@ -74,6 +74,85 @@ function escapeHtml(value: string) {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 }
 
+function oneLine(value: string) {
+  return value.replace(/[\r\n]+/g, ' ').trim()
+}
+
+const PLAN_LABEL: Record<ApiLocale, Record<string, string>> = {
+  tr: { account: 'Temel', standard: 'Standard', plus: 'Plus', premium: 'Premium' },
+  en: { account: 'Basic', standard: 'Standard', plus: 'Plus', premium: 'Premium' },
+}
+
+const CYCLE_LABEL: Record<ApiLocale, Record<string, string>> = {
+  tr: { monthly: 'Aylık', yearly: 'Yıllık' },
+  en: { monthly: 'Monthly', yearly: 'Yearly' },
+}
+
+const KIND_LABEL: Record<ApiLocale, Record<string, string>> = {
+  tr: { complaint: 'Şikayet', suggestion: 'Öneri', support: 'Destek' },
+  en: { complaint: 'Complaint', suggestion: 'Suggestion', support: 'Support' },
+}
+
+export type ReceiptInput =
+  | { purpose: 'waitlist'; name: string; intent: string; cycle: string }
+  | { purpose: 'support'; name: string; kind: string; message: string }
+
+function labeled(map: Record<string, string>, key: string) {
+  return map[key] || key
+}
+
+/** Sent after the OTP checks out. It describes the request and carries no code. */
+export function receiptMailCopy(locale: ApiLocale, input: ReceiptInput) {
+  const name = escapeHtml(oneLine(input.name))
+  const hello = locale === 'en' ? `Hello ${name},` : `Merhaba ${name},`
+  if (input.purpose === 'support') {
+    const kind = escapeHtml(labeled(KIND_LABEL[locale], input.kind))
+    const message = escapeHtml(input.message.trim())
+    if (locale === 'en') {
+      return {
+        subject: 'Your AURE support note is on the list',
+        text: `Hello ${oneLine(input.name)},\n\nYour code checked out. The support note is on the list.\n\nType: ${labeled(KIND_LABEL.en, input.kind)}\nMessage:\n${input.message.trim()}`,
+        html: `<p>${hello}</p>
+<p>Your code checked out. The support note is on the list.</p>
+<p>Type: ${kind}</p>
+<p style="white-space:pre-wrap">${message}</p>`,
+      }
+    }
+    return {
+      subject: 'AURE destek kaydın listede',
+      text: `Merhaba ${oneLine(input.name)},\n\nOnay kodun doğrulandı. Destek kaydın listeye eklendi.\n\nTür: ${labeled(KIND_LABEL.tr, input.kind)}\nAçıklama:\n${input.message.trim()}`,
+      html: `<p>${hello}</p>
+<p>Onay kodun doğrulandı. Destek kaydın listeye eklendi.</p>
+<p>Tür: ${kind}</p>
+<p style="white-space:pre-wrap">${message}</p>`,
+    }
+  }
+  const plan = labeled(PLAN_LABEL[locale], input.intent)
+  const cycle = CYCLE_LABEL[locale][input.cycle] || ''
+  const safePlan = escapeHtml(plan)
+  const safeCycle = escapeHtml(cycle)
+  const periodText = cycle ? (locale === 'en' ? `Period: ${cycle}\n` : `Dönem: ${cycle}\n`) : ''
+  const periodHtml = cycle ? `<br>${locale === 'en' ? 'Period' : 'Dönem'}: ${safeCycle}` : ''
+  if (locale === 'en') {
+    return {
+      subject: 'Your AURE request is on the waitlist',
+      text: `Hello ${oneLine(input.name)},\n\nYour code checked out. The request is on the waitlist.\n\nPlan: ${plan}\n${periodText}\nWe are not opening accounts yet. The request stays on the waitlist.`,
+      html: `<p>${hello}</p>
+<p>Your code checked out. The request is on the waitlist.</p>
+<p>Plan: ${safePlan}${periodHtml}</p>
+<p>We are not opening accounts yet. The request stays on the waitlist.</p>`,
+    }
+  }
+  return {
+    subject: 'AURE talebin waitlist’te',
+    text: `Merhaba ${oneLine(input.name)},\n\nOnay kodun doğrulandı. Talebin bekleme listesine yazıldı.\n\nPaket: ${plan}\n${periodText}\nŞimdilik hesap açmıyoruz. Talebin bekleme listesinde duruyor.`,
+    html: `<p>${hello}</p>
+<p>Onay kodun doğrulandı. Talebin bekleme listesine yazıldı.</p>
+<p>Paket: ${safePlan}${periodHtml}</p>
+<p>Şimdilik hesap açmıyoruz. Talebin bekleme listesinde duruyor.</p>`,
+  }
+}
+
 export function confirmMailCopy(
   locale: ApiLocale,
   code: string,
