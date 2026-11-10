@@ -86,6 +86,14 @@ function Icon({ name }: { name: string }) {
       </svg>
     )
   }
+  if (name === 'book') {
+    return (
+      <svg {...common}>
+        <path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v16H7.5A2.5 2.5 0 0 0 5 21.5z" />
+        <path d="M5 5.5V21" />
+      </svg>
+    )
+  }
   return (
     <svg {...common}>
       <path d="M12 3l2.2 6.4H21l-5.4 3.9 2 6.4L12 16.8 6.4 19.7l2-6.4L3 9.4h6.8L12 3z" />

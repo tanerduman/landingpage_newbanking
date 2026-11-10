@@ -440,6 +440,7 @@ export const tr: Messages = {
       migros: 'Migros mağaza',
       migrosOnline: 'Migros Sanal Market',
       divan: 'Divan Pastanesi',
+      neo: 'Neo Skola',
     },
     hints: {
       overnight: 'Gündüz bakiyen harcamaya açık kalır. Gece kalan tutara paketine göre faiz işler.',
@@ -461,6 +462,7 @@ export const tr: Messages = {
       migros: 'Fiziksel Migros mağazalarında karta yansıyan indirim.',
       migrosOnline: 'Migros Sanal Market siparişlerinde online orana göre indirim.',
       divan: 'Divan Pastanesi mağaza ve seçili noktalarda indirim. Plus %10, Premium %15.',
+      neo: 'Online eğitim ayrıcalığı. Temel hesapta kapalı; Standard, Plus ve Premium’da açık.',
     },
     cell: {
       unlimited0: 'Sınırsız 0 ₺',

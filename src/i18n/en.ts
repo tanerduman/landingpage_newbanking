@@ -440,6 +440,7 @@ export const en: Messages = {
       migros: 'Migros stores',
       migrosOnline: 'Migros Sanal Market',
       divan: 'Divan Pastanesi',
+      neo: 'Neo Skola',
     },
     hints: {
       overnight: 'Your balance stays spendable during the day. Whatever is left overnight earns the plan rate.',
@@ -461,6 +462,7 @@ export const en: Messages = {
       migros: 'Discount on in-store Migros spend with your card.',
       migrosOnline: 'Discount on Migros Sanal Market orders at the online rate.',
       divan: 'Discount at Divan Pastanesi shops and selected spots. 10% on Plus, 15% on Premium.',
+      neo: 'Online-course perk. Off on the free account; on for Standard, Plus and Premium.',
     },
     cell: {
       unlimited0: 'Unlimited 0 ₺',
