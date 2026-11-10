@@ -171,7 +171,7 @@ export const en: Messages = {
     standardBanking: [
       'Automatic overnight interest on idle cash 34.5%',
       'Unlimited free EFT/FAST',
-      'ATM 250 €/day',
+      'ATM 20,000 TL/day',
       'FX 1,500 €/mo · 2%, then 4%',
       'Buy gram gold in the app · 2% spread',
       'Stocks 0% · eurobonds · free live data',
@@ -179,7 +179,7 @@ export const en: Messages = {
     plusBanking: [
       'Automatic overnight interest on idle cash 34.75%',
       'Unlimited free EFT/FAST',
-      'ATM 500 €/day',
+      'ATM 25,000 TL/day',
       'FX 5,000 €/mo · 1%, then 4%',
       'Buy gram gold in the app · 1% spread',
       'Stocks 0% · eurobonds · free live data',
@@ -187,7 +187,7 @@ export const en: Messages = {
     premiumBanking: [
       'Automatic overnight interest on idle cash 35%',
       'Unlimited free EFT/FAST',
-      'ATM 1,000 €/day',
+      'ATM 30,000 TL/day',
       'FX unlimited · 0.5%',
       'Buy gram gold in the app · 0.5% spread',
       'Stocks 0% · eurobonds · free live data',
@@ -445,7 +445,7 @@ export const en: Messages = {
     hints: {
       overnight: 'Your balance stays spendable during the day. Whatever is left overnight earns the plan rate.',
       eft: 'EFT and FAST have no fee. There is no card fee.',
-      atm: 'Daily fee-free cash limit. This perk is off on the free account.',
+      atm: 'Daily fee-free cash limit. Basic is 15,000 TL, and each plan above adds 5,000 TL.',
       fxLimit: 'The monthly FX amount that uses the plan spread. On Premium the whole amount uses the plan spread.',
       fxFee: 'Buy spread inside the limit. Basic 4%, Standard 2%, Plus 1%, Premium 0.5%.',
       fxFeeOver: 'Amount above the limit uses the Basic spread. Premium has no cap.',

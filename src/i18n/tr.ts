@@ -171,7 +171,7 @@ export const tr: Messages = {
     standardBanking: [
       'Boşta duran paraya otomatik gecelik faiz %34,5',
       'Sınırsız ücretsiz EFT/FAST',
-      'ATM 250 €/gün',
+      'ATM 20.000 TL/gün',
       'Döviz 1.500 €/ay · %2, üzeri %4',
       'Uygulamadan gram altın al · makas %2',
       'Hisse %0 · eurobond · ücretsiz canlı veri',
@@ -179,7 +179,7 @@ export const tr: Messages = {
     plusBanking: [
       'Boşta duran paraya otomatik gecelik faiz %34,75',
       'Sınırsız ücretsiz EFT/FAST',
-      'ATM 500 €/gün',
+      'ATM 25.000 TL/gün',
       'Döviz 5.000 €/ay · %1, üzeri %4',
       'Uygulamadan gram altın al · makas %1',
       'Hisse %0 · eurobond · ücretsiz canlı veri',
@@ -187,7 +187,7 @@ export const tr: Messages = {
     premiumBanking: [
       'Boşta duran paraya otomatik gecelik faiz %35',
       'Sınırsız ücretsiz EFT/FAST',
-      'ATM 1.000 €/gün',
+      'ATM 30.000 TL/gün',
       'Döviz sınırsız · %0,5',
       'Uygulamadan gram altın al · makas %0,5',
       'Hisse %0 · eurobond · ücretsiz canlı veri',
@@ -445,7 +445,7 @@ export const tr: Messages = {
     hints: {
       overnight: 'Gündüz bakiyen harcamaya açık kalır. Gece kalan tutara paketine göre faiz işler.',
       eft: 'EFT ve FAST kesintisizdir. Kart aidatı yoktur.',
-      atm: 'Günlük ücretsiz nakit çekim limiti. Temel hesapta bu ayrıcalık kapalıdır.',
+      atm: 'Günlük ücretsiz nakit çekim limiti. Temel 15.000 TL, her üst pakette 5.000 TL artar.',
       fxLimit: 'Paket makasının geçerli olduğu aylık döviz tutarı. Premium’da tutarın tamamı paket makasındadır.',
       fxFee: 'Alışta, limit içindeki makas. Temel %4, Standard %2, Plus %1, Premium %0,5.',
       fxFeeOver: 'Limit üstü tutar Temel makasıyla işler. Premium’da üst sınır yoktur.',

@@ -244,7 +244,7 @@ export const comparisonRows: {
     id: 'atm',
     group: 'bank',
     icon: 'atm',
-    values: { account: false, standard: '250 €/gün', plus: '500 €/gün', premium: '1.000 €/gün' },
+    values: { account: '15.000 TL/gün', standard: '20.000 TL/gün', plus: '25.000 TL/gün', premium: '30.000 TL/gün' },
   },
   {
     id: 'fxLimit',
