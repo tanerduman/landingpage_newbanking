@@ -181,20 +181,6 @@ export default function App() {
                 {t.hero.simulatorCta}
               </a>
             </div>
-            <div className="stats">
-              <div>
-                <strong>0 ₺</strong>
-                <span>{t.hero.statEft}</span>
-              </div>
-              <div>
-                <strong>🌙</strong>
-                <span>{t.hero.statInterest}</span>
-              </div>
-              <div>
-                <strong>3–6</strong>
-                <span>{t.hero.statOffers}</span>
-              </div>
-            </div>
           </div>
 
           <div className={`stage is-${intent === 'account' ? 'account' : selected}`}>
