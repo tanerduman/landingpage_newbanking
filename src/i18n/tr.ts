@@ -21,7 +21,6 @@ export const tr: Messages = {
     language: 'Dil',
   },
   hero: {
-    eyebrow: '0 ₺ EFT/Havale · Sürpriz Aidat Yok · Taahhüt Yok',
     title: 'Paran, her yerde daha güçlü.',
     lead: 'Boşta duran parana her gece otomatik faiz, e-ticarette peşin fiyatına taksit, düşük komisyonlu yatırım ve doğrudan insan desteği.',
     simulatorCta: 'Kazancını Hesapla (Simülatör)',

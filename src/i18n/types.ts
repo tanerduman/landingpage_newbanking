@@ -20,7 +20,6 @@ export type Messages = {
     language: string
   }
   hero: {
-    eyebrow: string
     title: string
     lead: string
     simulatorCta: string
