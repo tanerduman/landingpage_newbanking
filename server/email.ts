@@ -58,7 +58,11 @@ export async function sendWaitlistConfirm(input: {
       html: copy.html,
     }),
   })
-  if (!res.ok) return { ok: false as const, skipped: false as const }
+  if (!res.ok) {
+    const detail = (await res.text().catch(() => '')).slice(0, 400)
+    console.error(`resend send failed ${res.status} ${detail}`)
+    return { ok: false as const, skipped: false as const }
+  }
   return { ok: true as const, skipped: false as const }
 }
 
