@@ -116,7 +116,7 @@ export function SignupModal({
         setPhase('code')
         return
       }
-      onClose(t.signup.received)
+      onClose(result.status === 'updated' ? t.signup.updated : t.signup.received)
     } catch (err) {
       setError(err instanceof Error ? err.message : t.signup.saveFail)
     } finally {
