@@ -35,7 +35,6 @@ export type Messages = {
   }
   fx: {
     eyebrow: string
-    lead: string
     error: string
   }
   plans: {
