@@ -2,7 +2,7 @@ import { randomBytes, randomInt, randomUUID, timingSafeEqual } from 'node:crypto
 import pg from 'pg'
 import { secretDigest } from './auth.ts'
 import { CONFIRM_CODE_DIGITS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
-import { normalizeEmail } from './email.ts'
+import { normalizeEmail, visitScope, type VisitScope } from './email.ts'
 import {
   isBillingCycle,
   isIntent,
@@ -98,8 +98,8 @@ type SupportRecord = SupportRow & {
 }
 
 type Memory = {
-  visitors: Map<string, { firstSeen: string; lastSeen: string }>
-  sessions: Map<string, { visitorId: string; createdAt: string }>
+  visitors: Map<string, { firstSeen: string; lastSeen: string; scope: VisitScope }>
+  sessions: Map<string, { visitorId: string; createdAt: string; scope: VisitScope }>
   waitlist: WaitlistRecord[]
   support: SupportRecord[]
   adminSessions: Map<string, AdminSessionRecord>
@@ -168,16 +168,23 @@ function supportMatches(
 
 const globalStore = globalThis as typeof globalThis & { __aureStore?: Store }
 
-function statsFromMemory(data: Memory): VisitStats {
+function visitKey(scope: VisitScope, id: string) {
+  return `${scope}:${id}`
+}
+
+function statsFromMemory(data: Memory, scope: VisitScope): VisitStats {
+  let unique = 0
+  let views = 0
   let lastVisit: string | null = null
+  for (const visitor of data.visitors.values()) {
+    if (visitor.scope === scope) unique += 1
+  }
   for (const session of data.sessions.values()) {
+    if (session.scope !== scope) continue
+    views += 1
     if (!lastVisit || session.createdAt > lastVisit) lastVisit = session.createdAt
   }
-  return {
-    unique: data.visitors.size,
-    views: data.sessions.size,
-    lastVisit,
-  }
+  return { unique, views, lastVisit, scope }
 }
 
 function memoryStore(): Store {
@@ -192,17 +199,20 @@ function memoryStore(): Store {
   return {
     kind: 'memory',
     async recordVisit(visitorId, sessionId) {
+      const scope = visitScope()
       const now = new Date().toISOString()
-      const existing = data.visitors.get(visitorId)
+      const visitorKey = visitKey(scope, visitorId)
+      const existing = data.visitors.get(visitorKey)
       if (existing) existing.lastSeen = now
-      else data.visitors.set(visitorId, { firstSeen: now, lastSeen: now })
-      if (!data.sessions.has(sessionId)) {
-        data.sessions.set(sessionId, { visitorId, createdAt: now })
+      else data.visitors.set(visitorKey, { firstSeen: now, lastSeen: now, scope })
+      const sessionKey = visitKey(scope, sessionId)
+      if (!data.sessions.has(sessionKey)) {
+        data.sessions.set(sessionKey, { visitorId, createdAt: now, scope })
       }
-      return statsFromMemory(data)
+      return statsFromMemory(data, scope)
     },
     async getStats() {
-      return statsFromMemory(data)
+      return statsFromMemory(data, visitScope())
     },
     async requestWaitlist(input) {
       const existing = data.waitlist.find((row) => row.emailNorm === input.emailNorm)
@@ -404,12 +414,14 @@ const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS visitors (
   id TEXT PRIMARY KEY,
   first_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  last_seen TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  scope TEXT NOT NULL DEFAULT 'production'
 );
 CREATE TABLE IF NOT EXISTS sessions (
   id TEXT PRIMARY KEY,
   visitor_id TEXT NOT NULL REFERENCES visitors (id),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  scope TEXT NOT NULL DEFAULT 'production'
 );
 CREATE TABLE IF NOT EXISTS waitlist (
   id TEXT PRIMARY KEY,
@@ -489,6 +501,14 @@ ALTER TABLE support_requests ALTER COLUMN confirmed SET DEFAULT FALSE;
 ALTER TABLE support_requests ALTER COLUMN confirmed SET NOT NULL;
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS status_token_hash TEXT;
 ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS status_expires TIMESTAMPTZ;
+ALTER TABLE visitors ADD COLUMN IF NOT EXISTS scope TEXT;
+UPDATE visitors SET scope = 'production' WHERE scope IS NULL OR scope = '';
+ALTER TABLE visitors ALTER COLUMN scope SET DEFAULT 'production';
+ALTER TABLE visitors ALTER COLUMN scope SET NOT NULL;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS scope TEXT;
+UPDATE sessions SET scope = 'production' WHERE scope IS NULL OR scope = '';
+ALTER TABLE sessions ALTER COLUMN scope SET DEFAULT 'production';
+ALTER TABLE sessions ALTER COLUMN scope SET NOT NULL;
 `
 
 function databaseUrl() {
@@ -536,16 +556,23 @@ function postgresStore(url: string): Store {
 
   async function getStats(): Promise<VisitStats> {
     await ensure()
-    const unique = await pool.query<{ n: string }>('SELECT COUNT(*)::text AS n FROM visitors')
-    const views = await pool.query<{ n: string }>('SELECT COUNT(*)::text AS n FROM sessions')
+    const scope = visitScope()
+    const unique = await pool.query<{ n: string }>('SELECT COUNT(*)::text AS n FROM visitors WHERE scope = $1', [
+      scope,
+    ])
+    const views = await pool.query<{ n: string }>('SELECT COUNT(*)::text AS n FROM sessions WHERE scope = $1', [
+      scope,
+    ])
     const last = await pool.query<{ created_at: Date | null }>(
-      'SELECT MAX(created_at) AS created_at FROM sessions',
+      'SELECT MAX(created_at) AS created_at FROM sessions WHERE scope = $1',
+      [scope],
     )
     const lastAt = last.rows[0]?.created_at
     return {
       unique: Number(unique.rows[0]?.n ?? 0),
       views: Number(views.rows[0]?.n ?? 0),
       lastVisit: lastAt ? new Date(lastAt).toISOString() : null,
+      scope,
     }
   }
 
@@ -553,15 +580,16 @@ function postgresStore(url: string): Store {
     kind: 'postgres',
     async recordVisit(visitorId, sessionId) {
       await ensure()
+      const scope = visitScope()
       await pool.query(
-        `INSERT INTO visitors (id) VALUES ($1)
+        `INSERT INTO visitors (id, scope) VALUES ($1, $2)
          ON CONFLICT (id) DO UPDATE SET last_seen = NOW()`,
-        [visitorId],
+        [visitorId, scope],
       )
       await pool.query(
-        `INSERT INTO sessions (id, visitor_id) VALUES ($1, $2)
+        `INSERT INTO sessions (id, visitor_id, scope) VALUES ($1, $2, $3)
          ON CONFLICT (id) DO NOTHING`,
-        [sessionId, visitorId],
+        [sessionId, visitorId, scope],
       )
       return getStats()
     },

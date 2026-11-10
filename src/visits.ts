@@ -1,4 +1,5 @@
 import { apiFetch, readApiJson } from './api.ts'
+import { isWaitlistLocation } from './base.ts'
 
 const VISITOR_KEY = 'aure-visitor-id'
 const STATS_KEY = 'aure-visit-stats'
@@ -8,6 +9,7 @@ export type VisitStats = {
   unique: number
   views: number
   lastVisit: string | null
+  scope?: 'production' | 'preview' | 'development'
 }
 
 const empty: VisitStats = { unique: 0, views: 0, lastVisit: null }
@@ -21,6 +23,7 @@ export function loadVisitStats(): VisitStats {
       unique: Number(parsed.unique) || 0,
       views: Number(parsed.views) || 0,
       lastVisit: parsed.lastVisit ?? null,
+      scope: parsed.scope,
     }
   } catch {
     return { ...empty }
@@ -49,6 +52,7 @@ function ids() {
 }
 
 export async function recordVisit() {
+  if (isWaitlistLocation()) return loadVisitStats()
   const { visitor, session, newVisitor, newSession } = ids()
   const res = await apiFetch('/api/visits', {
     method: 'POST',
@@ -77,6 +81,7 @@ export async function fetchVisitStats(): Promise<VisitStats> {
       unique: Number(remote.unique) || 0,
       views: Number(remote.views) || 0,
       lastVisit: remote.lastVisit ?? null,
+      scope: remote.scope,
     }
   }
   return loadVisitStats()
