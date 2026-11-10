@@ -12,6 +12,7 @@ export type Messages = {
     compare: string
     campaigns: string
     calculator: string
+    partners: string
     support: string
     newPage: string
     faq: string
@@ -36,6 +37,13 @@ export type Messages = {
   how: {
     title: string
     steps: { title: string; body: string }[]
+  }
+  partners: {
+    kicker: string
+    title: string
+    lead: string
+    note: string
+    items: { id: string; category: string; name: string; body: string; meta: string }[]
   }
   fx: {
     eyebrow: string

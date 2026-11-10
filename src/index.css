@@ -98,7 +98,9 @@ img {
   font-weight: 500;
 }
 
-.nav-links a:hover {
+.nav-links a:hover,
+.nav-links a[aria-current='page'],
+.mobile-drawer a[aria-current='page'] {
   color: var(--text);
 }
 
@@ -1019,6 +1021,96 @@ h3 {
 }
 
 .plans-note {
+  margin: 28px 0 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.partners-main {
+  padding: 54px 0 72px;
+}
+
+.partners-main h1 {
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  margin: 0 0 14px;
+  max-width: 760px;
+}
+
+.partners-lead {
+  margin: 0 0 36px;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.partner-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.partner-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 18px 18px 20px;
+  min-height: 248px;
+  display: flex;
+  flex-direction: column;
+}
+
+.partner-mark {
+  height: 64px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.partner-mark-migros { background: #ff6a00; color: #fff; font-size: 28px; font-family: "Bricolage Grotesque", sans-serif; }
+.partner-mark-setur { background: #0b2f8a; color: #fff; letter-spacing: 0.18em; font-size: 20px; }
+.partner-mark-divan { background: #f3efe6; color: #6b1d2a; letter-spacing: 0.22em; font-size: 18px; }
+.partner-mark-koctas { background: #e10600; color: #fff; font-size: 22px; }
+.partner-mark-uber { background: #111; color: #fff; border: 1px solid rgba(255, 255, 255, 0.08); font-size: 20px; }
+.partner-mark-uber i { color: #06c167; font-style: normal; }
+.partner-mark-trendyol { background: #f27a1a; color: #fff; font-size: 22px; letter-spacing: -0.04em; }
+.partner-mark-neo { background: #111; color: #fff; border: 1px solid rgba(255, 255, 255, 0.08); font-size: 16px; letter-spacing: 0.14em; }
+
+.partner-cat {
+  color: var(--lime);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.partner-card h2 {
+  font-size: 26px;
+  margin: 6px 0 8px;
+  letter-spacing: -0.03em;
+}
+
+.partner-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.partner-meta {
+  margin-top: auto;
+  padding-top: 14px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.partners-note {
   margin: 28px 0 0;
   text-align: center;
   color: var(--muted);
@@ -2835,6 +2927,10 @@ td.row-action {
     gap: 0;
     width: min(1180px, calc(100% - 24px));
     font-size: 10px;
+  }
+
+  .partner-grid {
+    grid-template-columns: 1fr;
   }
 
   .nav-rate {

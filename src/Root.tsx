@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import App from './App.tsx'
 import CalculatorPage from './CalculatorPage.tsx'
 import CampaignsPage from './CampaignsPage.tsx'
+import PartnersPage from './PartnersPage.tsx'
 import ComparePage from './ComparePage.tsx'
 import ConfirmPage from './ConfirmPage.tsx'
 import SupportPage from './SupportPage.tsx'
@@ -10,6 +11,7 @@ import { LocaleProvider } from './i18n/LocaleContext.tsx'
 import {
   isCalculatorLocation,
   isCampaignsLocation,
+  isPartnersLocation,
   isCompareLocation,
   isConfirmLocation,
   isSupportLocation,
@@ -23,6 +25,7 @@ function pageFromLocation() {
   if (isCompareLocation()) return 'compare'
   if (isCampaignsLocation()) return 'campaigns'
   if (isCalculatorLocation()) return 'calculator'
+  if (isPartnersLocation()) return 'partners'
   if (isConfirmLocation()) return 'confirm'
   return 'home'
 }
@@ -67,6 +70,8 @@ export default function Root() {
       <CampaignsPage />
     ) : page === 'calculator' ? (
       <CalculatorPage />
+    ) : page === 'partners' ? (
+      <PartnersPage />
     ) : page === 'confirm' ? (
       <ConfirmPage />
     ) : page === 'support' ? (

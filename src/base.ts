@@ -41,6 +41,16 @@ export function isCalculatorHash(hash = window.location.hash) {
   return value === '/hesaplama' || value === 'hesaplama' || value === '/calculator' || value === 'calculator'
 }
 
+export function isPartnersHash(hash = window.location.hash) {
+  const value = hashValue(hash)
+  return (
+    value === '/isbirlikleri' ||
+    value === 'isbirlikleri' ||
+    value === '/partners' ||
+    value === 'partners'
+  )
+}
+
 export function isWaitlistLocation() {
   return pathPage() === 'waitlist' || isWaitlistHash()
 }
@@ -62,6 +72,11 @@ export function isCampaignsLocation() {
 export function isCalculatorLocation() {
   const page = pathPage()
   return page === 'hesaplama' || page === 'calculator' || isCalculatorHash()
+}
+
+export function isPartnersLocation() {
+  const page = pathPage()
+  return page === 'isbirlikleri' || page === 'partners' || isPartnersHash()
 }
 
 export function isConfirmHash(hash = window.location.hash) {
