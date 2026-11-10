@@ -21,7 +21,6 @@ export const en: Messages = {
     language: 'Language',
   },
   hero: {
-    eyebrow: '0 ₺ transfers · no surprise fees · no lock-in',
     title: 'Your money, stronger everywhere.',
     lead: 'Overnight interest on idle cash, instalments at the cash price on e-commerce, low-commission investing, and a human on the line — not a chatbot.',
     simulatorCta: 'See your gain (simulator)',

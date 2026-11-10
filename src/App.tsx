@@ -176,9 +176,6 @@ export default function App() {
       <main id="top">
         <div className="wrap hero">
           <div>
-            <div className="eyebrow">
-              <span className="dot" /> {t.hero.eyebrow}
-            </div>
             <h1>{t.hero.title}</h1>
             <p className="lead">{t.hero.lead}</p>
             <div className="hero-actions">
