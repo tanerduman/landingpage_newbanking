@@ -389,6 +389,7 @@ export const tr: Messages = {
   footer: {
     legal: '© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.',
     waitlist: 'Talep listesi',
+    linkedin: 'LinkedIn',
   },
   pkg: {
     all: 'Tümü',

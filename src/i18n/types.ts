@@ -240,6 +240,7 @@ export type Messages = {
   footer: {
     legal: string
     waitlist: string
+    linkedin: string
   }
   pkg: {
     all: string
