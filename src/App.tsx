@@ -14,7 +14,7 @@ import LogoMark from './LogoMark.tsx'
 
 type Cycle = 'monthly' | 'yearly'
 
-const fxBases = ['USD', 'EUR'] as const
+const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
 
 type FxQuote = { base: string; quote: string; rate: number }
 
@@ -259,19 +259,16 @@ export default function App() {
             <p>{t.fx.lead}</p>
           </div>
           <div className="fx-grid">
-            {(fx.length
-              ? fx.filter((row) => (fxBases as readonly string[]).includes(row.base))
-              : fxBases.map((base) => ({ base, quote: 'TRY', rate: 0 }))
-            ).map(
-              (row) => (
+            {fxBases
+              .map((base) => fx.find((row) => row.base === base) ?? { base, quote: 'TRY', rate: 0 })
+              .map((row) => (
                 <div key={row.base} className="fx-card">
                   <span>
                     {row.base}/{row.quote}
                   </span>
                   <strong>{row.rate ? formatFx(row.rate, locale) : '—'}</strong>
                 </div>
-              ),
-            )}
+              ))}
           </div>
           {fxError && (
             <p className="fx-error">
@@ -283,11 +280,10 @@ export default function App() {
         <div className="marquee" aria-hidden="true">
           <div className="marquee-track">
             {Array.from({ length: 10 }, () =>
-              fx.length
-                ? fx
-                    .filter((row) => (fxBases as readonly string[]).includes(row.base))
-                    .map((row) => `${row.base}/${row.quote} ${formatFx(row.rate, locale)}`)
-                : fxBases.map((c) => `${c}/TRY`),
+              fxBases.map((base) => {
+                const row = fx.find((item) => item.base === base)
+                return row ? `${row.base}/${row.quote} ${formatFx(row.rate, locale)}` : `${base}/TRY`
+              }),
             )
               .flat()
               .map((label, i) => (

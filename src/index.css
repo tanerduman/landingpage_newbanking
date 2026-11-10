@@ -435,7 +435,7 @@ h3 {
 
 .fx-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 280px));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -2758,13 +2758,16 @@ td.row-action {
   .phones,
   .waitlist-stats,
   .traffic-stats,
-  .fx-grid,
   .campaign-card,
   .waitlist-pie-body,
   .waitlist-pies,
   .simulator-grid,
   .simulator-controls {
     grid-template-columns: 1fr;
+  }
+
+  .fx-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .simulator-controls {
