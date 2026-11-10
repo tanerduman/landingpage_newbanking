@@ -23,9 +23,8 @@ function apiPlugin(env: Record<string, string>) {
         res.end()
         return
       }
-      if (pathname === '/maintenance') {
-        req.url = '/maintenance.html'
-      }
+      if (pathname === '/maintenance') req.url = '/maintenance.html'
+      if (pathname === '/region') req.url = '/region.html'
       if (!req.url?.startsWith('/api')) {
         next()
         return

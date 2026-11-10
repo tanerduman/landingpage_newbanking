@@ -3,6 +3,7 @@
   Shown to visitors outside Turkey.
   Vercel Firewall must Redirect (not Deny) when country is not TR,
   and the rule must skip /region and /region.html. Deny never reaches this file.
+  Maintenance mode also leaves this path alone, so the two redirects do not loop.
 -->
 <html lang="tr">
   <head>
