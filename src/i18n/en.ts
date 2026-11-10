@@ -441,6 +441,7 @@ export const en: Messages = {
       migrosOnline: 'Migros Sanal Market',
       divan: 'Divan Pastanesi',
       neo: 'Neo Skola',
+      koctas: 'Koçtaş',
     },
     hints: {
       overnight: 'Your balance stays spendable during the day. Whatever is left overnight earns the plan rate.',
@@ -463,6 +464,7 @@ export const en: Messages = {
       migrosOnline: 'Discount on Migros Sanal Market orders at the online rate.',
       divan: 'Discount at Divan Pastanesi shops and selected spots. 10% on Plus, 15% on Premium.',
       neo: 'Online-course perk. Off on the free account; on for Standard, Plus and Premium.',
+      koctas: 'The most you can save in a month is 20,000 ₺.',
     },
     cell: {
       unlimited0: 'Unlimited 0 ₺',

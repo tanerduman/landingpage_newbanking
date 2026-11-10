@@ -215,6 +215,7 @@ export const comparisonRows: {
     | 'migrosOnline'
     | 'divan'
     | 'neo'
+    | 'koctas'
     | 'atm'
     | 'cashback'
     | 'miles'
@@ -347,6 +348,12 @@ export const comparisonRows: {
     group: 'brand',
     icon: 'book',
     values: { account: false, standard: true, plus: true, premium: true },
+  },
+  {
+    id: 'koctas',
+    group: 'brand',
+    icon: 'home',
+    values: { account: false, standard: '%5', plus: '%7,5', premium: '%10' },
   },
 ]
 
