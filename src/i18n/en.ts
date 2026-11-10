@@ -36,7 +36,7 @@ export const en: Messages = {
   },
   fx: {
     eyebrow: 'Live rates',
-    lead: 'USD and EUR vs TRY. Plan spread up to the limit, then Basic 4%; Premium is 0.5% on the whole amount.',
+    lead: 'USD, EUR, GBP and CHF vs TRY. Plan spread up to the limit, then Basic 4%; Premium is 0.5% on the whole amount.',
     error: 'Rates unavailable',
   },
   plans: {
