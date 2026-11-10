@@ -228,13 +228,6 @@ export const en: Messages = {
     navFx: 'FX',
     navMore: 'More',
   },
-  homeCompare: {
-    title: 'Basic at 0 ₺ is still a choice.',
-    lead: 'See overnight interest, instalments, live data and support side by side.',
-    feature: 'Feature',
-    all: 'Compare all features',
-    yes: 'Yes',
-  },
   lifestyle: {
     title: 'The account stays free. Plans multiply what you earn.',
     lead: 'Basic stays 0 ₺. A plan grows overnight interest, instalments and auto offers.',

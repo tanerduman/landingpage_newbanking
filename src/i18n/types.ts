@@ -191,13 +191,6 @@ export type Messages = {
     navFx: string
     navMore: string
   }
-  homeCompare: {
-    title: string
-    lead: string
-    feature: string
-    all: string
-    yes: string
-  }
   lifestyle: {
     title: string
     lead: string
