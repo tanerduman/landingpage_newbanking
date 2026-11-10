@@ -134,6 +134,9 @@ export default function SupportPage() {
       </header>
       <main className="wrap support-main">
         <div className="login-card support-card">
+          <a className="modal-close" href={withBase()} aria-label={t.signup.close}>
+            ×
+          </a>
           {sent ? (
             <>
               <p className="eyebrow">
