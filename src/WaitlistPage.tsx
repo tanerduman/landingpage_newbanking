@@ -467,6 +467,7 @@ export default function WaitlistPage() {
           </div>
         </div>
 
+        {visits.scope === 'preview' && <p className="traffic-scope">{t.waitlist.previewNote}</p>}
         <div className="traffic-stats">
           <div className="waitlist-stat traffic">
             <strong>{visits.unique}</strong>

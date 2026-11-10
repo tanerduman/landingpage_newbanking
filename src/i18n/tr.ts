@@ -594,6 +594,7 @@ export const tr: Messages = {
     lead: 'Yalnızca e-postası onaylanmış talepler burada ve Excel’de durur. Üstte siteye giren kişi sayısı, altta paket talepleri var.',
     unique: 'Tekil ziyaretçi',
     views: 'Site girişi (oturum)',
+    previewNote: 'Bu sayılar yalnızca Vercel önizlemesine aittir. Canlı siteden ayrı tutulur.',
     requests: 'Paket / hesap talebi',
     conversion: 'Talebe dönüşüm',
     pieMonth: 'Aylık',

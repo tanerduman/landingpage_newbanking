@@ -17,6 +17,15 @@ export function isProduction() {
   return process.env.VERCEL_ENV === 'production'
 }
 
+export type VisitScope = 'production' | 'preview' | 'development'
+
+/** Preview deployments keep their own visitor counts, separate from production. */
+export function visitScope(): VisitScope {
+  if (process.env.VERCEL_ENV === 'preview') return 'preview'
+  if (process.env.VERCEL_ENV === 'production') return 'production'
+  return 'development'
+}
+
 const CANONICAL_PRODUCTION_URL = 'https://www.getaure.org'
 
 function stripSlash(url: string) {

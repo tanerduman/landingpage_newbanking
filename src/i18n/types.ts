@@ -364,6 +364,7 @@ export type Messages = {
     lead: string
     unique: string
     views: string
+    previewNote: string
     requests: string
     conversion: string
     pieMonth: string

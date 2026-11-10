@@ -2027,11 +2027,21 @@ footer {
   margin: 16px 0 12px;
 }
 
+.traffic-scope {
+  margin: 22px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
 .traffic-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin: 28px 0 16px;
+}
+
+.traffic-scope + .traffic-stats {
+  margin-top: 12px;
 }
 
 .waitlist-stats {

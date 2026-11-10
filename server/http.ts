@@ -137,12 +137,16 @@ async function handleGold(request: Request) {
   return json(result.payload, 200, request)
 }
 
-async function requireAdmin(request: Request) {
-  if (!credentialsConfigured()) return fail(request, 'unauthorized', 401)
+async function adminPresent(request: Request) {
+  if (!credentialsConfigured()) return false
   const id = readCookie(request, ADMIN_COOKIE)
-  if (!id) return fail(request, 'unauthorized', 401)
+  if (!id) return false
   const session = await getStore().readAdminSession(sessionKey(id), passwordFingerprint())
-  if (!session) return fail(request, 'unauthorized', 401)
+  return Boolean(session)
+}
+
+async function requireAdmin(request: Request) {
+  if (!(await adminPresent(request))) return fail(request, 'unauthorized', 401)
   return null
 }
 
@@ -182,6 +186,7 @@ async function handleVisits(request: Request) {
     const stats = await store.getStats()
     return json(stats, 200, request)
   }
+  if (await adminPresent(request)) return json({ ok: true }, 200, request)
   if (await overLimit(`visits:ip:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)

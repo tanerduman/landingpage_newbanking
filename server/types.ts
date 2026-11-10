@@ -2,6 +2,7 @@ export type VisitStats = {
   unique: number
   views: number
   lastVisit: string | null
+  scope: 'production' | 'preview' | 'development'
 }
 
 export type WaitlistRow = {

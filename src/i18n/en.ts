@@ -595,6 +595,7 @@ export const en: Messages = {
     lead: 'Only email-confirmed requests appear here and in Excel. Unique visitors on top, plan requests below.',
     unique: 'Unique visitors',
     views: 'Site visits (sessions)',
+    previewNote: 'These numbers belong only to the Vercel preview. They are kept apart from production.',
     requests: 'Plan / account requests',
     conversion: 'Conversion to request',
     pieMonth: 'Monthly',
