@@ -40,6 +40,8 @@ export type Messages = {
   fx: {
     eyebrow: string
     error: string
+    gold: string
+    goldHint: string
   }
   plans: {
     badge: string

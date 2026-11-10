@@ -5,7 +5,7 @@ import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { formatFx } from './i18n/format.ts'
+import { formatFx, formatGram } from './i18n/format.ts'
 import { type PlanId, type SignupIntent } from './waitlist'
 import LogoMark from './LogoMark.tsx'
 
@@ -32,6 +32,7 @@ export default function App() {
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [fx, setFx] = useState<FxQuote[]>([])
+  const [gold, setGold] = useState(0)
 
   const perks: Record<PlanColumnId, string[]> = {
     account: t.plans.accountPerks,
@@ -57,13 +58,15 @@ export default function App() {
 
   useEffect(() => {
     let cancelled = false
-    async function loadFx() {
-      const res = await apiFetch('/api/rates')
-      const data = await readApiJson<{ quotes?: FxQuote[] }>(res)
+    async function loadQuotes() {
+      const [ratesRes, goldRes] = await Promise.all([apiFetch('/api/rates'), apiFetch('/api/gold')])
+      const rates = await readApiJson<{ quotes?: FxQuote[] }>(ratesRes)
+      const metal = await readApiJson<{ gramTry?: number; source?: string }>(goldRes)
       if (cancelled) return
-      if (res?.ok && data?.quotes?.length) setFx(data.quotes)
+      if (ratesRes?.ok && rates?.quotes?.length) setFx(rates.quotes)
+      if (goldRes?.ok && metal?.source === 'collectapi' && metal.gramTry) setGold(metal.gramTry)
     }
-    void loadFx()
+    void loadQuotes()
     return () => {
       cancelled = true
     }
@@ -104,6 +107,10 @@ export default function App() {
                 <strong>{row.rate ? formatFx(row.rate, locale) : '—'}</strong>
               </span>
             ))}
+            <span className="nav-rate" title={t.fx.goldHint}>
+              <span>{t.fx.gold}</span>
+              <strong>{gold ? formatGram(gold, locale) : '—'}</strong>
+            </span>
           </div>
         </div>
         <div className={`wrap mobile-drawer ${menu ? 'open' : ''}`}>

@@ -43,6 +43,13 @@ export function formatFx(rate: number, locale: Locale) {
   })
 }
 
+export function formatGram(amount: number, locale: Locale) {
+  return amount.toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+}
+
 export function formatEur(amount: number, locale: Locale) {
   const rounded = Math.round(amount)
   const sign = rounded < 0 ? '−' : ''

@@ -52,8 +52,10 @@ export const en: Messages = {
     ],
   },
   fx: {
-    eyebrow: 'Live rates',
+    eyebrow: 'Live rates and gold',
     error: 'Rates unavailable',
+    gold: 'GOLD',
+    goldHint: 'Gram gold, TRY',
   },
   plans: {
     badge: 'No lock-in',
