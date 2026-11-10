@@ -12,7 +12,6 @@ export const tr: Messages = {
     app: 'Uygulama',
     compare: 'Karşılaştır',
     campaigns: 'Kampanyalar',
-    calculator: 'Hesaplama',
     partners: 'Marka işbirlikleri',
     support: 'Destek',
     newPage: 'Yeni',
@@ -28,7 +27,6 @@ export const tr: Messages = {
     eyebrow: 'Ücretsiz hesap',
     title: 'Önce ücretsiz hesap.\nSonra paketin.',
     lead: 'Temel hesapla başla. İstediğin zaman Standard, Plus veya Premium pakete geç. Şimdilik yalnızca talep alıyoruz.',
-    simulatorCta: 'Kazancını Hesapla (Simülatör)',
     cardAccount: 'AURE Hesap',
     pillSupport: '✨ Chatbot yok',
     pillSupportSub: 'Saniyeler içinde canlı destek',
@@ -246,9 +244,6 @@ export const tr: Messages = {
     idlePreset: '1.000.000 ₺ örneği',
     fxSellPreset: '20.000 € örneği',
     minimum: '{plan} ücretini tek başına kapatan en küçük harcama ve bakiye.',
-  },
-  calculator: {
-    lead: 'Harcama, bakiye ve dövize göre paketin Temel hesaba göre ne kadar fark bıraktığını gör.',
   },
   idleExample: {
     kicker: 'Örnek senaryo',

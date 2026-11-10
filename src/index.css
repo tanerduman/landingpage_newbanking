@@ -2661,12 +2661,6 @@ td.row-action {
   margin: 0 0 28px;
 }
 
-.calculator-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin: 0 0 16px;
-}
-
 .rev-board {
   background: #fff;
   border-radius: 28px;

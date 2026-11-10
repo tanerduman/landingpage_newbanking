@@ -52,7 +52,6 @@ export default function SiteHeader({
         <nav className="nav-links">
           <a href={howHref}>{t.nav.how}</a>
           <a href={plansHref}>{t.nav.plans}</a>
-          <a href={withBase('hesaplama')}>{t.nav.calculator}</a>
           <a href={withBase('isbirlikleri')} aria-current={active === 'partners' ? 'page' : undefined}>
             {t.nav.partners}
           </a>
@@ -89,9 +88,6 @@ export default function SiteHeader({
         </a>
         <a href={plansHref} onClick={() => setMenu(false)}>
           {t.nav.plans}
-        </a>
-        <a href={withBase('hesaplama')} onClick={() => setMenu(false)}>
-          {t.nav.calculator}
         </a>
         <a href={withBase('isbirlikleri')} onClick={() => setMenu(false)} aria-current={active === 'partners' ? 'page' : undefined}>
           {t.nav.partners}
