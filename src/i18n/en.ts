@@ -25,7 +25,7 @@ export const en: Messages = {
     fiction: 'You cannot open a real bank account or deposit money. This page only shows the product model.',
     eyebrow: '0 ₺ transfers · no surprise fees · no lock-in',
     title: 'Your money, stronger everywhere.',
-    lead: 'Overnight interest on idle cash, instalments at the cash price on e-commerce, zero-commission investing, and a human on the line — not a chatbot.',
+    lead: 'Overnight interest on idle cash, instalments at the cash price on e-commerce, low-commission investing, and a human on the line — not a chatbot.',
     simulatorCta: 'See your gain (simulator)',
     statEft: 'transfers & card fees',
     statInterest: 'Overnight interest every night',
