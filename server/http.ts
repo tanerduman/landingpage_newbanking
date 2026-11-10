@@ -224,7 +224,7 @@ async function handleWaitlist(request: Request) {
   if (await overLimit(`waitlist:email:${valid.emailNorm}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const result = await store.requestWaitlist(valid)
   if (result.status === 'updated') {
-    return json({ ok: true }, 200, request)
+    return json({ ok: true, updated: true }, 200, request)
   }
   const link = `${publicAppUrl(request)}/confirm`
   const sent = await sendWaitlistConfirm({
@@ -240,20 +240,15 @@ async function handleWaitlist(request: Request) {
   if (!sent.ok && sent.skipped && isProduction()) {
     return fail(request, 'mail_off', 503, parsed.value)
   }
-  const localDev = !process.env.VERCEL
-  if (localDev) {
-    return json(
-      {
-        pending: true,
-        delivered: sent.ok,
-        statusToken: result.statusToken,
-        ...(sent.ok ? {} : { devCode: result.code }),
-      },
-      200,
-      request,
-    )
-  }
-  return json({ ok: true }, 200, request)
+  return json(
+    {
+      pending: true,
+      statusToken: result.statusToken,
+      ...(!sent.ok ? { devCode: result.code } : {}),
+    },
+    200,
+    request,
+  )
 }
 
 async function handleConfirm(request: Request) {

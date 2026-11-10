@@ -95,7 +95,7 @@ export async function addWaitlistEntry(input: {
   const remote = await readApiJson<{
     ok?: boolean
     pending?: boolean
-    delivered?: boolean
+    updated?: boolean
     devCode?: string
     statusToken?: string
     error?: string
@@ -103,10 +103,13 @@ export async function addWaitlistEntry(input: {
   if (res?.ok && remote?.pending) {
     return {
       status: 'pending' as const,
-      delivered: Boolean(remote.delivered),
       devCode: remote.devCode,
       statusToken: remote.statusToken || '',
     }
+  }
+  if (res?.ok && remote?.updated) {
+    window.dispatchEvent(new Event('aure-waitlist'))
+    return { status: 'updated' as const }
   }
   if (res?.ok) {
     window.dispatchEvent(new Event('aure-waitlist'))
