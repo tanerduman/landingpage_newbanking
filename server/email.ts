@@ -77,7 +77,7 @@ export async function sendWaitlistConfirm(input: {
 
 /** Informational note after a correct OTP. Uses the same Resend key and sender as the code mail. */
 export async function sendRequestReceipt(input: { to: string; locale: 'tr' | 'en'; detail: ReceiptInput }) {
-  const copy = receiptMailCopy(input.locale, input.detail)
+  const copy = receiptMailCopy(input.locale, input.detail, publicAppUrl())
   return postResend({ to: input.to, subject: copy.subject, text: copy.text, html: copy.html })
 }
 
