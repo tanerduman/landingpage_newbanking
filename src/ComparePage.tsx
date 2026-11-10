@@ -94,6 +94,14 @@ function Icon({ name }: { name: string }) {
       </svg>
     )
   }
+  if (name === 'home') {
+    return (
+      <svg {...common}>
+        <path d="M4 11 12 4l8 7" />
+        <path d="M7 10.5V19h10v-8.5" />
+      </svg>
+    )
+  }
   return (
     <svg {...common}>
       <path d="M12 3l2.2 6.4H21l-5.4 3.9 2 6.4L12 16.8 6.4 19.7l2-6.4L3 9.4h6.8L12 3z" />
@@ -203,7 +211,25 @@ export default function ComparePage() {
                           aria-label={`${t.compare.info}: ${t.compare.rows[row.id]}`}
                           aria-expanded={openHint === row.id}
                           aria-controls={openHint === row.id ? `hint-${row.id}` : undefined}
-                          onClick={() => setOpenHint((current) => (current === row.id ? null : row.id))}
+                          onMouseEnter={row.id === 'koctas' ? () => setOpenHint(row.id) : undefined}
+                          onMouseLeave={
+                            row.id === 'koctas'
+                              ? () => setOpenHint((current) => (current === row.id ? null : current))
+                              : undefined
+                          }
+                          onFocus={row.id === 'koctas' ? () => setOpenHint(row.id) : undefined}
+                          onBlur={
+                            row.id === 'koctas'
+                              ? () => setOpenHint((current) => (current === row.id ? null : current))
+                              : undefined
+                          }
+                          onClick={() => {
+                            if (row.id === 'koctas' && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                              setOpenHint(row.id)
+                              return
+                            }
+                            setOpenHint((current) => (current === row.id ? null : row.id))
+                          }}
                         >
                           i
                         </button>
