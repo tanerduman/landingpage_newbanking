@@ -214,6 +214,7 @@ export const comparisonRows: {
     | 'migros'
     | 'migrosOnline'
     | 'divan'
+    | 'neo'
     | 'atm'
     | 'cashback'
     | 'miles'
@@ -340,6 +341,12 @@ export const comparisonRows: {
     group: 'brand',
     icon: 'cake',
     values: { account: false, standard: false, plus: '%10', premium: '%15' },
+  },
+  {
+    id: 'neo',
+    group: 'brand',
+    icon: 'book',
+    values: { account: false, standard: true, plus: true, premium: true },
   },
 ]
 
