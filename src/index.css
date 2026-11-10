@@ -131,6 +131,39 @@ img {
   white-space: nowrap;
 }
 
+.nav-rates-bar {
+  border-top: 1px solid var(--line);
+}
+
+.nav-rates {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 18px;
+  min-height: 32px;
+  padding: 6px 0 8px;
+  font-size: 12px;
+}
+
+.nav-rates .dot {
+  width: 6px;
+  height: 6px;
+}
+
+.nav-rate {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nav-rate strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .lang-switch {
   display: inline-flex;
   border: 1px solid var(--line);
@@ -2795,6 +2828,18 @@ td.row-action {
   .nav-links,
   .nav-cta a.btn {
     display: none;
+  }
+
+  .nav-rates {
+    justify-content: flex-start;
+    gap: 0;
+    font-size: 11px;
+  }
+
+  .nav-rate + .nav-rate::before {
+    content: "·";
+    margin: 0 8px;
+    color: var(--muted);
   }
 
   .month-slogan,
