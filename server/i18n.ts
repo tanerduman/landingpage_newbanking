@@ -121,7 +121,16 @@ function receiptRows(rows: { label: string; value: string; message?: boolean }[]
     .join('')
 }
 
-/** Dark card used after the OTP checks out. The logo sits in the footer. */
+function mailOrigin(link: string) {
+  try {
+    const url = new URL(link)
+    return `${url.protocol}//${url.host}`
+  } catch {
+    return RECEIPT_HOME
+  }
+}
+
+/** Dark card shared by the OTP mail and the note that follows it. The logo sits in the footer. */
 function receiptCard(
   locale: ApiLocale,
   home: string,
@@ -129,8 +138,10 @@ function receiptCard(
   parts: {
     eyebrow: string
     hello: string
+    helloStyle?: string
     lead: string
     rows: { label: string; value: string; message?: boolean }[]
+    action?: { href: string; label: string }
     closing?: string
   },
 ) {
@@ -138,6 +149,27 @@ function receiptCard(
     locale === 'en'
       ? 'A fictional product — it does not provide real banking services.'
       : 'Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.'
+  const titleStyle =
+    parts.helloStyle ||
+    'font-size:30px;line-height:1.15;letter-spacing:-0.03em;font-weight:700;color:#f4f1ea;'
+  const panel = parts.rows.length
+    ? `<tr>
+<td style="padding:22px 40px 0;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#18181c" style="background:#18181c;border-radius:16px;">
+${receiptRows(parts.rows)}
+</table>
+</td>
+</tr>`
+    : ''
+  const action = parts.action
+    ? `<tr>
+<td align="center" style="padding:22px 40px 0;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
+<a href="${escapeHtml(parts.action.href)}" style="text-decoration:none;"><table role="presentation" cellpadding="0" cellspacing="0" align="center"><tr>
+<td bgcolor="#d8ff4a" style="background:#d8ff4a;border-radius:999px;padding:12px 22px;font-size:15px;line-height:1;font-weight:700;color:#0b0b0c;">${parts.action.label}</td>
+</tr></table></a>
+</td>
+</tr>`
+    : ''
   const below = parts.closing
     ? `<tr><td style="padding:18px 40px 28px;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#9a9589;">${parts.closing}</td></tr>`
     : `<tr><td style="height:28px;font-size:0;line-height:0;">&nbsp;</td></tr>`
@@ -165,17 +197,12 @@ function receiptCard(
 </tr></table>
 </td>
 </tr></table>
-<p style="margin:20px 0 10px;font-size:30px;line-height:1.15;letter-spacing:-0.03em;font-weight:700;color:#f4f1ea;">${parts.hello}</p>
+<p style="margin:20px 0 10px;${titleStyle}">${parts.hello}</p>
 <p style="margin:0;font-size:16px;line-height:1.6;color:#9a9589;">${parts.lead}</p>
 </td>
 </tr>
-<tr>
-<td style="padding:22px 40px 0;font-family:Segoe UI,Helvetica,Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#18181c" style="background:#18181c;border-radius:16px;">
-${receiptRows(parts.rows)}
-</table>
-</td>
-</tr>
+${panel}
+${action}
 ${below}
 <tr><td style="padding:0 40px;"><div style="height:1px;background:rgba(244,241,234,0.1);font-size:0;line-height:0;">&nbsp;</div></td></tr>
 <tr>
@@ -273,22 +300,40 @@ export function confirmMailCopy(
   purpose: 'waitlist' | 'support' = 'waitlist',
 ) {
   const safeCode = escapeHtml(code)
-  const safeLink = escapeHtml(link)
   const support = purpose === 'support'
+  const origin = mailOrigin(link)
+  const logo = `${origin}/email-logo.png`
+  const codeStyle =
+    'font-size:34px;line-height:1.2;letter-spacing:0.22em;font-weight:700;color:#f4f1ea;padding-left:0.22em;'
   if (locale === 'en') {
+    const lead = support
+      ? 'Enter this code to confirm your support message.'
+      : 'Enter this code to confirm your request.'
     return {
       subject: support ? 'Confirm your AURE support message' : 'Confirm your AURE request',
-      text: `Your confirmation code: ${code}\n\nOpen the confirmation page and enter this code:\n${link}\n\nThe code is valid for 30 minutes.`,
-      html: `<p>Use this code to confirm your AURE ${support ? 'support message' : 'waitlist request'}:</p>
-<p style="font-size:28px;letter-spacing:0.12em;font-weight:700">${safeCode}</p>
-<p><a href="${safeLink}">Open the confirmation page</a> and enter the code. It is valid for 30 minutes.</p>`,
+      text: `Your confirmation code: ${code}\n\nOpen the confirmation page and enter this code:\n${link}\n\nThe code is valid for 30 minutes.\n\n${PLAIN_SIGN}`,
+      html: receiptCard(locale, origin, logo, {
+        eyebrow: 'Email confirmation',
+        hello: safeCode,
+        helloStyle: codeStyle,
+        lead,
+        rows: [],
+        action: { href: link, label: 'Open the confirmation page' },
+        closing: 'The code is valid for 30 minutes.',
+      }),
     }
   }
   return {
     subject: support ? 'AURE destek talebin' : 'AURE talep onayın',
-    text: `${support ? 'Destek talebini' : 'Talebini'} onaylamak için kod: ${code}\n\nOnay sayfasını açıp bu kodu yaz:\n${link}\n\nKod 30 dakika geçerli.`,
-    html: `<p>AURE ${support ? 'destek talebini' : 'waitlist talebini'} onaylamak için kodun:</p>
-<p style="font-size:28px;letter-spacing:0.12em;font-weight:700">${safeCode}</p>
-<p><a href="${safeLink}">Onay sayfasını aç</a> ve kodu yaz. Kod 30 dakika geçerli.</p>`,
+    text: `${support ? 'Destek talebini' : 'Talebini'} onaylamak için kod: ${code}\n\nOnay sayfasını açıp bu kodu yaz:\n${link}\n\nKod 30 dakika geçerli.\n\n${PLAIN_SIGN}`,
+    html: receiptCard(locale, origin, logo, {
+      eyebrow: 'E-posta onayı',
+      hello: safeCode,
+      helloStyle: codeStyle,
+      lead: support ? 'Destek talebini onaylamak için bu kodu yaz.' : 'Talebini onaylamak için bu kodu yaz.',
+      rows: [],
+      action: { href: link, label: 'Onay sayfasını aç' },
+      closing: 'Kod 30 dakika geçerli.',
+    }),
   }
 }
