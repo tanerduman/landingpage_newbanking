@@ -1,17 +1,10 @@
-import { useEffect, useState } from 'react'
-import { withBase } from './base.ts'
+import { useState } from 'react'
 import { plans, type PlanColumnId } from './plans.ts'
-import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
-import LangSwitch from './LangSwitch.tsx'
+import SiteHeader from './SiteHeader.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { formatFx, formatGram } from './i18n/format.ts'
 import { type PlanId, type SignupIntent } from './waitlist'
 import LogoMark from './LogoMark.tsx'
-
-const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
-
-type FxQuote = { base: string; quote: string; rate: number }
 
 function CardBrand() {
   return (
@@ -25,14 +18,11 @@ function CardBrand() {
 const homePlanIds = ['standard', 'plus', 'premium'] as const satisfies readonly PlanId[]
 
 export default function App() {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const [selected, setSelected] = useState<PlanId | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
-  const [menu, setMenu] = useState(false)
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
-  const [fx, setFx] = useState<FxQuote[]>([])
-  const [gold, setGold] = useState(0)
 
   const perks: Record<PlanColumnId, string[]> = {
     account: t.plans.accountPerks,
@@ -56,88 +46,9 @@ export default function App() {
     setModal(false)
   }
 
-  useEffect(() => {
-    let cancelled = false
-    async function loadQuotes() {
-      const [ratesRes, goldRes] = await Promise.all([apiFetch('/api/rates'), apiFetch('/api/gold')])
-      const rates = await readApiJson<{ quotes?: FxQuote[] }>(ratesRes)
-      const metal = await readApiJson<{ gramTry?: number; source?: string }>(goldRes)
-      if (cancelled) return
-      if (ratesRes?.ok && rates?.quotes?.length) setFx(rates.quotes)
-      if (goldRes?.ok && metal?.source === 'collectapi' && metal.gramTry) setGold(metal.gramTry)
-    }
-    void loadQuotes()
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  const quotes = fxBases.map((base) => fx.find((row) => row.base === base) ?? { base, quote: 'TRY', rate: 0 })
-
   return (
     <div className="page">
-      <header className="nav">
-        <div className="wrap nav-inner">
-          <a className="logo" href="#top">
-            <LogoMark />
-            AURE
-          </a>
-          <nav className="nav-links">
-            <a href="#how">{t.nav.how}</a>
-            <a href="#plans">{t.nav.plans}</a>
-            <a href={withBase('hesaplama')}>{t.nav.calculator}</a>
-            <a href={withBase('support')}>{t.nav.support}</a>
-          </nav>
-          <div className="nav-cta">
-            <LangSwitch />
-            <button className="btn btn-solid" onClick={openAccount}>
-              {t.nav.request}
-            </button>
-            <button className="menu-btn" aria-label={t.nav.menu} onClick={() => setMenu((v) => !v)}>
-              ☰
-            </button>
-          </div>
-        </div>
-        <div className="nav-rates-bar">
-          <div className="wrap nav-rates" aria-label={t.fx.eyebrow}>
-            <span className="dot" aria-hidden="true" />
-            {quotes.map((row) => (
-              <span className="nav-rate" key={row.base}>
-                <span>{row.base}</span>
-                <strong>{row.rate ? formatFx(row.rate, locale) : '—'}</strong>
-              </span>
-            ))}
-            <span className="nav-rate" title={t.fx.goldHint}>
-              <span>{t.fx.gold}</span>
-              <strong>{gold ? formatGram(gold, locale) : '—'}</strong>
-            </span>
-          </div>
-        </div>
-        <div className={`wrap mobile-drawer ${menu ? 'open' : ''}`}>
-          <a href="#how" onClick={() => setMenu(false)}>
-            {t.nav.how}
-          </a>
-          <a href="#plans" onClick={() => setMenu(false)}>
-            {t.nav.plans}
-          </a>
-          <a href={withBase('hesaplama')} onClick={() => setMenu(false)}>
-            {t.nav.calculator}
-          </a>
-          <a href={withBase('support')} onClick={() => setMenu(false)}>
-            {t.nav.support}
-          </a>
-          <button
-            type="button"
-            className="linkish"
-            onClick={() => {
-              setMenu(false)
-              openAccount()
-            }}
-          >
-            {t.nav.request}
-          </button>
-        </div>
-      </header>
+      <SiteHeader onRequest={openAccount} />
 
       <main id="top">
         <div className="wrap hero">
