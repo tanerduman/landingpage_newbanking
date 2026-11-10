@@ -389,6 +389,7 @@ export const en: Messages = {
   footer: {
     legal: '© 2026 AURE. A fictional product — it does not provide real banking services.',
     waitlist: 'Waiting list',
+    linkedin: 'LinkedIn',
   },
   pkg: {
     all: 'All',
