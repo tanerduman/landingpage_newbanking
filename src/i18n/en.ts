@@ -11,6 +11,7 @@ export const en: Messages = {
     app: 'App',
     compare: 'Compare',
     campaigns: 'Offers',
+    calculator: 'Calculator',
     support: 'Support',
     newPage: 'New',
     faq: 'FAQ',
@@ -138,6 +139,9 @@ export const en: Messages = {
     idlePreset: '1,000,000 ₺ example',
     fxSellPreset: '20,000 € example',
     minimum: 'Smallest spend and balance that each cover the {plan} fee on their own.',
+  },
+  calculator: {
+    lead: 'See how much a plan leaves you versus Basic, from card spend, idle cash and FX.',
   },
   idleExample: {
     kicker: 'Worked example',

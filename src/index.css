@@ -93,7 +93,7 @@ img {
 
 .nav-links {
   display: flex;
-  gap: 28px;
+  gap: 18px;
   color: var(--muted);
   font-weight: 500;
 }
@@ -125,6 +125,10 @@ img {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.nav-cta .btn {
+  white-space: nowrap;
 }
 
 .lang-switch {
@@ -2433,6 +2437,12 @@ td.row-action {
   color: #6b675e;
   max-width: 520px;
   margin: 0 0 28px;
+}
+
+.calculator-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 16px;
 }
 
 .rev-board {

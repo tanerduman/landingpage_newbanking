@@ -36,6 +36,11 @@ export function isCampaignsHash(hash = window.location.hash) {
   return value === '/campaigns' || value === 'campaigns' || value === '/kampanyalar' || value === 'kampanyalar'
 }
 
+export function isCalculatorHash(hash = window.location.hash) {
+  const value = hashValue(hash)
+  return value === '/hesaplama' || value === 'hesaplama' || value === '/calculator' || value === 'calculator'
+}
+
 export function isWaitlistLocation() {
   return pathPage() === 'waitlist' || isWaitlistHash()
 }
@@ -52,6 +57,11 @@ export function isSupportLocation() {
 export function isCampaignsLocation() {
   const page = pathPage()
   return page === 'campaigns' || page === 'kampanyalar' || isCampaignsHash()
+}
+
+export function isCalculatorLocation() {
+  const page = pathPage()
+  return page === 'hesaplama' || page === 'calculator' || isCalculatorHash()
 }
 
 export function isConfirmHash(hash = window.location.hash) {
