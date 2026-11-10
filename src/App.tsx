@@ -256,7 +256,6 @@ export default function App() {
             <span className="eyebrow">
               <span className="dot" /> {t.fx.eyebrow}
             </span>
-            <p>{t.fx.lead}</p>
           </div>
           <div className="fx-grid">
             {fxBases

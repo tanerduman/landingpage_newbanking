@@ -36,7 +36,6 @@ export const tr: Messages = {
   },
   fx: {
     eyebrow: 'Anlık kur',
-    lead: 'USD, EUR, GBP ve CHF — TRY karşılığı. Limit içi paket makası, üzeri Temel %4; Premium sınırsız %0,5.',
     error: 'Kurlar alınamadı',
   },
   plans: {
