@@ -1,11 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { withBase } from './base.ts'
 import { plans, type PlanColumnId } from './plans.ts'
+import { apiFetch, readApiJson } from './api.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
+import { formatFx } from './i18n/format.ts'
 import { type PlanId, type SignupIntent } from './waitlist'
 import LogoMark from './LogoMark.tsx'
+
+const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
+
+type FxQuote = { base: string; quote: string; rate: number }
 
 function CardBrand() {
   return (
@@ -19,12 +25,13 @@ function CardBrand() {
 const homePlanIds = ['standard', 'plus', 'premium'] as const satisfies readonly PlanId[]
 
 export default function App() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [selected, setSelected] = useState<PlanId | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
   const [menu, setMenu] = useState(false)
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [fx, setFx] = useState<FxQuote[]>([])
 
   const perks: Record<PlanColumnId, string[]> = {
     account: t.plans.accountPerks,
@@ -48,6 +55,22 @@ export default function App() {
     setModal(false)
   }
 
+  useEffect(() => {
+    let cancelled = false
+    async function loadFx() {
+      const res = await apiFetch('/api/rates')
+      const data = await readApiJson<{ quotes?: FxQuote[] }>(res)
+      if (cancelled) return
+      if (res?.ok && data?.quotes?.length) setFx(data.quotes)
+    }
+    void loadFx()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const quotes = fxBases.map((base) => fx.find((row) => row.base === base) ?? { base, quote: 'TRY', rate: 0 })
+
   return (
     <div className="page">
       <header className="nav">
@@ -70,6 +93,17 @@ export default function App() {
             <button className="menu-btn" aria-label={t.nav.menu} onClick={() => setMenu((v) => !v)}>
               ☰
             </button>
+          </div>
+        </div>
+        <div className="nav-rates-bar">
+          <div className="wrap nav-rates" aria-label={t.fx.eyebrow}>
+            <span className="dot" aria-hidden="true" />
+            {quotes.map((row) => (
+              <span className="nav-rate" key={row.base}>
+                <span>{row.base}</span>
+                <strong>{row.rate ? formatFx(row.rate, locale) : '—'}</strong>
+              </span>
+            ))}
           </div>
         </div>
         <div className={`wrap mobile-drawer ${menu ? 'open' : ''}`}>
