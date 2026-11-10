@@ -60,7 +60,7 @@ function json(data: unknown, status = 200, request?: Request, cookies?: string[]
 
 function fail(request: Request, code: string, status: number, body?: unknown) {
   const locale: ApiLocale = localeFromRequest(request, body)
-  return json({ error: apiError(code, locale), code }, status, request)
+  return json({ error: apiError(code, locale) }, status, request)
 }
 
 function applyCors(request: Request, headers: Headers) {
@@ -180,7 +180,7 @@ async function handleVisits(request: Request) {
     const denied = await requireAdmin(request)
     if (denied) return denied
     const stats = await store.getStats()
-    return json({ ...stats, store: store.kind }, 200, request)
+    return json(stats, 200, request)
   }
   if (await overLimit(`visits:ip:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
@@ -192,7 +192,7 @@ async function handleVisits(request: Request) {
     return fail(request, 'bad_visit', 400, body)
   }
   await store.recordVisit(visitorId, sessionId)
-  return json({ ok: true, store: store.kind }, 200, request)
+  return json({ ok: true }, 200, request)
 }
 
 async function handleWaitlist(request: Request) {
@@ -201,7 +201,7 @@ async function handleWaitlist(request: Request) {
     const denied = await requireAdmin(request)
     if (denied) return denied
     const entries = await store.listWaitlist()
-    return json({ entries, store: store.kind }, 200, request)
+    return json({ entries }, 200, request)
   }
   if (request.method === 'DELETE') {
     const denied = await requireAdmin(request)
@@ -278,19 +278,11 @@ async function handleConfirm(request: Request) {
   }
   const waitlist = await getStore().confirmWaitlist(lookup)
   if (typeof waitlist !== 'string') {
-    return json(
-      { confirmed: true, email: waitlist.email, intent: waitlist.intent, purpose: 'waitlist', store: getStore().kind },
-      200,
-      request,
-    )
+    return json({ confirmed: true, purpose: 'waitlist' }, 200, request)
   }
   const support = await getStore().confirmSupport(lookup)
   if (typeof support === 'string') return fail(request, support, 400, body)
-  return json(
-    { confirmed: true, email: support.email, kind: support.kind, purpose: 'support', store: getStore().kind },
-    200,
-    request,
-  )
+  return json({ confirmed: true, purpose: 'support' }, 200, request)
 }
 
 async function handleSupport(request: Request) {
@@ -299,7 +291,7 @@ async function handleSupport(request: Request) {
     const denied = await requireAdmin(request)
     if (denied) return denied
     const entries = await store.listSupport()
-    return json({ entries, store: store.kind }, 200, request)
+    return json({ entries }, 200, request)
   }
   if (request.method === 'DELETE') {
     const denied = await requireAdmin(request)
@@ -341,7 +333,6 @@ async function handleSupport(request: Request) {
       pending: true,
       delivered: sent.ok,
       statusToken: result.statusToken,
-      store: store.kind,
       ...(localDev && !sent.ok ? { devCode: result.code } : {}),
     },
     201,

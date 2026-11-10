@@ -8,10 +8,9 @@ export type VisitStats = {
   unique: number
   views: number
   lastVisit: string | null
-  store?: 'postgres' | 'memory' | 'browser'
 }
 
-const empty: VisitStats = { unique: 0, views: 0, lastVisit: null, store: 'browser' }
+const empty: VisitStats = { unique: 0, views: 0, lastVisit: null }
 
 export function loadVisitStats(): VisitStats {
   try {
@@ -22,7 +21,6 @@ export function loadVisitStats(): VisitStats {
       unique: Number(parsed.unique) || 0,
       views: Number(parsed.views) || 0,
       lastVisit: parsed.lastVisit ?? null,
-      store: 'browser',
     }
   } catch {
     return { ...empty }
@@ -56,9 +54,9 @@ export async function recordVisit() {
     method: 'POST',
     body: JSON.stringify({ visitorId: visitor, sessionId: session }),
   })
-  const remote = await readApiJson<{ ok?: boolean; store?: VisitStats['store'] }>(res)
+  const remote = await readApiJson<{ ok?: boolean }>(res)
   if (res?.ok && remote?.ok) {
-    return { ...loadVisitStats(), store: remote.store ?? 'postgres' }
+    return loadVisitStats()
   }
 
   const stats = loadVisitStats()
@@ -67,7 +65,6 @@ export async function recordVisit() {
     stats.views += 1
     stats.lastVisit = new Date().toISOString()
   }
-  stats.store = 'browser'
   saveVisitStats(stats)
   return stats
 }
@@ -75,6 +72,12 @@ export async function recordVisit() {
 export async function fetchVisitStats(): Promise<VisitStats> {
   const res = await apiFetch('/api/visits')
   const remote = await readApiJson<VisitStats>(res)
-  if (res?.ok && remote) return remote
+  if (res?.ok && remote) {
+    return {
+      unique: Number(remote.unique) || 0,
+      views: Number(remote.views) || 0,
+      lastVisit: remote.lastVisit ?? null,
+    }
+  }
   return loadVisitStats()
 }

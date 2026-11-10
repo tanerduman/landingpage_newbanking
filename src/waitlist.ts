@@ -118,42 +118,32 @@ export async function addWaitlistEntry(input: {
 const CONFIRMED_KEY = 'aure-waitlist-confirmed'
 const CONFIRMED_CHANNEL = 'aure-waitlist'
 
-export function announceConfirmed(email: string) {
-  const normalized = email.trim().toLowerCase()
+export function announceConfirmed() {
   try {
-    localStorage.setItem(CONFIRMED_KEY, JSON.stringify({ email: normalized, at: Date.now() }))
+    localStorage.setItem(CONFIRMED_KEY, JSON.stringify({ at: Date.now() }))
   } catch {
     /* ignore */
   }
   window.dispatchEvent(new Event('aure-waitlist'))
   try {
     const channel = new BroadcastChannel(CONFIRMED_CHANNEL)
-    channel.postMessage({ type: 'confirmed', email: normalized })
+    channel.postMessage({ type: 'confirmed' })
     channel.close()
   } catch {
     /* ignore */
   }
 }
 
-export function onWaitlistConfirmed(email: string, callback: () => void) {
-  const wanted = email.trim().toLowerCase()
-  function matches(value: string) {
-    return value.trim().toLowerCase() === wanted
-  }
+export function onWaitlistConfirmed(_email: string, callback: () => void) {
   function onStorage(event: StorageEvent) {
     if (event.key !== CONFIRMED_KEY || !event.newValue) return
-    try {
-      const payload = JSON.parse(event.newValue) as { email?: string }
-      if (payload.email && matches(payload.email)) callback()
-    } catch {
-      /* ignore */
-    }
+    callback()
   }
   let channel: BroadcastChannel | null = null
   try {
     channel = new BroadcastChannel(CONFIRMED_CHANNEL)
-    channel.onmessage = (event: MessageEvent<{ type?: string; email?: string }>) => {
-      if (event.data?.type === 'confirmed' && event.data.email && matches(event.data.email)) callback()
+    channel.onmessage = (event: MessageEvent<{ type?: string }>) => {
+      if (event.data?.type === 'confirmed') callback()
     }
   } catch {
     channel = null
@@ -182,13 +172,11 @@ export async function confirmWaitlist(input: { token?: string; email?: string; c
   })
   const remote = await readApiJson<{
     confirmed?: boolean
-    email?: string
     purpose?: 'waitlist' | 'support'
     error?: string
   }>(res)
   if (res?.ok && remote?.confirmed) {
-    if (remote.email) announceConfirmed(remote.email)
-    else window.dispatchEvent(new Event('aure-waitlist'))
+    announceConfirmed()
     return remote
   }
   throw new Error(failMessage(remote?.error, res ? 'confirm_fail' : 'offline'))

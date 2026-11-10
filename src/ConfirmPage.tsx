@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -6,37 +6,14 @@ import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
 import { confirmWaitlist } from './waitlist.ts'
 import LogoMark from './LogoMark.tsx'
 
-function tokenFromLocation() {
-  const query = new URLSearchParams(window.location.search).get('token')
-  if (query) return query
-  const hash = window.location.hash.replace(/^#/, '')
-  const q = hash.indexOf('?')
-  if (q === -1) return ''
-  return new URLSearchParams(hash.slice(q + 1)).get('token') || ''
-}
-
 export default function ConfirmPage() {
   const { t } = useI18n()
-  const token = tokenFromLocation()
-  const [status, setStatus] = useState<'form' | 'working' | 'ok' | 'error'>(token ? 'working' : 'form')
+  const [status, setStatus] = useState<'form' | 'ok' | 'error'>('form')
   const [purpose, setPurpose] = useState<'waitlist' | 'support'>('waitlist')
   const [detail, setDetail] = useState('')
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
-
-  useEffect(() => {
-    if (!token) return
-    void confirmWaitlist({ token })
-      .then((result) => {
-        if (result.purpose === 'support') setPurpose('support')
-        setStatus('ok')
-      })
-      .catch((err: unknown) => {
-        setStatus('error')
-        setDetail(err instanceof Error ? err.message : '')
-      })
-  }, [token])
 
   async function submit(e: FormEvent) {
     e.preventDefault()
@@ -64,16 +41,6 @@ export default function ConfirmPage() {
     }
   }
 
-  const title = status === 'ok' ? t.confirm.okTitle : status === 'working' ? t.confirm.working : t.confirm.errTitle
-  const message =
-    status === 'working'
-      ? t.confirm.wait
-      : status === 'ok'
-        ? purpose === 'support'
-          ? t.confirm.successSupport
-          : t.confirm.success
-        : detail || t.confirm.fail
-
   return (
     <div className="page waitlist-page">
       <header className="nav">
@@ -91,7 +58,15 @@ export default function ConfirmPage() {
         </div>
       </header>
       <main className="wrap waitlist-main">
-        {status === 'form' || (status === 'error' && !token) ? (
+        {status === 'ok' ? (
+          <>
+            <p className="eyebrow">
+              <span className="dot" /> {t.confirm.kicker}
+            </p>
+            <h1>{t.confirm.okTitle}</h1>
+            <p className="lead">{purpose === 'support' ? t.confirm.successSupport : t.confirm.success}</p>
+          </>
+        ) : (
           <form className="login-card" onSubmit={submit}>
             <p className="eyebrow">
               <span className="dot" /> {t.confirm.kicker}
@@ -121,14 +96,6 @@ export default function ConfirmPage() {
               {t.confirm.submit}
             </button>
           </form>
-        ) : (
-          <>
-            <p className="eyebrow">
-              <span className="dot" /> {t.confirm.kicker}
-            </p>
-            <h1>{title}</h1>
-            <p className="lead">{message}</p>
-          </>
         )}
       </main>
     </div>

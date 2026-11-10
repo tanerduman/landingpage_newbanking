@@ -40,6 +40,21 @@ export default function Root() {
     }
   }, [])
 
+  useEffect(() => {
+    const existing = document.querySelector('meta[name="robots"]')
+    if (page !== 'waitlist') {
+      existing?.remove()
+      return
+    }
+    let meta = existing
+    if (!meta) {
+      meta = document.createElement('meta')
+      meta.setAttribute('name', 'robots')
+      document.head.appendChild(meta)
+    }
+    meta.setAttribute('content', 'noindex, nofollow')
+  }, [page])
+
   const view =
     page === 'waitlist' ? (
       <WaitlistPage />
