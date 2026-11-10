@@ -6,7 +6,6 @@ import { SignupModal, SignupToast } from './SignupModal.tsx'
 import GoldExample from './GoldExample.tsx'
 import IdleExample from './IdleExample.tsx'
 import MonthSlogan from './MonthSlogan.tsx'
-import Simulator from './Simulator.tsx'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatFx, formatMoney, localizeFeature } from './i18n/format.ts'
@@ -38,7 +37,6 @@ export default function App() {
   const { t, locale } = useI18n()
   const [cycle, setCycle] = useState<Cycle>('monthly')
   const [selected, setSelected] = useState<PlanId | null>(null)
-  const [focus, setFocus] = useState<{ id: PlanId; tick: number } | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
   const [faq, setFaq] = useState<number | null>(0)
   const [menu, setMenu] = useState(false)
@@ -80,15 +78,8 @@ export default function App() {
     setModal(true)
   }
 
-  function focusPlan(id: PlanId, scroll = false) {
-    setSelected(id)
-    setFocus({ id, tick: Date.now() })
-    if (scroll) document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
-
   function chooseCycle(next: Cycle) {
     setCycle(next)
-    setFocus((current) => (current ? { id: current.id, tick: Date.now() } : current))
   }
 
   function closeModal() {
@@ -126,6 +117,7 @@ export default function App() {
             <a href="#plans">{t.nav.plans}</a>
             <a href="#features">{t.nav.features}</a>
             <a href="#app">{t.nav.app}</a>
+            <a href={withBase('hesaplama')}>{t.nav.calculator}</a>
             <a href={withBase('compare')}>{t.nav.compare}</a>
             <a href={withBase('campaigns')}>{t.nav.campaigns}</a>
             <a className="nav-support" href={withBase('support')}>
@@ -157,6 +149,9 @@ export default function App() {
           <a href="#app" onClick={() => setMenu(false)}>
             {t.nav.app}
           </a>
+          <a href={withBase('hesaplama')} onClick={() => setMenu(false)}>
+            {t.nav.calculator}
+          </a>
           <a href={withBase('compare')} onClick={() => setMenu(false)}>
             {t.nav.compare}
           </a>
@@ -182,7 +177,7 @@ export default function App() {
               <button className="btn btn-solid" onClick={openAccount}>
                 {t.nav.openFree}
               </button>
-              <a className="btn btn-ghost" href="#simulator">
+              <a className="btn btn-ghost" href={withBase('hesaplama')}>
                 {t.hero.simulatorCta}
               </a>
             </div>
@@ -331,20 +326,12 @@ export default function App() {
               </div>
             </div>
 
-            <Simulator
-              cycleYearly={cycle === 'yearly'}
-              focus={focus}
-              onFocus={focusPlan}
-              onPick={openPlan}
-              eurTry={fx.find((row) => row.base === 'EUR')?.rate ?? 0}
-            />
-
             <div className="plans">
               {plans.map((plan) => (
                 <article
                   key={plan.id}
                   className={`plan-card ${selected === plan.id ? 'selected' : ''}`}
-                  onClick={() => focusPlan(plan.id, true)}
+                  onClick={() => setSelected(plan.id)}
                 >
                   <div className="plan-kicker">
                     {plan.featured ? t.plans.featured : t.plans.optional}

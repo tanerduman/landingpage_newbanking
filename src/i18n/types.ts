@@ -10,6 +10,7 @@ export type Messages = {
     app: string
     compare: string
     campaigns: string
+    calculator: string
     support: string
     newPage: string
     faq: string
@@ -101,6 +102,9 @@ export type Messages = {
     idlePreset: string
     fxSellPreset: string
     minimum: string
+  }
+  calculator: {
+    lead: string
   }
   idleExample: {
     kicker: string

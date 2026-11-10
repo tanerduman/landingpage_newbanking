@@ -11,6 +11,7 @@ export const tr: Messages = {
     app: 'Uygulama',
     compare: 'Karşılaştır',
     campaigns: 'Kampanyalar',
+    calculator: 'Hesaplama',
     support: 'Destek',
     newPage: 'Yeni',
     faq: 'SSS',
@@ -138,6 +139,9 @@ export const tr: Messages = {
     idlePreset: '1.000.000 ₺ örneği',
     fxSellPreset: '20.000 € örneği',
     minimum: '{plan} ücretini tek başına kapatan en küçük harcama ve bakiye.',
+  },
+  calculator: {
+    lead: 'Harcama, bakiye ve dövize göre paketin Temel hesaba göre ne kadar fark bıraktığını gör.',
   },
   idleExample: {
     kicker: 'Örnek senaryo',
