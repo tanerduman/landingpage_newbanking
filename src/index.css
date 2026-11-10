@@ -2833,15 +2833,32 @@ td.row-action {
   .nav-rates {
     justify-content: flex-start;
     gap: 0;
-    font-size: 11px;
+    width: min(1180px, calc(100% - 24px));
+    font-size: 10px;
+  }
+
+  .nav-rate {
+    gap: 4px;
   }
 
   .nav-rate + .nav-rate::before {
     content: "·";
-    margin: 0 8px;
+    margin: 0 4px;
     color: var(--muted);
   }
+}
 
+@media (max-width: 360px) {
+  .nav-rates {
+    font-size: 9px;
+  }
+
+  .nav-rate + .nav-rate::before {
+    margin: 0 3px;
+  }
+}
+
+@media (max-width: 980px) {
   .month-slogan,
   .month-band {
     grid-template-columns: 1fr;

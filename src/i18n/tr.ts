@@ -52,8 +52,10 @@ export const tr: Messages = {
     ],
   },
   fx: {
-    eyebrow: 'Anlık kur',
+    eyebrow: 'Anlık kur ve altın',
     error: 'Kurlar alınamadı',
+    gold: 'ALTIN',
+    goldHint: 'Gram altın, TRY',
   },
   plans: {
     badge: 'Taahhüt yok',
