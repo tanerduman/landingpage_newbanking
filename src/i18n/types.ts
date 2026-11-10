@@ -71,6 +71,7 @@ export type Messages = {
     homeTitle: string
     homeLead: string
     homeNote: string
+    compareLink: string
     request: string
     recommended: string
     freeLabel: string
@@ -268,7 +269,9 @@ export type Messages = {
     unlimited: string
     tour: string
     tourHotel: string
+    info: string
     rows: Record<string, string>
+    hints: Record<string, string>
     cell: Record<string, string>
   }
   campaigns: {

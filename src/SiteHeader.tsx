@@ -14,7 +14,7 @@ export default function SiteHeader({
   active,
   onRequest,
 }: {
-  active?: 'partners'
+  active?: 'partners' | 'compare'
   onRequest: () => void
 }) {
   const { t, locale } = useI18n()
@@ -52,6 +52,9 @@ export default function SiteHeader({
         <nav className="nav-links">
           <a href={howHref}>{t.nav.how}</a>
           <a href={plansHref}>{t.nav.plans}</a>
+          <a href={withBase('karsilastir')} aria-current={active === 'compare' ? 'page' : undefined}>
+            {t.nav.compare}
+          </a>
           <a href={withBase('isbirlikleri')} aria-current={active === 'partners' ? 'page' : undefined}>
             {t.nav.partners}
           </a>
@@ -88,6 +91,9 @@ export default function SiteHeader({
         </a>
         <a href={plansHref} onClick={() => setMenu(false)}>
           {t.nav.plans}
+        </a>
+        <a href={withBase('karsilastir')} onClick={() => setMenu(false)} aria-current={active === 'compare' ? 'page' : undefined}>
+          {t.nav.compare}
         </a>
         <a href={withBase('isbirlikleri')} onClick={() => setMenu(false)} aria-current={active === 'partners' ? 'page' : undefined}>
           {t.nav.partners}

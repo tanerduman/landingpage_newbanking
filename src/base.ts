@@ -23,7 +23,7 @@ export function isWaitlistHash(hash = window.location.hash) {
 
 export function isCompareHash(hash = window.location.hash) {
   const value = hashValue(hash)
-  return value === '/compare' || value === 'compare'
+  return value === '/compare' || value === 'compare' || value === '/karsilastir' || value === 'karsilastir'
 }
 
 export function isSupportHash(hash = window.location.hash) {
@@ -51,7 +51,8 @@ export function isWaitlistLocation() {
 }
 
 export function isCompareLocation() {
-  return pathPage() === 'compare' || isCompareHash()
+  const page = pathPage()
+  return page === 'compare' || page === 'karsilastir' || isCompareHash()
 }
 
 export function isSupportLocation() {
