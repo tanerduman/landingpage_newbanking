@@ -11,13 +11,31 @@ import {
   SAMPLE_GOLD_TRY,
   fxFeeByColumn,
   fxLimitEurByColumn,
+  goldGramLimitByColumn,
   goldSpreadByColumn,
   planColumns,
   tryCostForEur,
+  tryCostForGold,
   type PlanColumnId,
 } from './plans.ts'
 
 type Quote = { base: string; rate: number }
+
+function formatGoldQty(grams: number, locale: 'tr' | 'en') {
+  const n = grams.toLocaleString(locale === 'en' ? 'en-GB' : 'tr-TR', { maximumFractionDigits: 2 })
+  return `${n} g`
+}
+
+function goldBands(id: PlanColumnId, grams: number, locale: 'tr' | 'en', allAt: string, split: string) {
+  const rate = formatRate(goldSpreadByColumn[id], locale)
+  const cap = goldGramLimitByColumn[id]
+  if (cap == null || grams <= cap) return allAt.replace('{rate}', rate)
+  return split
+    .replace('{cap}', formatGoldQty(cap, locale))
+    .replace('{rate}', rate)
+    .replace('{rest}', formatGoldQty(grams - cap, locale))
+    .replace('{over}', formatRate(goldSpreadByColumn.account, locale))
+}
 
 function spreadBands(id: PlanColumnId, eur: number, locale: 'tr' | 'en', allAt: string, split: string) {
   const fee = fxFeeByColumn[id]
@@ -72,14 +90,13 @@ export default function CalcPage() {
 
   const goldRows = useMemo(() => {
     const priced = planColumns.map((col) => {
-      const spread = goldSpreadByColumn[col.id]
-      const gram = Math.round(gold * (1 + spread) * 100) / 100
-      const pay = Math.round(gram * SAMPLE_GOLD_GRAMS * 100) / 100
-      return { id: col.id, spread, gram, pay }
+      const pay = tryCostForGold(col.id, SAMPLE_GOLD_GRAMS, gold)
+      const bands = goldBands(col.id, SAMPLE_GOLD_GRAMS, locale, t.calc.allAt, t.calc.split)
+      return { id: col.id, pay, bands }
     })
     const base = priced.find((row) => row.id === 'account')?.pay ?? 0
     return priced.map((row) => ({ ...row, saved: Math.round((base - row.pay) * 100) / 100 }))
-  }, [gold])
+  }, [gold, locale, t.calc.allAt, t.calc.split])
 
   const fxRows = useMemo(() => {
     const priced = planColumns.map((col) => {
@@ -116,13 +133,9 @@ export default function CalcPage() {
                 <article key={row.id} className="idle-card">
                   <h3>{names[row.id]}</h3>
                   <dl>
-                    <div>
-                      <dt>{t.calc.spread}</dt>
-                      <dd>{formatRate(row.spread, locale)}</dd>
-                    </div>
-                    <div>
-                      <dt>{t.calc.gram}</dt>
-                      <dd>{formatTry(row.gram, locale)}</dd>
+                    <div className="calc-band-row">
+                      <dt>{t.calc.bands}</dt>
+                      <dd className="calc-bands">{row.bands}</dd>
                     </div>
                   </dl>
                   <p className="idle-net">
