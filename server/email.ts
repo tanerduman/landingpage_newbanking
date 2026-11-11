@@ -1,4 +1,4 @@
-import { confirmMailCopy, receiptMailCopy, type ReceiptInput } from './i18n.ts'
+import { confirmMailCopy, receiptMailCopy, supportInboxCopy, type ReceiptInput } from './i18n.ts'
 
 export function normalizeEmail(email: string) {
   const trimmed = email.trim().toLowerCase()
@@ -32,10 +32,13 @@ function stripSlash(url: string) {
   return url.replace(/\/+$/, '')
 }
 
-async function postResend(mail: { to: string; subject: string; text: string; html: string }) {
+async function postResend(mail: { to: string; subject: string; text: string; html: string; replyTo?: string }) {
   const key = process.env.RESEND_API_KEY || ''
   const from = process.env.MAIL_FROM || 'AURE <onboarding@resend.dev>'
-  if (!key) return { ok: false as const, skipped: true as const }
+  if (!key) {
+    if (!isProduction()) console.info(`mail skipped to ${mail.to}: ${mail.subject}`)
+    return { ok: false as const, skipped: true as const }
+  }
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -49,6 +52,7 @@ async function postResend(mail: { to: string; subject: string; text: string; htm
         subject: mail.subject,
         text: mail.text,
         html: mail.html,
+        ...(mail.replyTo ? { reply_to: mail.replyTo } : {}),
       }),
     })
     if (!res.ok) {
@@ -73,6 +77,20 @@ export async function sendWaitlistConfirm(input: {
 }) {
   const copy = confirmMailCopy(input.locale, input.code, input.link, input.purpose || 'waitlist')
   return postResend({ to: input.to, subject: copy.subject, text: copy.text, html: copy.html })
+}
+
+export const SUPPORT_INBOX = 'iletisim@getaure.org'
+
+/** Support note for the team. Sent when the form is submitted, before the visitor enters the code. */
+export async function sendSupportInbox(input: { name: string; email: string; kind: string; message: string }) {
+  const copy = supportInboxCopy(input)
+  return postResend({
+    to: SUPPORT_INBOX,
+    replyTo: input.email,
+    subject: copy.subject,
+    text: copy.text,
+    html: copy.html,
+  })
 }
 
 /** Informational note after a correct OTP. Uses the same Resend key and sender as the code mail. */

@@ -224,6 +224,29 @@ ${below}
 </html>`
 }
 
+/** Team copy of a support note. It goes out before the visitor enters the code. */
+export function supportInboxCopy(input: { name: string; email: string; kind: string; message: string }) {
+  const kind = labeled(KIND_LABEL.tr, input.kind)
+  const name = oneLine(input.name)
+  const email = oneLine(input.email)
+  const message = input.message.trim()
+  return {
+    subject: `AURE destek: ${kind} — ${name}`,
+    text: `Onay kodu girilmeden iletildi.\n\nAd soyad: ${name}\nE-posta: ${email}\nTür: ${kind}\nAçıklama:\n${message}\n\n${PLAIN_SIGN}`,
+    html: receiptCard('tr', RECEIPT_HOME, `${RECEIPT_HOME}/email-logo.png`, {
+      eyebrow: 'Destek kutusu',
+      hello: escapeHtml(name),
+      lead: 'Onay kodu girilmeden iletildi.',
+      rows: [
+        { label: 'Ad soyad', value: escapeHtml(name) },
+        { label: 'E-posta', value: escapeHtml(email) },
+        { label: 'Tür', value: escapeHtml(kind) },
+        { label: 'Açıklama', value: escapeHtml(message), message: true },
+      ],
+    }),
+  }
+}
+
 /** Sent after the OTP checks out. It describes the request and carries no code. */
 export function receiptMailCopy(locale: ApiLocale, input: ReceiptInput, home = RECEIPT_HOME) {
   const origin = home.replace(/\/+$/, '') || RECEIPT_HOME
