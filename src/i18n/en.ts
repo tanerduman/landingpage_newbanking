@@ -470,7 +470,8 @@ export const en: Messages = {
       fxFee: 'Buy spread inside the limit. Basic 4%, Standard 2%, Plus 1%, Premium 0.5%.',
       fxFeeOver: 'Amount above the limit uses the Basic spread, 4%, on every plan.',
       fxSellFee: 'The sell spread applies to the whole amount. Basic 2.5%, Standard 1.5%, Plus 1%, Premium 0.5%.',
-      goldSpread: 'Gram gold is sold this far above the market price.',
+      goldSpread:
+        'Gram gold is sold above the market price at the plan spread. The special spread covers only a set number of grams; the rest uses the Basic spread, 4%. All of Basic is 4%. The first 5 g on Standard are 2%. The first 10 g on Plus are 1%. The first 15 g on Premium are 0.5%.',
       stock: 'Commission on BIST, US markets and eurobonds.',
       liveData: 'Delayed data on the free account. Free live data on a plan.',
       installments: 'Instalments at the cash price. 3 on Standard, 3 and 6 on Plus and Premium.',
