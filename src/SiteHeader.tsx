@@ -14,7 +14,7 @@ export default function SiteHeader({
   active,
   onRequest,
 }: {
-  active?: 'partners' | 'compare' | 'calc'
+  active?: 'partners' | 'compare' | 'calc' | 'support'
   onRequest: () => void
 }) {
   const { t, locale } = useI18n()
@@ -61,7 +61,9 @@ export default function SiteHeader({
           <a href={withBase('isbirlikleri')} aria-current={active === 'partners' ? 'page' : undefined}>
             {t.nav.partners}
           </a>
-          <a href={withBase('support')}>{t.nav.support}</a>
+          <a href={withBase('support')} aria-current={active === 'support' ? 'page' : undefined}>
+            {t.nav.support}
+          </a>
         </nav>
         <div className="nav-cta">
           <LangSwitch />
@@ -104,7 +106,7 @@ export default function SiteHeader({
         <a href={withBase('isbirlikleri')} onClick={() => setMenu(false)} aria-current={active === 'partners' ? 'page' : undefined}>
           {t.nav.partners}
         </a>
-        <a href={withBase('support')} onClick={() => setMenu(false)}>
+        <a href={withBase('support')} onClick={() => setMenu(false)} aria-current={active === 'support' ? 'page' : undefined}>
           {t.nav.support}
         </a>
         <button

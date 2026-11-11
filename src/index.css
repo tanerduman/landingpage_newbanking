@@ -2420,21 +2420,79 @@ td.row-action {
   min-height: 140px;
 }
 
-.support-main {
-  display: grid;
-  place-items: start center;
-  padding: 48px 0 80px;
+.support-page {
+  padding: 54px 0 80px;
 }
 
-.support-card {
-  position: relative;
-  width: min(560px, 100%);
+.support-page h1 {
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  margin: 0 0 14px;
+  max-width: 760px;
 }
 
-.support-card .eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.support-lead {
+  margin: 0;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.support-form {
+  margin-top: 32px;
+  max-width: 720px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 28px;
+}
+
+.support-form label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 16px 0 6px;
+}
+
+.support-form label:first-child {
+  margin-top: 0;
+}
+
+.support-form input,
+.support-form textarea {
+  width: 100%;
+  background: #111114;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.support-form textarea {
+  resize: vertical;
+  min-height: 160px;
+}
+
+.support-form input:focus,
+.support-form textarea:focus {
+  outline: 2px solid var(--lime);
+  outline-offset: 1px;
+}
+
+.support-back,
+.support-submit {
+  margin-top: 22px;
+}
+
+.support-error {
+  color: #f0b4b4;
+  margin: 14px 0 0;
+}
+
+.support-form .confirm-dev {
+  color: var(--muted);
 }
 
 .kind-field {
@@ -2455,31 +2513,32 @@ td.row-action {
   gap: 8px;
 }
 
-.login-card .kind-options label {
+.support-form .kind-options label {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   margin: 0;
-  border: 1px solid #e5dfd2;
+  border: 1px solid var(--line);
   border-radius: 999px;
   padding: 8px 14px;
   cursor: pointer;
   font-weight: 600;
+  color: var(--text);
 }
 
-.login-card .kind-options label.active {
-  border-color: #0b0b0c;
-  background: #f4f1ea;
+.support-form .kind-options label.active {
+  border-color: var(--lime);
+  background: #14160f;
 }
 
-.login-card .kind-options input {
+.support-form .kind-options input {
   width: 16px;
   height: 16px;
   margin: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
-  accent-color: #0b0b0c;
+  accent-color: var(--lime);
 }
 
 .admin-tabs {
@@ -2536,9 +2595,9 @@ td.row-action {
 
 .dictate-btn {
   flex: none;
-  border: 1px solid #e5dfd2;
-  background: #fff;
-  color: #111;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
   border-radius: 999px;
   padding: 6px 12px;
   font: inherit;
@@ -2564,7 +2623,7 @@ td.row-action {
   flex: 1;
   height: 4px;
   border-radius: 999px;
-  background: #efeadd;
+  background: #2a2a2e;
   overflow: hidden;
 }
 
@@ -2579,7 +2638,7 @@ td.row-action {
   font-variant-numeric: tabular-nums;
   font-size: 13px;
   font-weight: 700;
-  color: #111;
+  color: var(--text);
   white-space: nowrap;
 }
 
@@ -2599,7 +2658,7 @@ td.row-action {
 
 .support-dictate-note {
   margin: 8px 0 0;
-  color: #5c574d;
+  color: var(--muted);
   font-size: 13px;
 }
 
