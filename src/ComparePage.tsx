@@ -174,7 +174,6 @@ export default function ComparePage() {
               <div className="rev-corner" />
               {planColumns.map((col) => (
                 <div key={col.id} className={`rev-plan${col.id === 'plus' ? ' is-featured' : ''}`}>
-                  {col.id === 'plus' ? <span className="rev-badge">{t.plans.recommended}</span> : <span className="rev-badge rev-badge-spacer" />}
                   <h2>{colName[col.id]}</h2>
                   <button type="button" className="rev-get" onClick={() => setIntent(col.id)}>
                     {t.plans.request}
