@@ -10,6 +10,7 @@ export type Messages = {
     features: string
     app: string
     compare: string
+    calc: string
     campaigns: string
     partners: string
     support: string
@@ -35,6 +36,25 @@ export type Messages = {
   how: {
     title: string
     steps: { title: string; body: string }[]
+  }
+  calc: {
+    kicker: string
+    title: string
+    lead: string
+    goldTitle: string
+    goldHint: string
+    goldHintWait: string
+    fxTitle: string
+    fxHint: string
+    fxHintWait: string
+    spread: string
+    gram: string
+    bands: string
+    pay: string
+    less: string
+    same: string
+    allAt: string
+    split: string
   }
   partners: {
     kicker: string

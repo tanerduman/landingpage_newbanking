@@ -1026,8 +1026,44 @@ h3 {
   color: var(--muted);
 }
 
-.partners-main {
+.partners-main,
+.calc-main {
   padding: 54px 0 72px;
+}
+
+.calc-main h1 {
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  margin: 0 0 14px;
+  max-width: 760px;
+}
+
+.calc-lead {
+  margin: 0 0 8px;
+  max-width: 640px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.calc-block {
+  margin-top: 36px;
+}
+
+.calc-block .idle-board-head strong {
+  font-size: clamp(32px, 4vw, 44px);
+}
+
+.calc-band-row {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.calc-bands {
+  text-align: left;
+  line-height: 1.35;
+  max-width: none;
 }
 
 .partners-main h1 {

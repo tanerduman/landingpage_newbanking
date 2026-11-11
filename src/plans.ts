@@ -98,6 +98,16 @@ export function eurFromTry(planId: PlanColumnId, tryAmount: number, market: numb
   return cap + eurAt(tryAmount - tryAtCap, fxFeeByColumn.account)
 }
 
+/** TRY paid to buy a set amount of EUR. Above the plan cap, the rest uses the Basic spread. */
+export function tryCostForEur(planId: PlanColumnId, eurAmount: number, market: number) {
+  if (eurAmount <= 0 || market <= 0) return 0
+  const fee = fxFeeByColumn[planId]
+  const tryFor = (eur: number, spread: number) => eur * market * (1 + spread)
+  const cap = fxLimitEurByColumn[planId]
+  if (cap == null || eurAmount <= cap) return tryFor(eurAmount, fee)
+  return tryFor(cap, fee) + tryFor(eurAmount - cap, fxFeeByColumn.account)
+}
+
 export function fxSavingTry(planId: PlanColumnId, fxTry: number, market: number) {
   if (planId === 'account' || fxTry <= 0 || market <= 0) return 0
   return (eurFromTry(planId, fxTry, market) - eurFromTry('account', fxTry, market)) * market
@@ -179,6 +189,7 @@ export const overnightByColumn: Record<PlanColumnId, number> = {
 
 /** Fallback gram gold until CollectAPI returns the live selling price. Basic stays 6,450 ₺/g in that sample. */
 export const SAMPLE_GOLD_GRAMS = 10
+export const CALC_EUR_BUY = 2_000
 export const SAMPLE_GOLD_TEMEL_TRY = 6_450
 /** Sale price is this far above the market gram price. */
 export const goldSpreadByColumn: Record<PlanColumnId, number> = {
