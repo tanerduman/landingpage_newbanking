@@ -548,7 +548,7 @@ export const tr: Messages = {
     email: 'E-posta',
     period: 'Ödeme dönemi',
     codeLabel: 'Onay kodu',
-    codeSent: 'adresine 8 haneli kod gönderdik. Kodu buraya yazabilir veya e-postadaki onay sayfasından girebilirsin.',
+    codeSent: 'adresine 8 haneli kod gönderdik. Kodu buraya yazabilir veya e-postadaki bağlantıya tıklayabilirsin.',
     sendCode: 'Kodu gönder',
     confirm: 'Onayla',
     cancel: 'Vazgeç',
