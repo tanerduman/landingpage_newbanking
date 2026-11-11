@@ -113,7 +113,7 @@ export default function CalcPage() {
             </header>
             <div className="idle-grid">
               {goldRows.map((row) => (
-                <article key={row.id} className={`idle-card${row.id === 'premium' ? ' featured' : ''}`}>
+                <article key={row.id} className="idle-card">
                   <h3>{names[row.id]}</h3>
                   <dl>
                     <div>
@@ -129,7 +129,7 @@ export default function CalcPage() {
                     <span>{t.calc.pay}</span>
                     <strong>{formatTry(row.pay, locale)}</strong>
                   </p>
-                  <p className={row.id === 'account' ? 'idle-stay' : 'idle-delta'}>
+                  <p className="calc-diff">
                     {row.id === 'account' ? t.calc.same : `−${formatTry(row.saved, locale)} ${t.calc.less}`}
                   </p>
                 </article>
@@ -147,7 +147,7 @@ export default function CalcPage() {
             </header>
             <div className="idle-grid">
               {fxRows.map((row) => (
-                <article key={row.id} className={`idle-card${row.id === 'premium' ? ' featured' : ''}`}>
+                <article key={row.id} className="idle-card">
                   <h3>{names[row.id]}</h3>
                   <dl>
                     <div className="calc-band-row">
@@ -159,7 +159,7 @@ export default function CalcPage() {
                     <span>{t.calc.pay}</span>
                     <strong>{formatTry(row.pay, locale)}</strong>
                   </p>
-                  <p className={row.id === 'account' ? 'idle-stay' : 'idle-delta'}>
+                  <p className="calc-diff">
                     {row.id === 'account' ? t.calc.same : `−${formatTry(row.saved, locale)} ${t.calc.less}`}
                   </p>
                 </article>
