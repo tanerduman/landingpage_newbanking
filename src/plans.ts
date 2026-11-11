@@ -218,7 +218,6 @@ export const comparisonRows: {
     | 'koctas'
     | 'atm'
     | 'cashback'
-    | 'miles'
   group: 'bank' | 'travel' | 'brand'
   icon: string
   values: Record<PlanColumnId, FeatureValue>
@@ -239,7 +238,7 @@ export const comparisonRows: {
     id: 'eft',
     group: 'bank',
     icon: 'send',
-    values: { account: 'unlimited0', standard: 'unlimited0', plus: 'unlimited0', premium: 'unlimited0' },
+    values: { account: false, standard: '5 adet/ay', plus: '10 adet/ay', premium: '15 adet/ay' },
   },
   {
     id: 'atm',
@@ -251,7 +250,7 @@ export const comparisonRows: {
     id: 'fxLimit',
     group: 'bank',
     icon: 'fx',
-    values: { account: false, standard: '1.500 €/ay', plus: '5.000 €/ay', premium: 'Sınırsız' },
+    values: { account: false, standard: '1.500 €/ay', plus: '5.000 €/ay', premium: '10.000 €/ay' },
   },
   {
     id: 'fxFee',
@@ -302,16 +301,10 @@ export const comparisonRows: {
     values: { account: false, standard: false, plus: '%10', premium: '%10' },
   },
   {
-    id: 'miles',
-    group: 'travel',
-    icon: 'plane',
-    values: { account: false, standard: false, plus: false, premium: '2×' },
-  },
-  {
     id: 'autoCampaign',
     group: 'travel',
     icon: 'shop',
-    values: { account: false, standard: false, plus: true, premium: true },
+    values: { account: false, standard: true, plus: true, premium: true },
   },
   {
     id: 'support',
