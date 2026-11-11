@@ -983,11 +983,6 @@ h3 {
   cursor: default;
 }
 
-.plan-quiet.featured {
-  border-color: var(--lime);
-  box-shadow: none;
-}
-
 .plans-home .plan-kicker {
   min-height: 24px;
 }
