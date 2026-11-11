@@ -12,6 +12,7 @@ export type WaitlistEntry = {
   intent: SignupIntent
   cycle: BillingCycle
   createdAt: string
+  read: boolean
 }
 
 export const PACKAGE_LABELS: Record<SignupIntent, string> = {
@@ -51,7 +52,7 @@ function normalizeEntry(row: WaitlistEntry): WaitlistEntry {
       : row.intent === 'account'
         ? 'none'
         : 'monthly'
-  return { ...row, cycle }
+  return { ...row, cycle, read: row.read === true }
 }
 
 export function loadWaitlist(): WaitlistEntry[] {
@@ -68,7 +69,7 @@ export function loadWaitlist(): WaitlistEntry[] {
 
 function failMessage(
   remoteError: string | undefined,
-  key: 'save_fail' | 'confirm_fail' | 'offline' | 'auth_bad' | 'delete_fail',
+  key: 'save_fail' | 'confirm_fail' | 'offline' | 'auth_bad' | 'delete_fail' | 'read_fail',
 ) {
   const t = messages(readLocale())
   return remoteError || t.errors[key]
@@ -212,6 +213,16 @@ export async function deleteWaitlistEntry(id: string) {
   throw new Error(failMessage(remote?.error, res ? 'delete_fail' : 'offline'))
 }
 
+export async function markWaitlistRead(id: string, read: boolean) {
+  const res = await apiFetch('/api/waitlist', {
+    method: 'PATCH',
+    body: JSON.stringify({ id, read }),
+  })
+  const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
+  if (res?.ok && remote?.ok) return
+  throw new Error(failMessage(remote?.error, res ? 'read_fail' : 'offline'))
+}
+
 export async function fetchWaitlist(): Promise<{ entries: WaitlistEntry[]; remote: boolean; authorized: boolean }> {
   const res = await apiFetch('/api/waitlist')
   if (res?.status === 401 || !res?.ok) return { entries: [], remote: false, authorized: false }
@@ -292,16 +303,20 @@ export function downloadWaitlistExcel(
     sheet: string
     packages: Record<SignupIntent, string>
     cycles: Record<BillingCycle, string>
+    read: string
+    readYes: string
+    readNo: string
     locale: Locale
   },
 ) {
-  const header = [copy.date, copy.name, copy.email, copy.pkg, copy.cycle]
+  const header = [copy.date, copy.name, copy.email, copy.pkg, copy.cycle, copy.read]
   const body = rows.map((row) => [
     formatRequestTime(row.createdAt, copy.locale),
     row.name,
     row.email,
     copy.packages[row.intent],
     copy.cycles[row.cycle] ?? row.cycle,
+    row.read ? copy.readYes : copy.readNo,
   ])
   const stamp = new Date().toISOString().slice(0, 10)
   const safeFilter = filterLabel.toLowerCase().replaceAll(' ', '-')
@@ -309,7 +324,14 @@ export function downloadWaitlistExcel(
 }
 
 export function downloadSupportExcel(
-  rows: { createdAt: string; name: string; email: string; kind: 'complaint' | 'suggestion' | 'support'; message: string }[],
+  rows: {
+    createdAt: string
+    name: string
+    email: string
+    kind: 'complaint' | 'suggestion' | 'support'
+    message: string
+    read: boolean
+  }[],
   copy: {
     date: string
     name: string
@@ -317,17 +339,21 @@ export function downloadSupportExcel(
     kind: string
     message: string
     sheet: string
+    read: string
+    readYes: string
+    readNo: string
     kinds: Record<'complaint' | 'suggestion' | 'support', string>
     locale: Locale
   },
 ) {
-  const header = [copy.date, copy.name, copy.email, copy.kind, copy.message]
+  const header = [copy.date, copy.name, copy.email, copy.kind, copy.message, copy.read]
   const body = rows.map((row) => [
     formatRequestTime(row.createdAt, copy.locale),
     row.name,
     row.email,
     copy.kinds[row.kind] ?? row.kind,
     row.message,
+    row.read ? copy.readYes : copy.readNo,
   ])
   const stamp = new Date().toISOString().slice(0, 10)
   downloadSheet(`aure-destek-${stamp}.xls`, copy.sheet, header, body)

@@ -11,11 +11,12 @@ export type SupportEntry = {
   kind: SupportKind
   message: string
   createdAt: string
+  read: boolean
 }
 
 function failMessage(
   remoteError: string | undefined,
-  fallback: 'save_fail' | 'support_delete_fail' | 'offline' = 'save_fail',
+  fallback: 'save_fail' | 'support_delete_fail' | 'read_fail' | 'offline' = 'save_fail',
 ) {
   const t = messages(readLocale())
   return remoteError || t.errors[fallback]
@@ -62,10 +63,25 @@ export async function deleteSupportEntry(id: string) {
   throw new Error(failMessage(remote?.error, res ? 'support_delete_fail' : 'offline'))
 }
 
+export async function markSupportRead(id: string, read: boolean) {
+  const res = await apiFetch('/api/support', {
+    method: 'PATCH',
+    body: JSON.stringify({ id, read }),
+  })
+  const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
+  if (res?.ok && remote?.ok) return
+  throw new Error(failMessage(remote?.error, res ? 'read_fail' : 'offline'))
+}
+
 export async function fetchSupport(): Promise<{ entries: SupportEntry[]; authorized: boolean }> {
   const res = await apiFetch('/api/support')
   if (res?.status === 401) return { entries: [], authorized: false }
   const remote = await readApiJson<{ entries?: SupportEntry[] }>(res)
-  if (res?.ok && remote?.entries) return { entries: remote.entries, authorized: true }
+  if (res?.ok && remote?.entries) {
+    return {
+      entries: remote.entries.map((entry) => ({ ...entry, read: entry.read === true })),
+      authorized: true,
+    }
+  }
   return { entries: [], authorized: true }
 }
