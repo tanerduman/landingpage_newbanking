@@ -2483,6 +2483,8 @@ td.row-action {
 
 .support-back,
 .support-submit {
+  display: inline-flex;
+  align-items: center;
   margin-top: 22px;
 }
 
