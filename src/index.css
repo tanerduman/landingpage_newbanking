@@ -203,6 +203,35 @@ img {
   outline-offset: 3px;
 }
 
+.nav-ribbon-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.nav-ribbon-close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: none;
+}
+
+.nav-ribbon-close:hover {
+  background: rgba(11, 11, 12, 0.08);
+}
+
+.nav-ribbon-close:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
 .nav-ribbon-sheen {
   position: absolute;
   inset: 0;
@@ -3885,6 +3914,7 @@ td.row-action {
   .nav-ribbon-copy {
     flex-wrap: wrap;
     gap: 6px 10px;
+    padding-right: 36px;
   }
 
   .nav-ribbon-copy strong {
@@ -3892,8 +3922,19 @@ td.row-action {
     white-space: normal;
   }
 
+  .nav-ribbon-actions {
+    display: contents;
+  }
+
   .nav-ribbon-btn {
     width: 100%;
+  }
+
+  .nav-ribbon-close {
+    position: absolute;
+    top: 6px;
+    right: 0;
+    z-index: 2;
   }
 
   .nav-rates {
