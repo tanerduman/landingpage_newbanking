@@ -3,7 +3,7 @@ import LogoMark from './LogoMark.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 
 const SLIDES = 6
-const AUTO_MS = 4800
+const AUTO_MS = 4080
 
 const CARDS = [
   { id: 'premium', label: 'AURE Premium', pan: '•••• 1904' },
@@ -334,7 +334,6 @@ export default function HowDeck() {
           ))}
         </div>
         <span>
-          {index === 0 && t.how.swipe}
           {index === 1 && t.how.spreadNote}
           {index === 2 && t.how.capNote}
           {index === 3 && t.how.nightNote}

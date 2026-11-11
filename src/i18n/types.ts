@@ -39,7 +39,6 @@ export type Messages = {
     deckLabel: string
     prev: string
     next: string
-    swipe: string
     position: string
     stackTitle: string
     stackLead: string
