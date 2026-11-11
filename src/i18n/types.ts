@@ -43,8 +43,6 @@ export type Messages = {
     position: string
     stackTitle: string
     stackLead: string
-    layerNote: string
-    layerBase: string
     spreadTitle: string
     spreadLead: string
     spreadNote: string
