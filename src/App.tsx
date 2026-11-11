@@ -5,6 +5,7 @@ import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { type PlanId, type SignupIntent } from './waitlist'
+import HowDeck from './HowDeck.tsx'
 import LogoMark from './LogoMark.tsx'
 
 function CardBrand() {
@@ -135,6 +136,7 @@ export default function App() {
                 </article>
               ))}
             </div>
+            <HowDeck />
           </div>
         </section>
 
