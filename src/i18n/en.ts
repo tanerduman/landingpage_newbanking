@@ -38,7 +38,7 @@ export const en: Messages = {
     title: 'How it works',
     steps: [
       {
-        title: 'Open your account',
+        title: 'State your request to open an account',
         body: 'Basic is free. The card, transfers and overnight interest start there.',
       },
       {
