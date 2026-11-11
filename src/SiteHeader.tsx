@@ -7,8 +7,17 @@ import { formatFx, formatGram } from './i18n/format.ts'
 import LogoMark from './LogoMark.tsx'
 
 const fxBases = ['USD', 'EUR', 'GBP', 'CHF'] as const
+const RIBBON_KEY = 'aure-request-ribbon'
 
 type FxQuote = { base: string; quote: string; rate: number }
+
+function readRibbonOpen() {
+  try {
+    return sessionStorage.getItem(RIBBON_KEY) !== 'closed'
+  } catch {
+    return true
+  }
+}
 
 export default function SiteHeader({
   active,
@@ -19,6 +28,7 @@ export default function SiteHeader({
 }) {
   const { t, locale } = useI18n()
   const [menu, setMenu] = useState(false)
+  const [ribbonOpen, setRibbonOpen] = useState(readRibbonOpen)
   const [fx, setFx] = useState<FxQuote[]>([])
   const [gold, setGold] = useState(0)
   const howHref = active ? withBase('#how') : '#how'
@@ -41,6 +51,15 @@ export default function SiteHeader({
   }, [])
 
   const quotes = fxBases.map((base) => fx.find((row) => row.base === base) ?? { base, quote: 'TRY', rate: 0 })
+
+  function closeRibbon() {
+    try {
+      sessionStorage.setItem(RIBBON_KEY, 'closed')
+    } catch {
+      /* storage can be unavailable */
+    }
+    setRibbonOpen(false)
+  }
 
   return (
     <header className="nav">
@@ -72,19 +91,28 @@ export default function SiteHeader({
           </button>
         </div>
       </div>
-      <div className="nav-ribbon">
-        <div className="nav-ribbon-sheen" aria-hidden="true" />
-        <div className="wrap nav-ribbon-inner">
-          <p className="nav-ribbon-copy">
-            <span className="nav-ribbon-pulse" aria-hidden="true" />
-            <strong>{t.nav.ribbonTitle}</strong>
-            <em>{t.nav.ribbonNote}</em>
-          </p>
-          <button type="button" className="nav-ribbon-btn" onClick={onRequest}>
-            {t.nav.request}
-          </button>
+      {ribbonOpen && (
+        <div className="nav-ribbon">
+          <div className="nav-ribbon-sheen" aria-hidden="true" />
+          <div className="wrap nav-ribbon-inner">
+            <p className="nav-ribbon-copy">
+              <span className="nav-ribbon-pulse" aria-hidden="true" />
+              <strong>{t.nav.ribbonTitle}</strong>
+              <em>{t.nav.ribbonNote}</em>
+            </p>
+            <div className="nav-ribbon-actions">
+              <button type="button" className="nav-ribbon-btn" onClick={onRequest}>
+                {t.nav.request}
+              </button>
+              <button type="button" className="nav-ribbon-close" aria-label={t.nav.ribbonClose} onClick={closeRibbon}>
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                  <path d="M3 3 L11 11 M11 3 L3 11" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
       <div className="nav-rates-bar">
         <div className="wrap nav-rates" aria-label={t.fx.eyebrow}>
           <span className="dot" aria-hidden="true" />

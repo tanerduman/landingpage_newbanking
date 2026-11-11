@@ -22,6 +22,7 @@ export const en: Messages = {
     request: 'Send a request',
     ribbonTitle: 'Request now. The account is next.',
     ribbonNote: 'A name and an email are enough. The account does not open on the spot.',
+    ribbonClose: 'Close',
     menu: 'Menu',
     back: 'Back to site',
     language: 'Language',

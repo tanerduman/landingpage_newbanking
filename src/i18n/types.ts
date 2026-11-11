@@ -21,6 +21,7 @@ export type Messages = {
     request: string
     ribbonTitle: string
     ribbonNote: string
+    ribbonClose: string
     menu: string
     back: string
     language: string

@@ -22,6 +22,7 @@ export const tr: Messages = {
     request: 'Talep gönder',
     ribbonTitle: 'Talep şimdi. Hesap sırada.',
     ribbonNote: 'Ad ve e-posta yeter. Hesap o anda açılmaz.',
+    ribbonClose: 'Kapat',
     menu: 'Menü',
     back: 'Siteye dön',
     language: 'Dil',
