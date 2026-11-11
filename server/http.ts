@@ -11,14 +11,7 @@ import {
   sessionCookie,
   sessionKey,
 } from './auth.ts'
-import {
-  isProduction,
-  normalizeEmail,
-  publicAppUrl,
-  sendRequestReceipt,
-  sendSupportInbox,
-  sendWaitlistConfirm,
-} from './email.ts'
+import { isProduction, normalizeEmail, publicAppUrl, sendRequestReceipt, sendWaitlistConfirm } from './email.ts'
 import { CONFIRM_CODE_RE, CONFIRM_EMAIL_ATTEMPTS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
 import { getFxRates } from './fx.ts'
 import { getGoldPrice } from './gold.ts'
@@ -361,14 +354,6 @@ async function handleSupport(request: Request) {
   if (typeof valid === 'string') return fail(request, valid, 400, parsed.value)
   if (await overLimit(`support:email:${valid.emailNorm}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const result = await store.requestSupport(valid)
-  const inbox = await sendSupportInbox({
-    name: valid.name,
-    email: valid.email,
-    kind: valid.kind,
-    message: valid.message,
-  })
-  if (!inbox.ok && isProduction() && !inbox.skipped) return fail(request, 'mail_fail', 503, parsed.value)
-  if (!inbox.ok && inbox.skipped && isProduction()) return fail(request, 'mail_off', 503, parsed.value)
   const link = confirmLink(request, result.token)
   const sent = await sendWaitlistConfirm({
     to: result.email,
