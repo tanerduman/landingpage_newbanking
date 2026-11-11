@@ -470,7 +470,8 @@ export const tr: Messages = {
       fxFee: 'Alışta, limit içindeki makas. Temel %4, Standard %2, Plus %1, Premium %0,5.',
       fxFeeOver: 'Limit üstü tutar her pakette Temel makasıyla, %4 olarak işler.',
       fxSellFee: 'Satışta makas tutarın tamamına uygulanır. Temel %2,5, Standard %1,5, Plus %1, Premium %0,5.',
-      goldSpread: 'Gram altın, piyasa fiyatının bu kadar üzerine satılır.',
+      goldSpread:
+        'Gram altın, piyasa fiyatının üzerine paket makasıyla satılır. Özel makas yalnızca belirlenen grama kadar geçer; fazlası Temel makasıyla, %4 olarak işler. Temel’de tamamı %4. Standard’da ilk 5 g %2. Plus’ta ilk 10 g %1. Premium’da ilk 15 g %0,5.',
       stock: 'BIST, ABD borsaları ve eurobond komisyonu.',
       liveData: 'Temel hesapta gecikmeli veri. Paketlerde ücretsiz canlı veri.',
       installments: 'E-ticarette peşin fiyatına taksit. Standard’da 3, Plus ve Premium’da 3 ve 6.',
