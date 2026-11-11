@@ -12,6 +12,7 @@ export type WaitlistRow = {
   intent: string
   cycle: BillingCycle
   createdAt: string
+  read: boolean
 }
 
 export const SUPPORT_KINDS = ['complaint', 'suggestion', 'support'] as const
@@ -28,6 +29,7 @@ export type SupportRow = {
   kind: SupportKind
   message: string
   createdAt: string
+  read: boolean
 }
 
 export const INTENTS = ['account', 'standard', 'plus', 'premium'] as const

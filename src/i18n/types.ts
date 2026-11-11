@@ -428,6 +428,11 @@ export type Messages = {
     supportLead: string
     supportEmpty: string
     message: string
+    read: string
+    unread: string
+    markRead: string
+    markUnread: string
+    unreadCount: string
     action: string
     delete: string
     deleteConfirm: string

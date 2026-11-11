@@ -76,7 +76,7 @@ function applyCors(request: Request, headers: Headers) {
     headers.set('vary', 'Origin')
     headers.set('access-control-allow-credentials', 'true')
     headers.set('access-control-allow-headers', 'Content-Type, x-is-human, x-path, x-method')
-    headers.set('access-control-allow-methods', 'GET, POST, DELETE, OPTIONS')
+    headers.set('access-control-allow-methods', 'GET, POST, PATCH, DELETE, OPTIONS')
   }
 }
 
@@ -214,6 +214,18 @@ async function handleWaitlist(request: Request) {
     const entries = await store.listWaitlist()
     return json({ entries }, 200, request)
   }
+  if (request.method === 'PATCH') {
+    const denied = await requireAdmin(request)
+    if (denied) return denied
+    if (await overLimit(`waitlist-read:ip:${clientKey(request)}`, 80, 60_000)) return fail(request, 'too_many', 429)
+    const parsed = await readJson(request)
+    if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    const body = parsed.value as { id?: unknown; read?: unknown } | null
+    if (!waitlistId(body?.id) || typeof body.read !== 'boolean') return fail(request, 'invalid', 400, parsed.value)
+    const updated = await store.setWaitlistRead(body.id, body.read)
+    if (!updated) return fail(request, 'not_found', 404, parsed.value)
+    return json({ ok: true, read: body.read }, 200, request)
+  }
   if (request.method === 'DELETE') {
     const denied = await requireAdmin(request)
     if (denied) return denied
@@ -310,6 +322,18 @@ async function handleSupport(request: Request) {
     const entries = await store.listSupport()
     return json({ entries }, 200, request)
   }
+  if (request.method === 'PATCH') {
+    const denied = await requireAdmin(request)
+    if (denied) return denied
+    if (await overLimit(`support-read:ip:${clientKey(request)}`, 80, 60_000)) return fail(request, 'too_many', 429)
+    const parsed = await readJson(request)
+    if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    const body = parsed.value as { id?: unknown; read?: unknown } | null
+    if (!waitlistId(body?.id) || typeof body.read !== 'boolean') return fail(request, 'invalid', 400, parsed.value)
+    const updated = await store.setSupportRead(body.id, body.read)
+    if (!updated) return fail(request, 'not_found', 404, parsed.value)
+    return json({ ok: true, read: body.read }, 200, request)
+  }
   if (request.method === 'DELETE') {
     const denied = await requireAdmin(request)
     if (denied) return denied
@@ -388,12 +412,18 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
     if (path === '/api/visits' && (request.method === 'GET' || request.method === 'POST')) {
       return handleVisits(request)
     }
-    if (path === '/api/waitlist' && (request.method === 'GET' || request.method === 'POST' || request.method === 'DELETE')) {
+    if (
+      path === '/api/waitlist' &&
+      (request.method === 'GET' || request.method === 'POST' || request.method === 'PATCH' || request.method === 'DELETE')
+    ) {
       return handleWaitlist(request)
     }
     if (path === '/api/login' && request.method === 'POST') return handleLogin(request)
     if (path === '/api/logout' && request.method === 'POST') return handleLogout(request)
-    if (path === '/api/support' && (request.method === 'GET' || request.method === 'POST' || request.method === 'DELETE')) {
+    if (
+      path === '/api/support' &&
+      (request.method === 'GET' || request.method === 'POST' || request.method === 'PATCH' || request.method === 'DELETE')
+    ) {
       return handleSupport(request)
     }
     if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)

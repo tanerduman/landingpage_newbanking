@@ -58,6 +58,8 @@ type Store = {
   confirmSupport(input: { token?: string; email?: string; code?: string }): Promise<SupportRow | string>
   listSupport(): Promise<SupportRow[]>
   deleteSupport(id: string): Promise<boolean>
+  setWaitlistRead(id: string, read: boolean): Promise<boolean>
+  setSupportRead(id: string, read: boolean): Promise<boolean>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -68,6 +70,7 @@ type Store = {
 type WaitlistRecord = WaitlistRow & {
   emailNorm: string
   confirmed: boolean
+  read: boolean
   confirmTokenHash: string | null
   confirmCodeHash: string | null
   confirmExpires: string | null
@@ -90,6 +93,7 @@ type RateBucket = {
 type SupportRecord = SupportRow & {
   emailNorm: string
   confirmed: boolean
+  read: boolean
   confirmTokenHash: string | null
   confirmCodeHash: string | null
   confirmExpires: string | null
@@ -137,6 +141,7 @@ function publicRow(row: WaitlistRecord): WaitlistRow {
     intent: row.intent,
     cycle: row.cycle,
     createdAt: row.createdAt,
+    read: row.read,
   }
 }
 
@@ -148,6 +153,7 @@ function publicSupport(row: SupportRecord): SupportRow {
     kind: row.kind,
     message: row.message,
     createdAt: row.createdAt,
+    read: row.read,
   }
 }
 
@@ -221,6 +227,7 @@ function memoryStore(): Store {
         existing.email = input.email
         existing.intent = input.intent
         existing.cycle = input.cycle
+        existing.read = false
         return { status: 'updated', email: existing.email }
       }
       const challenge = issueChallenge()
@@ -251,6 +258,7 @@ function memoryStore(): Store {
         cycle: input.cycle,
         createdAt: new Date().toISOString(),
         confirmed: false,
+        read: false,
         confirmTokenHash: challenge.tokenHash,
         confirmCodeHash: challenge.codeHash,
         confirmExpires: challenge.expires,
@@ -328,6 +336,7 @@ function memoryStore(): Store {
         message: input.message,
         createdAt: new Date().toISOString(),
         confirmed: false,
+        read: false,
         confirmTokenHash: challenge.tokenHash,
         confirmCodeHash: challenge.codeHash,
         confirmExpires: challenge.expires,
@@ -359,6 +368,18 @@ function memoryStore(): Store {
       const index = data.support.findIndex((row) => row.id === id)
       if (index === -1) return false
       data.support.splice(index, 1)
+      return true
+    },
+    async setWaitlistRead(id, read) {
+      const row = data.waitlist.find((item) => item.id === id && item.confirmed)
+      if (!row) return false
+      row.read = read
+      return true
+    },
+    async setSupportRead(id, read) {
+      const row = data.support.find((item) => item.id === id && item.confirmed)
+      if (!row) return false
+      row.read = read
       return true
     },
     async createAdminSession(input) {
@@ -431,6 +452,7 @@ CREATE TABLE IF NOT EXISTS waitlist (
   intent TEXT NOT NULL,
   cycle TEXT NOT NULL DEFAULT 'monthly',
   confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+  read BOOLEAN NOT NULL DEFAULT FALSE,
   confirm_token_hash TEXT,
   confirm_code_hash TEXT,
   confirm_expires TIMESTAMPTZ,
@@ -447,6 +469,7 @@ CREATE TABLE IF NOT EXISTS support_requests (
   kind TEXT NOT NULL DEFAULT 'support',
   message TEXT NOT NULL,
   confirmed BOOLEAN NOT NULL DEFAULT FALSE,
+  read BOOLEAN NOT NULL DEFAULT FALSE,
   confirm_token_hash TEXT,
   confirm_code_hash TEXT,
   confirm_expires TIMESTAMPTZ,
@@ -509,6 +532,14 @@ ALTER TABLE sessions ADD COLUMN IF NOT EXISTS scope TEXT;
 UPDATE sessions SET scope = 'production' WHERE scope IS NULL OR scope = '';
 ALTER TABLE sessions ALTER COLUMN scope SET DEFAULT 'production';
 ALTER TABLE sessions ALTER COLUMN scope SET NOT NULL;
+ALTER TABLE waitlist ADD COLUMN IF NOT EXISTS read BOOLEAN;
+UPDATE waitlist SET read = FALSE WHERE read IS NULL;
+ALTER TABLE waitlist ALTER COLUMN read SET DEFAULT FALSE;
+ALTER TABLE waitlist ALTER COLUMN read SET NOT NULL;
+ALTER TABLE support_requests ADD COLUMN IF NOT EXISTS read BOOLEAN;
+UPDATE support_requests SET read = FALSE WHERE read IS NULL;
+ALTER TABLE support_requests ALTER COLUMN read SET DEFAULT FALSE;
+ALTER TABLE support_requests ALTER COLUMN read SET NOT NULL;
 `
 
 function databaseUrl() {
@@ -605,7 +636,7 @@ function postgresStore(url: string): Store {
       if (existing?.confirmed) {
         await pool.query(
           `UPDATE waitlist
-           SET name = $2, email = $3, intent = $4, cycle = $5, updated_at = NOW()
+           SET name = $2, email = $3, intent = $4, cycle = $5, read = FALSE, updated_at = NOW()
            WHERE id = $1`,
           [existing.id, input.name, input.email, input.intent, input.cycle],
         )
@@ -677,6 +708,7 @@ function postgresStore(url: string): Store {
         intent: string
         cycle: string
         created_at: Date
+        read: boolean
       }>(
         `UPDATE waitlist SET
            confirmed = TRUE,
@@ -690,7 +722,7 @@ function postgresStore(url: string): Store {
              ($1::text IS NOT NULL AND confirm_token_hash = $1)
              OR ($2::text IS NOT NULL AND $3::text <> '' AND email_norm = $3 AND confirm_code_hash = $2)
            )
-         RETURNING id, name, email, intent, COALESCE(cycle, 'monthly') AS cycle, created_at`,
+         RETURNING id, name, email, intent, COALESCE(cycle, 'monthly') AS cycle, created_at, read`,
         [tokenHash, codeHash, emailNorm],
       )
       const row = result.rows[0]
@@ -702,6 +734,7 @@ function postgresStore(url: string): Store {
         intent: row.intent,
         cycle: isBillingCycle(row.cycle) ? row.cycle : 'monthly',
         createdAt: new Date(row.created_at).toISOString(),
+        read: Boolean(row.read),
       }
     },
     async listWaitlist() {
@@ -713,8 +746,9 @@ function postgresStore(url: string): Store {
         intent: string
         cycle: string
         created_at: Date
+        read: boolean
       }>(
-        `SELECT id, name, email, intent, COALESCE(cycle, 'monthly') AS cycle, created_at
+        `SELECT id, name, email, intent, COALESCE(cycle, 'monthly') AS cycle, created_at, read
          FROM waitlist
          WHERE confirmed = TRUE
          ORDER BY created_at DESC
@@ -727,6 +761,7 @@ function postgresStore(url: string): Store {
         intent: row.intent,
         cycle: isBillingCycle(row.cycle) ? row.cycle : 'monthly',
         createdAt: new Date(row.created_at).toISOString(),
+        read: Boolean(row.read),
       }))
     },
     async deleteWaitlist(id) {
@@ -818,6 +853,7 @@ function postgresStore(url: string): Store {
         kind: string
         message: string
         created_at: Date
+        read: boolean
       }>(
         `UPDATE support_requests SET
            confirmed = TRUE,
@@ -830,7 +866,7 @@ function postgresStore(url: string): Store {
              ($1::text IS NOT NULL AND confirm_token_hash = $1)
              OR ($2::text IS NOT NULL AND $3::text <> '' AND email_norm = $3 AND confirm_code_hash = $2)
            )
-         RETURNING id, name, email, kind, message, created_at`,
+         RETURNING id, name, email, kind, message, created_at, read`,
         [tokenHash, codeHash, emailNorm],
       )
       const row = result.rows[0]
@@ -842,6 +878,7 @@ function postgresStore(url: string): Store {
         kind: isSupportKind(row.kind) ? row.kind : 'support',
         message: row.message,
         createdAt: new Date(row.created_at).toISOString(),
+        read: Boolean(row.read),
       }
     },
     async listSupport() {
@@ -853,8 +890,9 @@ function postgresStore(url: string): Store {
         kind: string
         message: string
         created_at: Date
+        read: boolean
       }>(
-        `SELECT id, name, email, COALESCE(kind, 'support') AS kind, message, created_at
+        `SELECT id, name, email, COALESCE(kind, 'support') AS kind, message, created_at, read
          FROM support_requests
          WHERE confirmed = TRUE
          ORDER BY created_at DESC
@@ -867,11 +905,25 @@ function postgresStore(url: string): Store {
         kind: isSupportKind(row.kind) ? row.kind : 'support',
         message: row.message,
         createdAt: new Date(row.created_at).toISOString(),
+        read: Boolean(row.read),
       }))
     },
     async deleteSupport(id) {
       await ensure()
       const result = await pool.query('DELETE FROM support_requests WHERE id = $1', [id])
+      return (result.rowCount ?? 0) > 0
+    },
+    async setWaitlistRead(id, read) {
+      await ensure()
+      const result = await pool.query('UPDATE waitlist SET read = $2 WHERE id = $1 AND confirmed = TRUE', [id, read])
+      return (result.rowCount ?? 0) > 0
+    },
+    async setSupportRead(id, read) {
+      await ensure()
+      const result = await pool.query('UPDATE support_requests SET read = $2 WHERE id = $1 AND confirmed = TRUE', [
+        id,
+        read,
+      ])
       return (result.rowCount ?? 0) > 0
     },
     async createAdminSession(input) {

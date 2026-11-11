@@ -2319,6 +2319,34 @@ td.row-action {
   cursor: progress;
 }
 
+.row-read {
+  border: 1px solid #5c584c;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.row-read.is-read {
+  border-color: #314018;
+  background: #1d2a12;
+  color: var(--lime);
+}
+
+.row-read:disabled {
+  opacity: 0.55;
+  cursor: progress;
+}
+
+.admin-tabs .tab-unread {
+  color: var(--lime);
+}
+
 .waitlist-action-error {
   color: #f0b4b4;
   font-size: 13px;
@@ -2575,6 +2603,10 @@ td.row-action {
 
 .admin-tabs button.active span {
   color: var(--ink);
+}
+
+.admin-tabs button.active .tab-unread {
+  color: #3d4a12;
 }
 
 .support-message {

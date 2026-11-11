@@ -10,6 +10,7 @@ import {
   deleteWaitlistEntry,
   downloadSupportExcel,
   downloadWaitlistExcel,
+  markWaitlistRead,
   loginWaitlist,
   logoutWaitlist,
   type BillingCycle,
@@ -17,7 +18,7 @@ import {
   type WaitlistEntry,
 } from './waitlist'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
-import { fetchSupport, deleteSupportEntry, type SupportEntry, type SupportKind } from './support.ts'
+import { fetchSupport, deleteSupportEntry, markSupportRead, type SupportEntry, type SupportKind } from './support.ts'
 import SupportPie from './SupportPie.tsx'
 import WaitlistPie from './WaitlistPie.tsx'
 import LogoMark from './LogoMark.tsx'
@@ -47,6 +48,7 @@ export default function WaitlistPage() {
   const [page, setPage] = useState(1)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [readingId, setReadingId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState('')
   const removedIds = useRef(new Set<string>())
   const removedSupportIds = useRef(new Set<string>())
@@ -139,6 +141,25 @@ export default function WaitlistPage() {
     }
   }
 
+  async function toggleRead(kind: Panel, id: string, read: boolean) {
+    const next = !read
+    setReadingId(id)
+    setDeleteError('')
+    try {
+      if (kind === 'requests') {
+        await markWaitlistRead(id, next)
+        setEntries((rows) => rows.map((row) => (row.id === id ? { ...row, read: next } : row)))
+      } else {
+        await markSupportRead(id, next)
+        setSupport((rows) => rows.map((row) => (row.id === id ? { ...row, read: next } : row)))
+      }
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : t.errors.read_fail)
+    } finally {
+      setReadingId(null)
+    }
+  }
+
   async function signOut() {
     await logoutWaitlist()
     setAuthed(false)
@@ -160,6 +181,8 @@ export default function WaitlistPage() {
       }),
     [entries, filter, cycleFilter],
   )
+  const unreadRequests = useMemo(() => entries.filter((row) => !row.read).length, [entries])
+  const unreadSupport = useMemo(() => support.filter((row) => !row.read).length, [support])
   const supportCounts = useMemo(() => {
     const counts: Record<SupportKind, number> = { complaint: 0, suggestion: 0, support: 0 }
     for (const row of support) counts[row.kind] += 1
@@ -273,6 +296,9 @@ export default function WaitlistPage() {
                   email: t.waitlist.excelEmail,
                   pkg: t.waitlist.excelPkg,
                   cycle: t.waitlist.excelCycle,
+                  read: t.waitlist.read,
+                  readYes: t.waitlist.read,
+                  readNo: t.waitlist.unread,
                   sheet: t.waitlist.excelSheet,
                   packages: pkgLabels,
                   cycles: cycleLabels,
@@ -295,6 +321,9 @@ export default function WaitlistPage() {
                     email: t.waitlist.excelEmail,
                     kind: t.support.kind,
                     message: t.waitlist.message,
+                    read: t.waitlist.read,
+                    readYes: t.waitlist.read,
+                    readNo: t.waitlist.unread,
                     sheet: t.waitlist.tabSupport,
                     kinds: t.support.kinds,
                     locale,
@@ -353,6 +382,9 @@ export default function WaitlistPage() {
           >
             {t.waitlist.tabRequests}
             <span>{entries.length}</span>
+            {unreadRequests > 0 && (
+              <span className="tab-unread">{t.waitlist.unreadCount.replace('{n}', String(unreadRequests))}</span>
+            )}
           </button>
           <button
             type="button"
@@ -363,6 +395,9 @@ export default function WaitlistPage() {
           >
             {t.waitlist.tabSupport}
             <span>{support.length}</span>
+            {unreadSupport > 0 && (
+              <span className="tab-unread">{t.waitlist.unreadCount.replace('{n}', String(unreadSupport))}</span>
+            )}
           </button>
         </div>
         {panel === 'support' ? (
@@ -393,13 +428,14 @@ export default function WaitlistPage() {
                     <th>{t.waitlist.email}</th>
                     <th>{t.support.kind}</th>
                     <th>{t.waitlist.message}</th>
+                    <th>{t.waitlist.read}</th>
                     <th className="row-action">{t.waitlist.action}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {visibleSupport.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="waitlist-empty">
+                      <td colSpan={7} className="waitlist-empty">
                         {support.length === 0 ? t.waitlist.supportEmpty : t.waitlist.supportFilterEmpty}
                       </td>
                     </tr>
@@ -413,6 +449,17 @@ export default function WaitlistPage() {
                           <span className={`pkg-pill kind-${row.kind}`}>{t.support.kinds[row.kind]}</span>
                         </td>
                         <td className="support-message">{row.message}</td>
+                        <td>
+                          <button
+                            type="button"
+                            className={`row-read${row.read ? ' is-read' : ''}`}
+                            disabled={readingId === row.id}
+                            aria-label={`${row.read ? t.waitlist.markUnread : t.waitlist.markRead} ${row.name}`}
+                            onClick={() => void toggleRead('support', row.id, row.read)}
+                          >
+                            {row.read ? t.waitlist.read : t.waitlist.unread}
+                          </button>
+                        </td>
                         <td className="row-action">
                           <button
                             type="button"
@@ -545,13 +592,14 @@ export default function WaitlistPage() {
                 <th>{t.waitlist.email}</th>
                 <th>{t.waitlist.package}</th>
                 <th>{t.waitlist.period}</th>
+                <th>{t.waitlist.read}</th>
                 <th className="row-action">{t.waitlist.action}</th>
               </tr>
             </thead>
             <tbody>
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="waitlist-empty">
+                  <td colSpan={7} className="waitlist-empty">
                     {t.waitlist.empty}
                   </td>
                 </tr>
@@ -568,6 +616,17 @@ export default function WaitlistPage() {
                       <span className={`pkg-pill cycle-${row.cycle ?? 'monthly'}`}>
                         {cycleLabels[row.cycle] ?? t.cycle.monthly}
                       </span>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={`row-read${row.read ? ' is-read' : ''}`}
+                        disabled={readingId === row.id}
+                        aria-label={`${row.read ? t.waitlist.markUnread : t.waitlist.markRead} ${row.name}`}
+                        onClick={() => void toggleRead('requests', row.id, row.read)}
+                      >
+                        {row.read ? t.waitlist.read : t.waitlist.unread}
+                      </button>
                     </td>
                     <td className="row-action">
                       <button
