@@ -193,7 +193,7 @@ export function SignupModal({
               value={code}
               maxLength={CONFIRM_CODE_DIGITS}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, CONFIRM_CODE_DIGITS))}
-              placeholder="12345678"
+              placeholder="1234"
             />
             {devCode ? (
               <p className="confirm-dev">

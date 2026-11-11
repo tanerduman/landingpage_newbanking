@@ -142,7 +142,7 @@ export default function ConfirmPage() {
               value={code}
               maxLength={CONFIRM_CODE_DIGITS}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, CONFIRM_CODE_DIGITS))}
-              placeholder="12345678"
+              placeholder="1234"
             />
             {status === 'error' && detail ? <p className="login-error">{detail}</p> : null}
             <button type="submit" className="btn btn-solid login-submit" disabled={busy}>

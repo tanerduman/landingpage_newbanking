@@ -222,7 +222,7 @@ export default function SupportPage() {
                     autoComplete="one-time-code"
                     value={code}
                     maxLength={CONFIRM_CODE_DIGITS}
-                    placeholder="12345678"
+                    placeholder="1234"
                     onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, CONFIRM_CODE_DIGITS))}
                   />
                   {devCode ? (
