@@ -2790,10 +2790,6 @@ td.row-action {
   margin: 0 0 14px;
 }
 
-.rev-plan.is-featured {
-  background: #fbfdf2;
-}
-
 .rev-get {
   display: inline-flex;
   align-items: center;
@@ -2915,10 +2911,6 @@ td.row-action {
   font-size: 14px;
   border-left: 1px solid #f0eeea;
   color: #2c2a26;
-}
-
-.rev-cell.is-featured {
-  background: #fbfdf2;
 }
 
 .rev-check {
