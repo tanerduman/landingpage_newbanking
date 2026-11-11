@@ -54,7 +54,7 @@ export const en: Messages = {
   calc: {
     kicker: 'Calculate',
     title: 'The same purchase, by plan spread.',
-    lead: 'What 10 grams of gold and a 2,000 € buy cost on each plan. A sample price is used until a live rate arrives.',
+    lead: 'What 10 grams of gold and a 2,000 € buy cost on each plan.',
     goldTitle: '10 grams of gold',
     goldHint: 'Live gram price {price}. Special spread on 5 g Standard, 10 g Plus and 15 g Premium; the rest is 4%.',
     goldHintWait: 'Sample gram price {price}. Special spread on 5 g Standard, 10 g Plus and 15 g Premium; the rest is 4%.',
