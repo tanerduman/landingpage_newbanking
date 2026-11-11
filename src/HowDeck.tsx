@@ -11,6 +11,21 @@ const CARDS = [
   { id: 'account', label: '', pan: '•••• 2208' },
 ] as const
 
+function Arrow({ dir }: { dir: 'left' | 'right' }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <path
+        d={dir === 'left' ? 'M10 3 L5 8 L10 13' : 'M6 3 L11 8 L6 13'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function Brand() {
   return (
     <span className="how-brand">
@@ -80,11 +95,11 @@ export default function HowDeck() {
           {position}
         </span>
         <span className="how-deck-nav">
-          <button type="button" onClick={() => go(index - 1)} disabled={index === 0}>
-            {t.how.prev}
+          <button type="button" aria-label={t.how.prev} onClick={() => go(index - 1)} disabled={index === 0}>
+            <Arrow dir="left" />
           </button>
-          <button type="button" onClick={() => go(index + 1)} disabled={index === SLIDES - 1}>
-            {t.how.next}
+          <button type="button" aria-label={t.how.next} onClick={() => go(index + 1)} disabled={index === SLIDES - 1}>
+            <Arrow dir="right" />
           </button>
         </span>
       </div>
@@ -112,12 +127,10 @@ export default function HowDeck() {
                 {(['premium', 'plus', 'standard'] as const).map((id) => (
                   <div key={id} className="how-layer">
                     <strong>{names[id]}</strong>
-                    <span>{t.how.layerNote}</span>
                   </div>
                 ))}
                 <div className="how-layer how-layer-base">
                   <strong>{names.account}</strong>
-                  <span>{t.how.layerBase}</span>
                 </div>
               </div>
             </>

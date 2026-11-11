@@ -895,14 +895,16 @@ h3 {
 }
 
 .how-deck-nav button {
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--line);
   background: transparent;
   color: var(--text);
   border-radius: 999px;
-  padding: 6px 12px;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 700;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
@@ -1051,7 +1053,6 @@ h3 {
   padding: 12px 14px;
 }
 
-.how-layer span,
 .how-bar b {
   color: var(--muted);
   font-size: 14px;
