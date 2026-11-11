@@ -23,7 +23,7 @@ export default function SiteHeader({
   active,
   onRequest,
 }: {
-  active?: 'partners' | 'compare' | 'calc' | 'support'
+  active?: 'partners' | 'compare' | 'calc' | 'support' | 'blog'
   onRequest: () => void
 }) {
   const { t, locale } = useI18n()
@@ -82,6 +82,9 @@ export default function SiteHeader({
           </a>
           <a href={withBase('support')} aria-current={active === 'support' ? 'page' : undefined}>
             {t.nav.support}
+          </a>
+          <a href={withBase('blog')} aria-current={active === 'blog' ? 'page' : undefined}>
+            {t.nav.blog}
           </a>
         </nav>
         <div className="nav-cta">
@@ -146,6 +149,9 @@ export default function SiteHeader({
         </a>
         <a href={withBase('support')} onClick={() => setMenu(false)} aria-current={active === 'support' ? 'page' : undefined}>
           {t.nav.support}
+        </a>
+        <a href={withBase('blog')} onClick={() => setMenu(false)} aria-current={active === 'blog' ? 'page' : undefined}>
+          {t.nav.blog}
         </a>
         <button
           type="button"

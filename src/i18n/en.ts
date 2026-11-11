@@ -15,6 +15,7 @@ export const en: Messages = {
     campaigns: 'Offers',
     partners: 'Partnerships',
     support: 'Support',
+    blog: 'AURE Blog',
     newPage: 'New',
     faq: 'FAQ',
     seePlans: 'See plans',
@@ -440,6 +441,81 @@ export const en: Messages = {
     title: 'No surprise fees. Plans that pay you back.',
     body: 'Open the free account first. Add Standard, Plus or Premium when the simulator says it pays — or just when you want more.',
     button: 'Start free',
+  },
+  blog: {
+    kicker: 'AURE Blog',
+    title: 'Subscription banking, only as far as you need.',
+    date: '12 November 2026',
+    lead: 'Not everyone uses a bank the same way. One person leaves money overnight, another buys foreign currency, another wants a grocery discount. At AURE the account is one. The plan is a layer on top of it.',
+    layers: [
+      { name: 'Basic', note: 'The account everyone starts with. The card and overnight interest begin here.' },
+      { name: 'Standard', note: 'The first special spread, the first free transfers and the first shop rate.' },
+      { name: 'Plus', note: 'A higher ceiling, a direct agent, Divan and Setur tours.' },
+      { name: 'Premium', note: 'The highest ceiling, VIP branch priority, tours and hotels.' },
+    ],
+    sections: [
+      {
+        title: 'The account first. The plan after.',
+        paragraphs: [
+          'Basic is free. Standard, Plus and Premium do not replace it. They sit on the same account. You pick the layer that matches the need.',
+          'This page shows no price. For now we only take requests. A name and an email are enough. A 4-digit code, or the link in the email, puts the request on the list. The account does not open then. The plan you asked for waits.',
+        ],
+      },
+      {
+        title: 'Money that sits overnight.',
+        paragraphs: [
+          'The need is simple: the balance you can spend by day should not sit idle at night. It stays spendable during the day. Whatever is left overnight earns interest.',
+          'Basic 34%. Standard 34.5%. Plus 34.75%. Premium 35%. The steps are small. A plan does not jump the rate; it lifts it one notch.',
+        ],
+      },
+      {
+        title: 'The same purchase, a narrower spread.',
+        paragraphs: [
+          'Someone buying foreign currency or gold buys the same thing. The difference is the spread above the market price. On a buy inside the limit, Basic is 4%, Standard 2%, Plus 1% and Premium 0.5%.',
+          'The special spread is not endless. Standard stops at 1,500 €, Plus at 5,000 €, Premium at 10,000 €. Above that ceiling every plan uses 4%. Basic has no ceiling; the whole amount is 4%.',
+          'On a sale the spread applies to the whole amount. Basic 2.5%, Standard 1.5%, Plus 1%, Premium 0.5%.',
+          'Gram gold follows the same rule. The first 5 grams on Standard are 2%, the first 10 grams on Plus are 1%, and the first 15 grams on Premium are 0.5%. The rest is 4%. All of Basic is 4%.',
+        ],
+      },
+      {
+        title: 'Transfers and cash.',
+        paragraphs: [
+          'Sending money and taking cash are the daily work of a plan. Basic has no free EFT. Standard has 5 a month, Plus 10, Premium 15.',
+          'The fee-free ATM limit per day is 15,000 TL on Basic, 20,000 TL on Standard, 25,000 TL on Plus and 30,000 TL on Premium.',
+        ],
+      },
+      {
+        title: 'Spending.',
+        paragraphs: [
+          'Instalments at the cash price are 3 on Standard, and 3 and 6 on Plus and Premium. Basic does not include them.',
+          'Cashback on card spend abroad is 10% on Plus and Premium. Joining an offer with no SMS and no lock-in is on for Standard, Plus and Premium.',
+        ],
+      },
+      {
+        title: 'Reaching a person.',
+        paragraphs: [
+          'Support is not a chatbot gate. Basic and Standard have queued human support. Plus opens a direct agent. Premium adds VIP branch priority.',
+        ],
+      },
+      {
+        title: 'A brand opens with your plan.',
+        paragraphs: [
+          'Grocery, patisserie and travel discounts are closed on Basic. The discount lives on the plan attached to the card.',
+          'In a Migros shop, Standard is 2%, Plus 4% and Premium 7%. Sanal Market is separate: Standard 2%, Plus 5%, Premium 8%.',
+          'Divan Pastanesi is 10% on Plus and 15% on Premium. It is closed on Standard. At Setur, Plus is 5% on tours and Premium is 10% on tours and hotels.',
+          'Neo Skola is on for Standard, Plus and Premium. At Koçtaş, Standard is 5%, Plus 7.5% and Premium 10%. The most you can save in a month is 20,000 TL.',
+        ],
+      },
+      {
+        title: 'Investing commission.',
+        paragraphs: [
+          'Commission on shares, US markets and eurobonds is 0.20% on Basic and 0% on Standard, Plus and Premium. Market data is delayed on Basic. The plans include free live data.',
+        ],
+      },
+    ],
+    more: 'The row-by-row table is on Compare. The cost of 10 grams of gold and a 2,000 € buy is on Calculate.',
+    compare: 'Compare',
+    calc: 'Calculate',
   },
   footer: {
     legal: '© 2026 AURE. A fictional product — it does not provide real banking services.',

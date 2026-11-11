@@ -14,6 +14,7 @@ export type Messages = {
     campaigns: string
     partners: string
     support: string
+    blog: string
     newPage: string
     faq: string
     seePlans: string
@@ -287,6 +288,17 @@ export type Messages = {
     title: string
     body: string
     button: string
+  }
+  blog: {
+    kicker: string
+    title: string
+    date: string
+    lead: string
+    layers: { name: string; note: string }[]
+    sections: { title: string; paragraphs: string[] }[]
+    more: string
+    compare: string
+    calc: string
   }
   footer: {
     legal: string
