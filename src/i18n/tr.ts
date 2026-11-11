@@ -38,7 +38,7 @@ export const tr: Messages = {
     title: 'Nasıl çalışır',
     steps: [
       {
-        title: 'Hesabını aç',
+        title: 'Hesap açma isteğini belirt',
         body: 'Temel hesap ücretsizdir. Kart, EFT ve gecelik faiz bununla başlar.',
       },
       {
