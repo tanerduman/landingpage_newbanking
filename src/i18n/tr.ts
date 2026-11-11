@@ -20,6 +20,8 @@ export const tr: Messages = {
     seePlans: 'Paketleri gör',
     openFree: 'Ücretsiz Başla',
     request: 'Talep gönder',
+    ribbonTitle: 'Talep şimdi. Hesap sırada.',
+    ribbonNote: 'Ad ve e-posta yeter. Hesap o anda açılmaz.',
     menu: 'Menü',
     back: 'Siteye dön',
     language: 'Dil',

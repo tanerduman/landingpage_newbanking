@@ -20,6 +20,8 @@ export const en: Messages = {
     seePlans: 'See plans',
     openFree: 'Start free',
     request: 'Send a request',
+    ribbonTitle: 'Request now. The account is next.',
+    ribbonNote: 'A name and an email are enough. The account does not open on the spot.',
     menu: 'Menu',
     back: 'Back to site',
     language: 'Language',

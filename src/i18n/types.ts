@@ -19,6 +19,8 @@ export type Messages = {
     seePlans: string
     openFree: string
     request: string
+    ribbonTitle: string
+    ribbonNote: string
     menu: string
     back: string
     language: string

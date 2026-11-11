@@ -67,11 +67,21 @@ export default function SiteHeader({
         </nav>
         <div className="nav-cta">
           <LangSwitch />
-          <button className="btn btn-solid" onClick={onRequest}>
-            {t.nav.request}
-          </button>
           <button className="menu-btn" aria-label={t.nav.menu} onClick={() => setMenu((v) => !v)}>
             ☰
+          </button>
+        </div>
+      </div>
+      <div className="nav-ribbon">
+        <div className="nav-ribbon-sheen" aria-hidden="true" />
+        <div className="wrap nav-ribbon-inner">
+          <p className="nav-ribbon-copy">
+            <span className="nav-ribbon-pulse" aria-hidden="true" />
+            <strong>{t.nav.ribbonTitle}</strong>
+            <em>{t.nav.ribbonNote}</em>
+          </p>
+          <button type="button" className="nav-ribbon-btn" onClick={onRequest}>
+            {t.nav.request}
           </button>
         </div>
       </div>
