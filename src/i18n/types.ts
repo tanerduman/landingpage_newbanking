@@ -294,11 +294,7 @@ export type Messages = {
     title: string
     date: string
     lead: string
-    layers: { name: string; note: string }[]
     sections: { title: string; paragraphs: string[] }[]
-    more: string
-    compare: string
-    calc: string
   }
   footer: {
     legal: string

@@ -444,78 +444,46 @@ export const tr: Messages = {
   },
   blog: {
     kicker: 'AURE Blog',
-    title: 'Abonelik bankacılığı, ihtiyacın kadar.',
+    title: 'Ayın ücreti, ayın başında.',
     date: '12 Kasım 2026',
-    lead: 'Herkes aynı bankayı kullanmaz. Biri parasını gecede tutar, biri döviz alır, biri markette indirim ister. AURE’de hesap birdir. Paket, o hesabın üstüne binen katmandır.',
-    layers: [
-      { name: 'Temel', note: 'Herkesin başladığı hesap. Kart ve gecelik faiz bununla başlar.' },
-      { name: 'Standard', note: 'İlk özel makas, ilk ücretsiz EFT ve ilk mağaza oranı.' },
-      { name: 'Plus', note: 'Daha yüksek tavan, doğrudan temsilci, Divan ve Setur turu.' },
-      { name: 'Premium', note: 'En yüksek tavan, VIP şube sırası, tur ve otel.' },
-    ],
+    lead: 'Ayın sonunda ekstre açılır. Havale bir satır, döviz bir satır, kart bir satır. Kişi ne yaşadığını değil, ne kesildiğini okur. Aylık abonelik bankacılığı bu sırayı değiştirir.',
     sections: [
       {
-        title: 'Hesap önce. Paket sonra.',
+        title: 'Ayın sonundaki küçük sürprizler.',
         paragraphs: [
-          'Temel hesap ücretsizdir. Standard, Plus ve Premium onun yerine geçmez. Aynı hesabın üstüne biner. İhtiyacın hangi katmandaysa onu seçersin.',
-          'Fiyat bu sayfada yok. Şimdilik yalnızca talep alıyoruz. Ad ve e-posta yeter. 4 haneli kod, ya da e-postadaki bağlantı, kaydı listeye yazar. Hesap o anda açılmaz. Paket tercihin bekler.',
+          'Bir ay şöyle birikir. Maaş yatar. Market alışverişi olur. Bir yakına havale gider. Bir ara nakit çekilir. Başka bir gün döviz alınır. Her hareket kendi ücretini ayrıca getirir.',
+          'Ay bittiğinde bunların toplamı, yaşanan aydan daha karışıktır. Bankayla ilişki işlem anında değil, ekstrede kurulur. Kişi ayı hatırlar, satır satır kesileni okur.',
         ],
       },
       {
-        title: 'Gece duran para.',
+        title: 'Tek karar.',
         paragraphs: [
-          'İhtiyaç basittir: gündüz harcayabildiğin bakiye, gece de boş durmasın. Gündüz bakiye harcamaya açık kalır. Gece kalan tutara faiz işler.',
-          'Temel %34. Standard %34,5. Plus %34,75. Premium %35. Adımlar küçüktür. Paket faizi sıçratmaz; bir kademe yukarı taşır.',
+          'Aylık abonelikte o dağınık satırlar ayın başındaki tek seçime toplanır. Kişi, o ay bankayla nasıl yaşayacağını baştan bilir. Ücret seçimin içindedir.',
+          'Ay içinde her işlem yeni bir sürpriz çıkarmaz. Havale, nakit, kart ve döviz aynı çerçevenin içinde yürür. İşlem olur. Çerçeve baştan bellidir.',
         ],
       },
       {
-        title: 'Aynı alış, daralan makas.',
+        title: 'Her ay aynı hayat değil.',
         paragraphs: [
-          'Döviz ve altın alan kişi aynı malı alır. Fark, piyasa fiyatının üstündeki makastadır. Limit içi döviz alışında Temel %4, Standard %2, Plus %1, Premium %0,5.',
-          'Özel makas sonsuz değildir. Standard 1.500 €, Plus 5.000 €, Premium 10.000 €. Tavanın üstü her pakette %4 olarak işler. Temel’de tavan yoktur; tamamı %4’tür.',
-          'Satışta makas tutarın tamamına uygulanır. Temel %2,5, Standard %1,5, Plus %1, Premium %0,5.',
-          'Gram altında da aynı düzen vardır. Standard’da ilk 5 gram %2, Plus’ta ilk 10 gram %1, Premium’da ilk 15 gram %0,5. Fazlası %4’tür. Temel’de tamamı %4’tür.',
+          'Bir ay sakin geçer. Para durur, birkaç alışveriş olur, başka bir şey istenmez. Başka bir ay kalabalıktır. Havale sıklaşır, döviz girer, seyahat ve nakit üst üste biner.',
+          'Model herkese aynı ayı dayatmaz. Sade bir ay ile dolu bir ay yan yana durur. Kişi o ay hangisine ihtiyaç duyuyorsa onu taşır. Dolu ay daha geniş bir çerçevedir. Sade ay daha dar bir çerçevedir. İkisi de aynı hesabın üstünde durur.',
         ],
       },
       {
-        title: 'Havale ve nakit.',
+        title: 'Hesap durur.',
         paragraphs: [
-          'Başka bir hesaba para göndermek ve nakit çekmek, paketin günlük işidir. Ücretsiz EFT Temel’de yoktur. Standard’da ayda 5, Plus’ta 10, Premium’da 15.',
-          'Ücretsiz ATM çekimi günde Temel 15.000 TL, Standard 20.000 TL, Plus 25.000 TL, Premium 30.000 TL’dir.',
+          'Hesabın kendisi yerinde kalır. Para orada durur, kart oradan çıkar. Abonelik hesabın yerine geçmez. O ay ihtiyaç duyulan hareketin çerçevesidir.',
+          'Ay sakinleşince çerçeve daralabilir. Ay kalabalıklaşınca çerçeve genişler. Değişen, hesabın adı değildir. Değişen, o ayın kapsamıdır.',
         ],
       },
       {
-        title: 'Harcama.',
+        title: 'Ekstre bir bilmece olmaz.',
         paragraphs: [
-          'E-ticarette peşin fiyatına taksit Standard’da 3, Plus ve Premium’da 3 ve 6 taksittir. Temel’de bu hak yoktur.',
-          'Yurt dışı kart harcamasında nakit iade Plus ve Premium’da %10’dur. Kampanyaya SMS ve taahhüt olmadan katılım Standard, Plus ve Premium’da açıktır.',
-        ],
-      },
-      {
-        title: 'Bir insana ulaşmak.',
-        paragraphs: [
-          'Destek bir chatbot kapısı değildir. Temel ve Standard’da sıralı insan desteği vardır. Plus’ta doğrudan temsilci açılır. Premium’da buna VIP şube sırası eklenir.',
-        ],
-      },
-      {
-        title: 'Marka, paketinle açılır.',
-        paragraphs: [
-          'Market, pastane ve seyahat indirimi Temel hesapta kapalıdır. İndirim, kartın paketinde durur.',
-          'Migros mağazada Standard %2, Plus %4, Premium %7. Sanal Market ayrıdır: Standard %2, Plus %5, Premium %8.',
-          'Divan Pastanesi Plus’ta %10, Premium’da %15’tir. Standard’da kapalıdır. Setur’da Plus %5 tur, Premium %10 tur ve otel.',
-          'Neo Skola Standard, Plus ve Premium’da açıktır. Koçtaş’ta Standard %5, Plus %7,5, Premium %10. Bir ayda kazanılabilecek en yüksek indirim 20.000 TL’dir.',
-        ],
-      },
-      {
-        title: 'Yatırım komisyonu.',
-        paragraphs: [
-          'Hisse, ABD borsaları ve eurobond komisyonu Temel’de %0,20, Standard, Plus ve Premium’da %0’dır. Borsa verisi Temel’de gecikmelidir. Paketlerde ücretsiz canlı veri vardır.',
+          'Eski düzende bedel, işlem bittikten sonra görünür. Abonelikte bedel ayın başında bilinir. Kişi harcarken, gönderirken, bekletirken bunun ayrıca ücretlenip ücretlenmeyeceğini düşünmez.',
+          'Ayı, baştan bildiği bir çerçevenin içinde yaşar. Ay bittiğinde ekstre bir sürpriz listesi değildir. Seçilen ayın kaydıdır.',
         ],
       },
     ],
-    more: 'Satır satır tablo Karşılaştır sayfasında. 10 gram altın ve 2.000 € alışının tutarı Hesaplama sayfasında.',
-    compare: 'Karşılaştır',
-    calc: 'Hesaplama',
   },
   footer: {
     legal: '© 2026 AURE. Kurgusal ürün — gerçek bankacılık hizmeti sunmaz.',
