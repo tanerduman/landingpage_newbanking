@@ -160,12 +160,9 @@ export default function App() {
               {homePlanIds.map((id) => {
                 const plan = plans.find((item) => item.id === id)
                 if (!plan) return null
-                const recommended = id === 'plus'
                 return (
-                  <article key={id} className={`plan-card plan-quiet${recommended ? ' featured' : ''}`}>
-                    <div className="plan-kicker">
-                      {recommended && <span className="badge">{t.plans.recommended}</span>}
-                    </div>
+                  <article key={id} className="plan-card plan-quiet">
+                    <div className="plan-kicker" />
                     <h3>{plan.name}</h3>
                     <ul>
                       {perks[id].map((perk) => (
