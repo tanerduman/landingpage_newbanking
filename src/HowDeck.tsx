@@ -1,16 +1,9 @@
 import { useEffect, useRef, useState, type FocusEvent, type PointerEvent, type KeyboardEvent } from 'react'
-import LogoMark from './LogoMark.tsx'
+import HowVisual from './HowVisual.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 
 const SLIDES = 6
 const AUTO_MS = 4080
-
-const CARDS = [
-  { id: 'premium', label: 'AURE Premium', pan: '•••• 1904' },
-  { id: 'plus', label: 'AURE Plus', pan: '•••• 8821' },
-  { id: 'standard', label: 'AURE Standard', pan: '•••• 4412' },
-  { id: 'account', label: '', pan: '•••• 2208' },
-] as const
 
 function Arrow({ dir }: { dir: 'left' | 'right' }) {
   return (
@@ -24,15 +17,6 @@ function Arrow({ dir }: { dir: 'left' | 'right' }) {
         strokeLinejoin="round"
       />
     </svg>
-  )
-}
-
-function Brand() {
-  return (
-    <span className="how-brand">
-      <LogoMark className="how-brand-mark" />
-      AURE
-    </span>
   )
 }
 
@@ -160,21 +144,10 @@ export default function HowDeck() {
         </span>
       </div>
       <div className="how-split">
-        <div className="how-fan" aria-hidden="true">
-          {CARDS.map((card) => (
-            <article key={card.id} className={`how-bank how-bank-${card.id}`}>
-              <div className="how-bank-top">
-                <span className="how-chip" />
-                <Brand />
-              </div>
-              <div>
-                <small>{card.id === 'account' ? t.hero.cardAccount : card.label}</small>
-                <b>{card.pan}</b>
-              </div>
-            </article>
-          ))}
+        <div key={`visual-${index}`} className={`how-visual${motion === 'none' ? '' : ` is-${motion}`}`} aria-hidden="true">
+          <HowVisual index={index} names={names} tr={tr} asks={t.how.asks} />
         </div>
-        <div key={index} className={`how-slide${motion === 'none' ? '' : ` is-${motion}`}`} aria-live="off">
+        <div key={`slide-${index}`} className={`how-slide${motion === 'none' ? '' : ` is-${motion}`}`} aria-live="off">
           {index === 0 && (
             <>
               <h3>{t.how.stackTitle}</h3>
