@@ -36,6 +36,36 @@ export type Messages = {
   how: {
     title: string
     steps: { title: string; body: string }[]
+    deckLabel: string
+    prev: string
+    next: string
+    swipe: string
+    position: string
+    stackTitle: string
+    stackLead: string
+    layerNote: string
+    layerBase: string
+    spreadTitle: string
+    spreadLead: string
+    spreadNote: string
+    capTitle: string
+    capLead: string
+    capFx: string
+    capGold: string
+    capFloor: string
+    capNote: string
+    nightTitle: string
+    nightLead: string
+    nightNote: string
+    nightStart: string
+    nightStep: string
+    brandTitle: string
+    brandLead: string
+    brandNote: string
+    askTitle: string
+    askLead: string
+    askNote: string
+    asks: { title: string; body: string }[]
   }
   calc: {
     kicker: string
