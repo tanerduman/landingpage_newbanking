@@ -53,7 +53,6 @@ export const tr: Messages = {
     deckLabel: 'Paket modeli',
     prev: 'Önceki',
     next: 'Sonraki',
-    swipe: 'Kaydır',
     position: '{n} / {total}',
     stackTitle: 'Önce hesap. Paket sonra.',
     stackLead: 'Temel herkesin başladığı hesap. Standard, Plus ve Premium onun yerine geçmez; aynı hesabın üstüne biner.',

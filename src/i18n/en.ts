@@ -53,7 +53,6 @@ export const en: Messages = {
     deckLabel: 'Plan model',
     prev: 'Previous',
     next: 'Next',
-    swipe: 'Swipe',
     position: '{n} / {total}',
     stackTitle: 'The account first. The plan next.',
     stackLead: 'Basic is where everyone starts. Standard, Plus and Premium do not replace it. They sit on the same account.',
