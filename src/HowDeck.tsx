@@ -1,8 +1,9 @@
-import { useRef, useState, type PointerEvent, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState, type FocusEvent, type PointerEvent, type KeyboardEvent } from 'react'
 import LogoMark from './LogoMark.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 
 const SLIDES = 6
+const AUTO_MS = 4800
 
 const CARDS = [
   { id: 'premium', label: 'AURE Premium', pan: '•••• 1904' },
@@ -39,6 +40,13 @@ export default function HowDeck() {
   const { t, locale } = useI18n()
   const tr = locale === 'tr'
   const [index, setIndex] = useState(0)
+  const [motion, setMotion] = useState<'none' | 'forward' | 'back'>('none')
+  const [inView, setInView] = useState(false)
+  const [hover, setHover] = useState(false)
+  const [focusWithin, setFocusWithin] = useState(false)
+  const [reduced, setReduced] = useState(false)
+  const [hidden, setHidden] = useState(false)
+  const deckRef = useRef<HTMLElement>(null)
   const startX = useRef<number | null>(null)
   const names = {
     account: t.plans.basicName,
@@ -50,7 +58,50 @@ export default function HowDeck() {
   const step = (value: string) => t.how.nightStep.replace('{n}', `+${value}`)
 
   function go(next: number) {
-    setIndex(Math.min(SLIDES - 1, Math.max(0, next)))
+    const clamped = Math.min(SLIDES - 1, Math.max(0, next))
+    if (clamped === index) return
+    setMotion(clamped > index ? 'forward' : 'back')
+    setIndex(clamped)
+  }
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const sync = () => setReduced(media.matches)
+    sync()
+    media.addEventListener('change', sync)
+    return () => media.removeEventListener('change', sync)
+  }, [])
+
+  useEffect(() => {
+    const node = deckRef.current
+    if (!node) return
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.4 })
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const sync = () => setHidden(document.hidden)
+    sync()
+    document.addEventListener('visibilitychange', sync)
+    return () => document.removeEventListener('visibilitychange', sync)
+  }, [])
+
+  useEffect(() => {
+    if (reduced || !inView || hover || focusWithin || hidden) return
+    const timer = window.setTimeout(() => {
+      setMotion('forward')
+      setIndex((current) => (current + 1) % SLIDES)
+    }, AUTO_MS)
+    return () => window.clearTimeout(timer)
+  }, [reduced, inView, hover, focusWithin, hidden, index])
+
+  function onFocus(event: FocusEvent<HTMLElement>) {
+    if (event.currentTarget.contains(event.target)) setFocusWithin(true)
+  }
+
+  function onBlur(event: FocusEvent<HTMLElement>) {
+    if (!event.currentTarget.contains(event.relatedTarget)) setFocusWithin(false)
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLElement>) {
@@ -81,6 +132,7 @@ export default function HowDeck() {
 
   return (
     <section
+      ref={deckRef}
       className="how-deck"
       aria-roledescription="carousel"
       aria-label={t.how.deckLabel}
@@ -88,6 +140,10 @@ export default function HowDeck() {
       onKeyDown={onKeyDown}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onFocus={onFocus}
+      onBlur={onBlur}
     >
       <div className="how-deck-top">
         <span className="how-deck-count">
@@ -118,7 +174,7 @@ export default function HowDeck() {
             </article>
           ))}
         </div>
-        <div className="how-slide" aria-live="polite">
+        <div key={index} className={`how-slide${motion === 'none' ? '' : ` is-${motion}`}`} aria-live="off">
           {index === 0 && (
             <>
               <h3>{t.how.stackTitle}</h3>
