@@ -129,7 +129,7 @@ export default function CalcPage() {
                     <span>{t.calc.pay}</span>
                     <strong>{formatTry(row.pay, locale)}</strong>
                   </p>
-                  <p className="calc-diff">
+                  <p className={row.id === 'account' ? 'idle-stay' : 'idle-delta'}>
                     {row.id === 'account' ? t.calc.same : `−${formatTry(row.saved, locale)} ${t.calc.less}`}
                   </p>
                 </article>
@@ -159,7 +159,7 @@ export default function CalcPage() {
                     <span>{t.calc.pay}</span>
                     <strong>{formatTry(row.pay, locale)}</strong>
                   </p>
-                  <p className="calc-diff">
+                  <p className={row.id === 'account' ? 'idle-stay' : 'idle-delta'}>
                     {row.id === 'account' ? t.calc.same : `−${formatTry(row.saved, locale)} ${t.calc.less}`}
                   </p>
                 </article>
