@@ -201,6 +201,30 @@ export const goldSpreadByColumn: Record<PlanColumnId, number> = {
 export const SAMPLE_GOLD_TRY =
   Math.round((SAMPLE_GOLD_TEMEL_TRY / (1 + goldSpreadByColumn.account)) * 100) / 100
 
+/** Grams bought at the plan gold spread. Null means the plan rate applies to the whole amount. */
+export const goldGramLimitByColumn: Record<PlanColumnId, number | null> = {
+  account: null,
+  standard: 5,
+  plus: 10,
+  premium: 15,
+}
+
+/** TRY paid to buy a set number of grams. Above the plan cap, the rest uses the Basic spread. */
+export function tryCostForGold(planId: PlanColumnId, grams: number, market: number) {
+  if (grams <= 0 || market <= 0) return 0
+  const cost = (weight: number, spread: number) => {
+    const gram = Math.round(market * (1 + spread) * 100) / 100
+    return gram * weight
+  }
+  const spread = goldSpreadByColumn[planId]
+  const cap = goldGramLimitByColumn[planId]
+  const raw =
+    cap == null || grams <= cap
+      ? cost(grams, spread)
+      : cost(cap, spread) + cost(grams - cap, goldSpreadByColumn.account)
+  return Math.round(raw * 100) / 100
+}
+
 export function monthlyFeeOf(id: PlanColumnId): number {
   if (id === 'account') return 0
   return plans.find((plan) => plan.id === id)?.monthly ?? 0
