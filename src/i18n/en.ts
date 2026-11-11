@@ -548,8 +548,7 @@ export const en: Messages = {
     email: 'Email',
     period: 'Billing period',
     codeLabel: 'Confirmation code',
-    codeSent:
-      'We sent an 8-digit code. Type it here, or enter it on the confirmation page from the email.',
+    codeSent: 'We sent an 8-digit code. Type it here, or tap the link in the email.',
     sendCode: 'Send code',
     confirm: 'Confirm',
     cancel: 'Cancel',

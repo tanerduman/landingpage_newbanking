@@ -37,6 +37,12 @@ function firstHop(header: string | null) {
   return hop.slice(0, 80)
 }
 
+function confirmLink(request: Request, token?: string) {
+  const base = `${publicAppUrl(request)}/confirm`
+  if (!token) return base
+  return `${base}?token=${encodeURIComponent(token)}`
+}
+
 function clientKey(request: Request) {
   const vercel = firstHop(request.headers.get('x-vercel-forwarded-for'))
   if (vercel) return vercel
@@ -231,7 +237,7 @@ async function handleWaitlist(request: Request) {
   if (result.status === 'updated') {
     return json({ ok: true, updated: true }, 200, request)
   }
-  const link = `${publicAppUrl(request)}/confirm`
+  const link = confirmLink(request, result.token)
   const sent = await sendWaitlistConfirm({
     to: result.email,
     code: result.code || '',
@@ -324,7 +330,7 @@ async function handleSupport(request: Request) {
   if (typeof valid === 'string') return fail(request, valid, 400, parsed.value)
   if (await overLimit(`support:email:${valid.emailNorm}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const result = await store.requestSupport(valid)
-  const link = `${publicAppUrl(request)}/confirm`
+  const link = confirmLink(request, result.token)
   const sent = await sendWaitlistConfirm({
     to: result.email,
     code: result.code || '',

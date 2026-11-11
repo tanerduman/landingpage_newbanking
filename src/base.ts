@@ -88,3 +88,12 @@ export function isConfirmHash(hash = window.location.hash) {
 export function isConfirmLocation() {
   return pathPage() === 'confirm' || isConfirmHash()
 }
+
+export function confirmTokenFromLocation(loc: { search: string; hash: string } = window.location) {
+  const fromSearch = new URLSearchParams(loc.search).get('token')?.trim() || ''
+  if (fromSearch) return fromSearch
+  const hash = loc.hash.replace(/^#/, '')
+  const query = hash.indexOf('?')
+  if (query === -1) return ''
+  return new URLSearchParams(hash.slice(query + 1)).get('token')?.trim() || ''
+}

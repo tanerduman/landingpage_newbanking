@@ -307,33 +307,35 @@ export function confirmMailCopy(
     'font-size:34px;line-height:1.2;letter-spacing:0.22em;font-weight:700;color:#f4f1ea;padding-left:0.22em;'
   if (locale === 'en') {
     const lead = support
-      ? 'Enter this code to confirm your support message.'
-      : 'Enter this code to confirm your request.'
+      ? 'The link confirms the support message. You do not need to type the code again.'
+      : 'The link confirms the request. You do not need to type the code again.'
     return {
       subject: support ? 'Confirm your AURE support message' : 'Confirm your AURE request',
-      text: `Your confirmation code: ${code}\n\nOpen the confirmation page and enter this code:\n${link}\n\nThe code is valid for 30 minutes.\n\n${PLAIN_SIGN}`,
+      text: `Your confirmation code: ${code}\n\nConfirm with this link. You do not need to type the code again:\n${link}\n\nThe link is valid for 30 minutes.\n\n${PLAIN_SIGN}`,
       html: receiptCard(locale, origin, logo, {
         eyebrow: 'Email confirmation',
         hello: safeCode,
         helloStyle: codeStyle,
         lead,
         rows: [],
-        action: { href: link, label: 'Open the confirmation page' },
-        closing: 'The code is valid for 30 minutes.',
+        action: { href: link, label: support ? 'Confirm the support message' : 'Confirm the request' },
+        closing: 'The link is valid for 30 minutes.',
       }),
     }
   }
   return {
     subject: support ? 'AURE destek talebin' : 'AURE talep onayın',
-    text: `${support ? 'Destek talebini' : 'Talebini'} onaylamak için kod: ${code}\n\nOnay sayfasını açıp bu kodu yaz:\n${link}\n\nKod 30 dakika geçerli.\n\n${PLAIN_SIGN}`,
+    text: `${support ? 'Destek talebini' : 'Talebini'} onaylamak için kod: ${code}\n\nKodu yeniden yazmadan onaylamak için bağlantıya tıkla:\n${link}\n\nBağlantı 30 dakika geçerli.\n\n${PLAIN_SIGN}`,
     html: receiptCard(locale, origin, logo, {
       eyebrow: 'E-posta onayı',
       hello: safeCode,
       helloStyle: codeStyle,
-      lead: support ? 'Destek talebini onaylamak için bu kodu yaz.' : 'Talebini onaylamak için bu kodu yaz.',
+      lead: support
+        ? 'Bağlantı destek talebini onaylar. Kodu yeniden yazmana gerek yok.'
+        : 'Bağlantı talebi onaylar. Kodu yeniden yazmana gerek yok.',
       rows: [],
-      action: { href: link, label: 'Onay sayfasını aç' },
-      closing: 'Kod 30 dakika geçerli.',
+      action: { href: link, label: support ? 'Destek talebini onayla' : 'Talebi onayla' },
+      closing: 'Bağlantı 30 dakika geçerli.',
     }),
   }
 }
