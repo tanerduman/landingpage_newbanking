@@ -1,9 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
-import LangSwitch from './LangSwitch.tsx'
-import LogoMark from './LogoMark.tsx'
 import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
+import SiteHeader from './SiteHeader.tsx'
+import { SignupModal, SignupToast } from './SignupModal.tsx'
 import { submitSupport, SUPPORT_KINDS, type SupportKind } from './support.ts'
 import { useSpeechDraft } from './useSpeechDraft.ts'
 import { confirmWaitlist, fetchConfirmStatus, onWaitlistConfirmed } from './waitlist.ts'
@@ -25,6 +25,8 @@ export default function SupportPage() {
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
   const [micBlocked, setMicBlocked] = useState(false)
+  const [modal, setModal] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
   const { supported, listening, toggle, stop } = useSpeechDraft({
     lang: locale === 'en' ? 'en-US' : 'tr-TR',
     value: message,
@@ -116,48 +118,26 @@ export default function SupportPage() {
     }
   }
 
+  const heading = sent ? t.support.successTitle : phase === 'code' ? t.signup.confirmEmail : t.support.title
+  const lead = sent ? t.support.success : phase === 'code' ? `${email} ${t.signup.codeSent}` : t.support.lead
+
   return (
     <div className="page">
-      <header className="nav">
-        <div className="wrap nav-inner">
-          <a className="logo" href={withBase()}>
-            <LogoMark />
-            AURE
+      <SiteHeader active="support" onRequest={() => setModal(true)} />
+      <main className="wrap support-page">
+        <p className="hero-kicker">
+          <span className="dot" /> {t.support.kicker}
+        </p>
+        <h1>{heading}</h1>
+        <p className="support-lead">{lead}</p>
+        {sent ? (
+          <a className="btn btn-solid support-back" href={withBase()}>
+            {t.nav.back}
           </a>
-          <div className="waitlist-nav-actions">
-            <LangSwitch />
-            <a className="btn btn-ghost" href={withBase()}>
-              {t.nav.back}
-            </a>
-          </div>
-        </div>
-      </header>
-      <main className="wrap support-main">
-        <div className="login-card support-card">
-          <a className="modal-close" href={withBase()} aria-label={t.signup.close}>
-            ×
-          </a>
-          {sent ? (
-            <>
-              <p className="eyebrow">
-                <span className="dot" /> {t.support.kicker}
-              </p>
-              <h1>{t.support.successTitle}</h1>
-              <p className="lead">{t.support.success}</p>
-              <a className="btn btn-solid login-submit" href={withBase()}>
-                {t.nav.back}
-              </a>
-            </>
-          ) : (
-            <form onSubmit={submit}>
-              <p className="eyebrow">
-                <span className="dot" /> {t.support.kicker}
-                <span className="nav-new">{t.nav.newPage}</span>
-              </p>
-              <h1>{phase === 'code' ? t.signup.confirmEmail : t.support.title}</h1>
+        ) : (
+            <form className="support-form" onSubmit={submit}>
               {phase === 'form' ? (
                 <>
-                  <p className="lead">{t.support.lead}</p>
                   <label htmlFor="support-name">{t.support.name}</label>
                   <input
                     id="support-name"
@@ -235,9 +215,6 @@ export default function SupportPage() {
                 </>
               ) : (
                 <>
-                  <p className="lead">
-                    {email} {t.signup.codeSent}
-                  </p>
                   <label htmlFor="support-code">{t.signup.codeLabel}</label>
                   <input
                     id="support-code"
@@ -255,14 +232,29 @@ export default function SupportPage() {
                   ) : null}
                 </>
               )}
-              {error && <p className="login-error">{error}</p>}
-              <button type="submit" className="btn btn-solid login-submit" disabled={busy}>
+              {error && <p className="support-error">{error}</p>}
+              <button type="submit" className="btn btn-solid support-submit" disabled={busy}>
                 {busy ? t.support.sending : phase === 'code' ? t.signup.confirm : t.signup.sendCode}
               </button>
             </form>
-          )}
-        </div>
+        )}
       </main>
+      <footer>
+        <div className="wrap foot">
+          <span>{t.footer.legal}</span>
+        </div>
+      </footer>
+      {modal && (
+        <SignupModal
+          intent="account"
+          cycle="none"
+          onClose={(msg) => {
+            setModal(false)
+            if (msg) setToast(msg)
+          }}
+        />
+      )}
+      {toast && <SignupToast message={toast} onClose={() => setToast(null)} />}
     </div>
   )
 }
