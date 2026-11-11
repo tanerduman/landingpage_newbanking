@@ -8,6 +8,7 @@ import ConfirmPage from './ConfirmPage.tsx'
 import SupportPage from './SupportPage.tsx'
 import WaitlistPage from './WaitlistPage.tsx'
 import { LocaleProvider } from './i18n/LocaleContext.tsx'
+import { ThemeProvider } from './ThemeContext.tsx'
 import {
   isCampaignsLocation,
   isPartnersLocation,
@@ -80,5 +81,9 @@ export default function Root() {
       <App />
     )
 
-  return <LocaleProvider>{view}</LocaleProvider>
+  return (
+    <ThemeProvider>
+      <LocaleProvider>{view}</LocaleProvider>
+    </ThemeProvider>
+  )
 }

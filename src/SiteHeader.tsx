@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { apiFetch, readApiJson } from './api.ts'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
+import ThemeSwitch from './ThemeSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatFx, formatGram } from './i18n/format.ts'
 import LogoMark from './LogoMark.tsx'
@@ -66,6 +67,7 @@ export default function SiteHeader({
           </a>
         </nav>
         <div className="nav-cta">
+          <ThemeSwitch />
           <LangSwitch />
           <button className="btn btn-solid" onClick={onRequest}>
             {t.nav.request}

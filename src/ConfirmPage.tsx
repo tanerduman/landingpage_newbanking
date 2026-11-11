@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { confirmTokenFromLocation, withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
+import ThemeSwitch from './ThemeSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
 import { confirmWaitlist } from './waitlist.ts'
@@ -87,6 +88,7 @@ export default function ConfirmPage() {
             AURE
           </a>
           <div className="waitlist-nav-actions">
+            <ThemeSwitch />
             <LangSwitch />
             <a className="btn btn-ghost" href={withBase()}>
               {t.nav.back}

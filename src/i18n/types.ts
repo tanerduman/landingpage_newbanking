@@ -22,6 +22,9 @@ export type Messages = {
     menu: string
     back: string
     language: string
+    theme: string
+    toLight: string
+    toDark: string
   }
   hero: {
     eyebrow: string

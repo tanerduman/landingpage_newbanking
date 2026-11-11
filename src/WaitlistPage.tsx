@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
+import ThemeSwitch from './ThemeSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import {
   countByCycle,
@@ -278,6 +279,7 @@ export default function WaitlistPage() {
             AURE
           </a>
           <div className="waitlist-nav-actions">
+            <ThemeSwitch />
             <LangSwitch />
             {authed && (
               <button type="button" className="btn btn-ghost" onClick={signOut}>

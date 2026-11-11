@@ -38,7 +38,7 @@ export default function SupportPie({
       <div className="waitlist-pie-body">
         <div className="waitlist-pie-chart">
           <svg viewBox="0 0 180 180" role="img" aria-label={t.waitlist.pieKindChart}>
-            <circle cx="90" cy="90" r={r} fill="none" stroke="#1c1c20" strokeWidth="28" />
+            <circle cx="90" cy="90" r={r} fill="none" stroke="var(--track)" strokeWidth="28" />
             {arcs
               .filter((slice) => slice.dash > 0)
               .map((slice) => (

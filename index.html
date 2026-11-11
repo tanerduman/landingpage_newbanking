@@ -15,6 +15,24 @@
       rel="stylesheet"
     />
     <title>AURE — Paran her yerde daha güçlü</title>
+    <meta name="theme-color" content="#070708" />
+    <script>
+      ;(function () {
+        try {
+          var saved = localStorage.getItem('aure-theme')
+          var theme =
+            saved === 'light' || saved === 'dark'
+              ? saved
+              : matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark'
+          document.documentElement.dataset.theme = theme
+          document.documentElement.style.colorScheme = theme
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute('content', theme === 'light' ? '#f4f3f0' : '#070708')
+        } catch (e) {}
+      })()
+    </script>
     <style>
       html,
       body,
@@ -23,6 +41,12 @@
         min-height: 100%;
         background: #070708;
         color: #f4f1ea;
+      }
+      html[data-theme='light'],
+      html[data-theme='light'] body,
+      html[data-theme='light'] #root {
+        background: #f4f3f0;
+        color: #111111;
       }
     </style>
   </head>

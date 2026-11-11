@@ -23,6 +23,9 @@ export const tr: Messages = {
     menu: 'Menü',
     back: 'Siteye dön',
     language: 'Dil',
+    theme: 'Tema',
+    toLight: 'Açık temaya geç',
+    toDark: 'Koyu temaya geç',
   },
   hero: {
     eyebrow: 'Ücretsiz hesap',

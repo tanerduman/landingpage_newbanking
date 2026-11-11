@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
+import ThemeSwitch from './ThemeSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { localizeFeature } from './i18n/format.ts'
 import { campaignDetails, planColumns, type PlanColumnId } from './plans.ts'
@@ -36,6 +37,7 @@ export default function CampaignsPage() {
             AURE
           </a>
           <div className="waitlist-nav-actions">
+            <ThemeSwitch />
             <LangSwitch />
             <a className="btn btn-ghost" href={withBase('compare')}>
               {t.nav.compare}

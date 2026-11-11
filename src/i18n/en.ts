@@ -23,6 +23,9 @@ export const en: Messages = {
     menu: 'Menu',
     back: 'Back to site',
     language: 'Language',
+    theme: 'Theme',
+    toLight: 'Switch to light mode',
+    toDark: 'Switch to dark mode',
   },
   hero: {
     eyebrow: 'Free account',
