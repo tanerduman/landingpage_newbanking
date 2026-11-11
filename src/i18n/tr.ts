@@ -54,7 +54,7 @@ export const tr: Messages = {
   calc: {
     kicker: 'Hesaplama',
     title: 'Aynı alış, paket makasına göre.',
-    lead: '10 gram altın ve 2.000 € alışının dört paketteki tutarı. Canlı kur yoksa örnek fiyat kullanılır.',
+    lead: '10 gram altın ve 2.000 € alışının dört paketteki tutarı.',
     goldTitle: '10 gram altın',
     goldHint: 'Canlı gram fiyatı {price}. Özel makas Standard 5 g, Plus 10 g, Premium 15 g; fazlası %4.',
     goldHintWait: 'Örnek gram fiyatı {price}. Özel makas Standard 5 g, Plus 10 g, Premium 15 g; fazlası %4.',
