@@ -81,7 +81,7 @@ export const fxLimitEurByColumn: Record<PlanColumnId, number | null> = {
   account: null,
   standard: 1_500,
   plus: 5_000,
-  premium: null,
+  premium: 10_000,
 }
 
 /** Fallback EUR/TRY until /api/rates returns a live quote. */
@@ -262,7 +262,7 @@ export const comparisonRows: {
     id: 'fxFeeOver',
     group: 'bank',
     icon: 'fx',
-    values: { account: '%4', standard: '%4', plus: '%4', premium: '%0,5' },
+    values: { account: '%4', standard: '%4', plus: '%4', premium: '%4' },
   },
   {
     id: 'fxSellFee',
