@@ -925,109 +925,248 @@ h3 {
   min-width: 0;
 }
 
-.how-fan {
-  position: relative;
-  height: 360px;
-}
-
-.how-bank {
-  position: absolute;
-  width: 228px;
-  height: 141px;
-  border-radius: 16px;
-  padding: 14px 14px 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-}
-
-.how-bank small,
-.how-bank b {
-  display: block;
-}
-
-.how-bank b {
-  margin-top: 2px;
-  letter-spacing: 0.08em;
-  font-size: 14px;
-}
-
-.how-bank small {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.how-bank-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.how-chip {
-  width: 28px;
-  height: 20px;
-  border-radius: 5px;
-  background: linear-gradient(135deg, #f6e27a, #c08a2e);
-}
-
-.how-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: "Bricolage Grotesque", sans-serif;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  font-size: 11px;
-}
-
-.how-brand-mark {
-  width: 18px;
-  height: 18px;
-}
-
-.how-bank-account {
-  background: linear-gradient(145deg, #f4f1ea, #d9d3c6);
-  color: #16171a;
-  left: 18px;
-  top: 214px;
-  transform: rotate(8deg);
-  z-index: 1;
-}
-
-.how-bank-standard {
-  background: linear-gradient(145deg, #1c1c21, #2c2c33);
-  left: 78px;
-  top: 146px;
-  transform: rotate(-7deg);
-  z-index: 2;
-}
-
-.how-bank-plus {
-  background: linear-gradient(145deg, #5c4dff, #9b7bff);
-  left: 8px;
-  top: 74px;
-  transform: rotate(6deg);
-  z-index: 3;
-}
-
-.how-bank-premium {
-  background: linear-gradient(145deg, #1a1a1d, #3a2a1a 45%, #c8a46b);
-  left: 86px;
-  top: 8px;
-  transform: rotate(-3deg);
-  z-index: 4;
-}
-
-.how-slide {
+.how-visual {
+  height: 340px;
+  display: grid;
+  place-items: center;
   overflow: hidden;
 }
 
-.how-slide.is-forward {
+.viz {
+  width: min(100%, 300px);
+}
+
+.viz-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.slab {
+  height: 58px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.28);
+}
+
+.slab-premium {
+  width: 74%;
+  margin-left: auto;
+  background: linear-gradient(145deg, #1a1a1d, #3a2a1a 45%, #c8a46b);
+}
+
+.slab-plus {
+  width: 84%;
+  margin-left: 10%;
+  background: linear-gradient(145deg, #5c4dff, #9b7bff);
+}
+
+.slab-standard {
+  width: 92%;
+  background: linear-gradient(145deg, #1c1c21, #2c2c33);
+}
+
+.slab-account {
+  width: 100%;
+  background: linear-gradient(145deg, #f4f1ea, #d9d3c6);
+  color: #16171a;
+}
+
+.viz-spread {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.viz-spread svg {
+  width: 100%;
+  height: 180px;
+}
+
+.viz-spread path,
+.viz-spread circle {
+  fill: none;
+  stroke: var(--lime);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.viz-spread circle {
+  fill: var(--lime);
+  stroke: none;
+}
+
+.viz-spread strong {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.viz-spread span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.viz-spread i {
+  width: 18px;
+  height: 2px;
+  background: var(--lime);
+  display: block;
+}
+
+.viz-cap,
+.viz-night {
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.viz-lid {
+  border-top: 2px dashed var(--lime);
+  color: var(--lime);
+  font-weight: 800;
+  font-size: 13px;
+  text-align: right;
+  padding-bottom: 8px;
+}
+
+.viz-cols,
+.viz-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 10px;
+  height: 230px;
+}
+
+.viz-steps {
+  grid-template-columns: repeat(4, 1fr);
+  flex: 1;
+}
+
+.viz-col,
+.viz-steps > div {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 14px 14px 8px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px 8px;
+  min-height: 0;
+}
+
+.viz-col b,
+.viz-steps b {
+  font-family: "Bricolage Grotesque", sans-serif;
+  letter-spacing: -0.03em;
+}
+
+.viz-col small,
+.viz-col em,
+.viz-steps small {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.viz-night {
+  gap: 16px;
+}
+
+.viz-night > svg {
+  width: 54px;
+  height: 54px;
+  align-self: flex-start;
+}
+
+.viz-night path {
+  fill: var(--lime);
+}
+
+.viz-shops {
+  display: grid;
+  gap: 12px;
+}
+
+.viz-shops article {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+
+.viz-shops svg {
+  width: 42px;
+  height: 42px;
+  flex: none;
+}
+
+.viz-shops path {
+  fill: none;
+  stroke: var(--lime);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.viz-shops strong {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.viz-send {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.viz-send svg {
+  width: min(100%, 240px);
+  height: 150px;
+}
+
+.viz-send rect,
+.viz-send path {
+  fill: none;
+  stroke: var(--lime);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.viz-send strong {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 28px;
+  letter-spacing: -0.04em;
+}
+
+.how-slide,
+.how-visual {
+  overflow: hidden;
+}
+
+.how-slide.is-forward,
+.how-visual.is-forward {
   animation: how-forward 460ms ease;
 }
 
-.how-slide.is-back {
+.how-slide.is-back,
+.how-visual.is-back {
   animation: how-back 460ms ease;
 }
 
@@ -1055,7 +1194,9 @@ h3 {
 
 @media (prefers-reduced-motion: reduce) {
   .how-slide.is-forward,
-  .how-slide.is-back {
+  .how-slide.is-back,
+  .how-visual.is-forward,
+  .how-visual.is-back {
     animation: none;
   }
 }
@@ -3825,19 +3966,16 @@ td.row-action {
     grid-template-columns: 1fr;
   }
 
-  .how-fan {
-    height: 250px;
+  .how-visual {
+    height: 220px;
   }
 
-  .how-bank {
-    width: 180px;
-    height: 112px;
+  .viz-cap,
+  .viz-night,
+  .viz-cols,
+  .viz-steps {
+    height: 160px;
   }
-
-  .how-bank-account { top: 132px; left: 8px; }
-  .how-bank-standard { top: 88px; left: 56px; }
-  .how-bank-plus { top: 44px; left: 4px; }
-  .how-bank-premium { top: 0; left: 64px; }
 
   .how-caps,
   .how-asks,
