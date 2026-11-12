@@ -16,7 +16,7 @@ import { CONFIRM_CODE_RE, CONFIRM_EMAIL_ATTEMPTS, CONFIRM_TTL_MS } from '../src/
 import { getFxRates } from './fx.ts'
 import { getGoldPrice } from './gold.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
-import { getStore, validateSupportInput, validateWaitlistInput } from './store.ts'
+import { getStore, validateInterestInput, validateSupportInput, validateWaitlistInput } from './store.ts'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -302,7 +302,11 @@ async function handleConfirm(request: Request) {
       locale,
       detail: { purpose: 'waitlist', name: waitlist.name, intent: waitlist.intent, cycle: waitlist.cycle },
     })
-    return json({ confirmed: true, purpose: 'waitlist' }, 200, request)
+    return json(
+      { confirmed: true, purpose: 'waitlist', email: waitlist.email, intent: waitlist.intent },
+      200,
+      request,
+    )
   }
   const support = await getStore().confirmSupport(lookup)
   if (typeof support === 'string') return fail(request, support, 400, body)
@@ -312,6 +316,26 @@ async function handleConfirm(request: Request) {
     detail: { purpose: 'support', name: support.name, kind: support.kind, message: support.message },
   })
   return json({ confirmed: true, purpose: 'support' }, 200, request)
+}
+
+async function handleInterest(request: Request) {
+  const store = getStore()
+  if (request.method === 'GET') {
+    const denied = await requireAdmin(request)
+    if (denied) return denied
+    if (await overLimit(`interest:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ entries: await store.listInterests() }, 200, request)
+  }
+  if (request.method !== 'POST') return fail(request, 'invalid', 405)
+  if (await overLimit(`interest:ip:${clientKey(request)}`, 20, 300_000)) return fail(request, 'too_many', 429)
+  const parsed = await readJson(request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  const input = validateInterestInput(parsed.value)
+  if (typeof input === 'string') return fail(request, input, 400, parsed.value)
+  if (await overLimit(`interest:email:${input.emailNorm}`, 8, 300_000)) return fail(request, 'too_many', 429)
+  const saved = await store.saveInterest(input)
+  if (saved === 'not_confirmed') return fail(request, 'not_confirmed', 400, parsed.value)
+  return json({ ok: true }, 200, request)
 }
 
 async function handleSupport(request: Request) {
@@ -425,6 +449,9 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
       (request.method === 'GET' || request.method === 'POST' || request.method === 'PATCH' || request.method === 'DELETE')
     ) {
       return handleSupport(request)
+    }
+    if (path === '/api/interest' && (request.method === 'GET' || request.method === 'POST')) {
+      return handleInterest(request)
     }
     if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)
     if (path === '/api/confirm-status' && request.method === 'POST') return handleConfirmStatus(request)

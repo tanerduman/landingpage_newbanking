@@ -5,6 +5,8 @@ export const botProtectedRoutes = [
   { path: '/api/support', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/support', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
   { path: '/api/support', method: 'DELETE', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
+  { path: '/api/interest', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
+  { path: '/api/interest', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
   { path: '/api/login', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/confirm', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/confirm-status', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },

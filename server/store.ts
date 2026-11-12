@@ -6,8 +6,11 @@ import { normalizeEmail, visitScope, type VisitScope } from './email.ts'
 import {
   isBillingCycle,
   isIntent,
+  isInterestSector,
   isSupportKind,
   type BillingCycle,
+  type InterestRow,
+  type InterestSector,
   type SupportKind,
   type SupportRow,
   type VisitStats,
@@ -60,6 +63,8 @@ type Store = {
   deleteSupport(id: string): Promise<boolean>
   setWaitlistRead(id: string, read: boolean): Promise<boolean>
   setSupportRead(id: string, read: boolean): Promise<boolean>
+  saveInterest(input: { emailNorm: string; sectors: InterestSector[] }): Promise<InterestRow | 'not_confirmed'>
+  listInterests(): Promise<InterestRow[]>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -101,13 +106,33 @@ type SupportRecord = SupportRow & {
   statusExpires: string | null
 }
 
+type InterestRecord = {
+  id: string
+  emailNorm: string
+  sectors: InterestSector[]
+  updatedAt: string
+}
+
 type Memory = {
   visitors: Map<string, { firstSeen: string; lastSeen: string; scope: VisitScope }>
   sessions: Map<string, { visitorId: string; createdAt: string; scope: VisitScope }>
   waitlist: WaitlistRecord[]
   support: SupportRecord[]
+  interests: InterestRecord[]
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
+}
+
+function interestView(person: WaitlistRecord, row: InterestRecord): InterestRow | null {
+  if (!isIntent(person.intent)) return null
+  return {
+    id: row.id,
+    name: person.name,
+    email: person.email,
+    intent: person.intent,
+    sectors: row.sectors,
+    updatedAt: row.updatedAt,
+  }
 }
 
 function issueChallenge() {
@@ -199,6 +224,7 @@ function memoryStore(): Store {
     sessions: new Map(),
     waitlist: [],
     support: [],
+    interests: [],
     adminSessions: new Map(),
     rates: new Map(),
   }
@@ -382,6 +408,35 @@ function memoryStore(): Store {
       row.read = read
       return true
     },
+    async saveInterest(input) {
+      const person = data.waitlist.find((row) => row.emailNorm === input.emailNorm && row.confirmed)
+      if (!person) return 'not_confirmed'
+      const now = new Date().toISOString()
+      const existing = data.interests.find((row) => row.emailNorm === input.emailNorm)
+      if (existing) {
+        existing.sectors = input.sectors
+        existing.updatedAt = now
+        return interestView(person, existing) ?? 'not_confirmed'
+      }
+      const row: InterestRecord = {
+        id: randomUUID(),
+        emailNorm: input.emailNorm,
+        sectors: input.sectors,
+        updatedAt: now,
+      }
+      data.interests.unshift(row)
+      return interestView(person, row) ?? 'not_confirmed'
+    },
+    async listInterests() {
+      const rows: InterestRow[] = []
+      for (const row of data.interests) {
+        const person = data.waitlist.find((item) => item.emailNorm === row.emailNorm && item.confirmed)
+        if (!person) continue
+        const view = interestView(person, row)
+        if (view) rows.push(view)
+      }
+      return rows
+    },
     async createAdminSession(input) {
       data.adminSessions.set(input.idHash, {
         user: input.user,
@@ -478,6 +533,13 @@ CREATE TABLE IF NOT EXISTS support_requests (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS support_requests_created_at_idx ON support_requests (created_at DESC);
+CREATE TABLE IF NOT EXISTS interest (
+  id TEXT PRIMARY KEY,
+  email_norm TEXT UNIQUE NOT NULL,
+  sectors TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS interest_updated_at_idx ON interest (updated_at DESC);
 CREATE TABLE IF NOT EXISTS admin_sessions (
   id_hash TEXT PRIMARY KEY,
   user_name TEXT NOT NULL,
@@ -926,6 +988,64 @@ function postgresStore(url: string): Store {
       ])
       return (result.rowCount ?? 0) > 0
     },
+    async saveInterest(input) {
+      await ensure()
+      const person = await pool.query<{ name: string; email: string; intent: string }>(
+        `SELECT name, email, intent FROM waitlist WHERE email_norm = $1 AND confirmed = TRUE LIMIT 1`,
+        [input.emailNorm],
+      )
+      const found = person.rows[0]
+      if (!found || !isIntent(found.intent)) return 'not_confirmed'
+      const saved = await pool.query<{ id: string; updated_at: Date }>(
+        `INSERT INTO interest (id, email_norm, sectors, updated_at)
+         VALUES ($1, $2, $3, NOW())
+         ON CONFLICT (email_norm) DO UPDATE SET sectors = EXCLUDED.sectors, updated_at = NOW()
+         RETURNING id, updated_at`,
+        [randomUUID(), input.emailNorm, input.sectors.join(',')],
+      )
+      const row = saved.rows[0]
+      if (!row) return 'not_confirmed'
+      return {
+        id: row.id,
+        name: found.name,
+        email: found.email,
+        intent: found.intent,
+        sectors: input.sectors,
+        updatedAt: new Date(row.updated_at).toISOString(),
+      }
+    },
+    async listInterests() {
+      await ensure()
+      const result = await pool.query<{
+        id: string
+        name: string
+        email: string
+        intent: string
+        sectors: string
+        updated_at: Date
+      }>(
+        `SELECT i.id, w.name, w.email, w.intent, i.sectors, i.updated_at
+         FROM interest i
+         JOIN waitlist w ON w.email_norm = i.email_norm AND w.confirmed = TRUE
+         ORDER BY i.updated_at DESC
+         LIMIT 2000`,
+      )
+      const rows: InterestRow[] = []
+      for (const row of result.rows) {
+        if (!isIntent(row.intent)) continue
+        const sectors = row.sectors.split(',').filter(isInterestSector)
+        if (!sectors.length) continue
+        rows.push({
+          id: row.id,
+          name: row.name,
+          email: row.email,
+          intent: row.intent,
+          sectors,
+          updatedAt: new Date(row.updated_at).toISOString(),
+        })
+      }
+      return rows
+    },
     async createAdminSession(input) {
       await ensure()
       await pool.query(
@@ -1022,6 +1142,20 @@ export function validateWaitlistInput(body: unknown) {
   else if (isBillingCycle(rawCycle) && rawCycle !== 'none') cycle = rawCycle
   else if (rawCycle && rawCycle !== 'monthly' && rawCycle !== 'yearly') return 'cycle'
   return { name, email, emailNorm: normalizeEmail(email), intent, cycle }
+}
+
+export function validateInterestInput(body: unknown) {
+  if (!body || typeof body !== 'object') return 'invalid'
+  const data = body as { email?: unknown; sectors?: unknown }
+  const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : ''
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return 'email'
+  if (!Array.isArray(data.sectors) || data.sectors.length < 1 || data.sectors.length > 8) return 'sectors'
+  const sectors: InterestSector[] = []
+  for (const item of data.sectors) {
+    if (typeof item !== 'string' || !isInterestSector(item) || sectors.includes(item)) return 'sectors'
+    sectors.push(item)
+  }
+  return { emailNorm: normalizeEmail(email), sectors }
 }
 
 export function validateSupportInput(body: unknown) {

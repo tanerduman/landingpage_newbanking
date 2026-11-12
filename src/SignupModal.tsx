@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
+import InterestAsk from './InterestAsk.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { plans } from './plans.ts'
 import {
@@ -25,7 +26,7 @@ export function SignupModal({
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [phase, setPhase] = useState<'form' | 'code'>('form')
+  const [phase, setPhase] = useState<'form' | 'code' | 'interest'>('form')
   const [code, setCode] = useState('')
   const [devCode, setDevCode] = useState('')
   const [statusToken, setStatusToken] = useState('')
@@ -36,6 +37,12 @@ export function SignupModal({
     intent === 'account' ? t.signup.successAccount : t.signup.successPlan.replace('{name}', planName)
   const onCloseRef = useRef(onClose)
   const finishedRef = useRef(false)
+  const noteRef = useRef(successToast)
+  const dismissRef = useRef<() => void>(() => {})
+  dismissRef.current = () => {
+    if (phase === 'interest') onClose(noteRef.current)
+    else onClose()
+  }
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -43,7 +50,7 @@ export function SignupModal({
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onCloseRef.current()
+      if (e.key === 'Escape') dismissRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -55,7 +62,8 @@ export function SignupModal({
     function finish() {
       if (finishedRef.current) return
       finishedRef.current = true
-      onCloseRef.current(successToast)
+      noteRef.current = successToast
+      setPhase('interest')
     }
     const stop = onWaitlistConfirmed(email, finish)
     const timer = window.setInterval(() => {
@@ -73,8 +81,15 @@ export function SignupModal({
     }
   }, [phase, email, statusToken, successToast])
 
+  function openInterest(note: string) {
+    noteRef.current = note
+    finishedRef.current = true
+    setPhase('interest')
+  }
+
   async function submit(e: FormEvent) {
     e.preventDefault()
+    if (phase === 'interest') return
     if (phase === 'code') {
       if (!CONFIRM_CODE_RE.test(code.trim())) {
         setError(t.signup.needCode)
@@ -84,7 +99,7 @@ export function SignupModal({
       setError('')
       try {
         await confirmWaitlist({ email, code })
-        onClose(successToast)
+        openInterest(successToast)
       } catch (err) {
         setError(err instanceof Error ? err.message : t.signup.confirmFail)
       } finally {
@@ -116,7 +131,11 @@ export function SignupModal({
         setPhase('code')
         return
       }
-      onClose(result.status === 'updated' ? t.signup.updated : t.signup.received)
+      if (result.status === 'updated') {
+        openInterest(t.signup.updated)
+        return
+      }
+      onClose(t.signup.received)
     } catch (err) {
       setError(err instanceof Error ? err.message : t.signup.saveFail)
     } finally {
@@ -131,13 +150,21 @@ export function SignupModal({
       aria-modal="true"
       aria-labelledby="signup-title"
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
+        if (e.target === e.currentTarget) dismissRef.current()
       }}
     >
       <form className="modal-card" onSubmit={submit}>
-        <button type="button" className="modal-close" onClick={() => onClose()} aria-label={t.signup.close}>
+        <button type="button" className="modal-close" onClick={() => dismissRef.current()} aria-label={t.signup.close}>
           ×
         </button>
+        {phase === 'interest' ? (
+          <InterestAsk
+            email={email}
+            intent={intent}
+            onDone={(saved) => onClose(saved ? t.signup.interestSaved : noteRef.current)}
+          />
+        ) : (
+          <>
         <h3 id="signup-title">
           {phase === 'code'
             ? t.signup.confirmEmail
@@ -215,6 +242,8 @@ export function SignupModal({
             {t.signup.cancel}
           </button>
         </div>
+          </>
+        )}
       </form>
     </div>
   )
