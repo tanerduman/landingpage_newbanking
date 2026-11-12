@@ -47,14 +47,14 @@ export function sectorLabel(sector: SectorOption, locale: Locale) {
 }
 
 export async function fetchSectors(): Promise<SectorOption[]> {
-  const res = await apiFetch('/api/interest-sectors')
+  const res = await apiFetch('/api/interest?catalog=1')
   const remote = await readApiJson<{ sectors?: SectorOption[] }>(res)
   if (!res?.ok || !remote?.sectors) return []
   return remote.sectors.filter((sector) => sector && typeof sector.id === 'string' && sector.labelTr && sector.labelEn)
 }
 
 export async function createSector(labelTr: string, labelEn: string) {
-  const res = await apiFetch('/api/interest-sectors', {
+  const res = await apiFetch('/api/interest', {
     method: 'POST',
     body: JSON.stringify({ labelTr, labelEn, lang: readLocale() }),
   })
@@ -64,7 +64,7 @@ export async function createSector(labelTr: string, labelEn: string) {
 }
 
 export async function updateSector(id: string, labelTr: string, labelEn: string) {
-  const res = await apiFetch('/api/interest-sectors', {
+  const res = await apiFetch('/api/interest', {
     method: 'PATCH',
     body: JSON.stringify({ id, labelTr, labelEn, lang: readLocale() }),
   })
@@ -74,7 +74,7 @@ export async function updateSector(id: string, labelTr: string, labelEn: string)
 }
 
 export async function deleteSector(id: string) {
-  const res = await apiFetch('/api/interest-sectors', {
+  const res = await apiFetch('/api/interest', {
     method: 'DELETE',
     body: JSON.stringify({ id, lang: readLocale() }),
   })
