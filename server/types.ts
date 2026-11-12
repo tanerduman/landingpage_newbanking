@@ -35,28 +35,32 @@ export type SupportRow = {
 export const INTENTS = ['account', 'standard', 'plus', 'premium'] as const
 export type Intent = (typeof INTENTS)[number]
 
-export const INTEREST_SECTORS = [
-  'market',
-  'online',
-  'food',
-  'patisserie',
-  'travel',
-  'home',
-  'shopping',
-  'education',
-] as const
-export type InterestSector = (typeof INTEREST_SECTORS)[number]
-
-export function isInterestSector(value: string): value is InterestSector {
-  return (INTEREST_SECTORS as readonly string[]).includes(value)
+export type SectorDef = {
+  id: string
+  labelTr: string
+  labelEn: string
+  position: number
 }
+
+export const DEFAULT_SECTORS: { id: string; labelTr: string; labelEn: string }[] = [
+  { id: 'market', labelTr: 'Market', labelEn: 'Grocery' },
+  { id: 'online', labelTr: 'Sanal market', labelEn: 'Online grocery' },
+  { id: 'food', labelTr: 'Yemek', labelEn: 'Food' },
+  { id: 'patisserie', labelTr: 'Pastane', labelEn: 'Patisserie' },
+  { id: 'travel', labelTr: 'Seyahat', labelEn: 'Travel' },
+  { id: 'home', labelTr: 'Ev', labelEn: 'Home' },
+  { id: 'shopping', labelTr: 'Alışveriş', labelEn: 'Shopping' },
+  { id: 'education', labelTr: 'Eğitim', labelEn: 'Education' },
+]
+
+export const SECTOR_LIMIT = 24
 
 export type InterestRow = {
   id: string
   name: string
   email: string
   intent: Intent
-  sectors: InterestSector[]
+  sectors: string[]
   updatedAt: string
 }
 

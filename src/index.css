@@ -4397,6 +4397,88 @@ td.row-action {
   margin-top: 2px;
 }
 
+.sector-board {
+  margin: 8px 0 28px;
+  padding: 18px 18px 8px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  max-width: 760px;
+}
+
+.sector-board h2 {
+  margin: 0 0 6px;
+  font-size: 22px;
+}
+
+.sector-board > p {
+  margin: 0 0 14px;
+  color: var(--muted);
+}
+
+.sector-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.sector-form label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sector-form input,
+.sector-edit input {
+  width: 100%;
+  margin-top: 6px;
+  background: #111114;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.sector-list {
+  list-style: none;
+  margin: 16px 0 10px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.sector-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+
+.sector-row strong {
+  display: block;
+}
+
+.sector-row em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 13px;
+}
+
+.sector-edit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  flex: 1;
+}
+
+.sector-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 @media (max-width: 640px) {
   .interest-actions .btn {
     width: 100%;
@@ -4412,5 +4494,15 @@ td.row-action {
 
   .interest-track {
     grid-column: 1;
+  }
+
+  .sector-form,
+  .sector-edit {
+    grid-template-columns: 1fr;
+  }
+
+  .sector-row {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
