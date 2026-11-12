@@ -447,6 +447,9 @@ export const tr: Messages = {
     title: 'Ayın ücreti, ayın başında.',
     date: '12 Kasım 2026',
     lead: 'Ayın sonunda ekstre açılır. Havale bir satır, döviz bir satır, kart bir satır. Kişi ne yaşadığını değil, ne kesildiğini okur. Aylık abonelik bankacılığı bu sırayı değiştirir.',
+    figureBefore: 'Ayın sonu',
+    figureAfter: 'Ayın başı',
+    figureCaption: 'Her işlem kendi ücretini ayın sonuna bırakırdı. Abonelikte o ücret, ay başlamadan tek seçimin içinde durur.',
     sections: [
       {
         title: 'Ayın sonundaki küçük sürprizler.',
