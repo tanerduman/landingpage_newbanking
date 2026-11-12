@@ -294,6 +294,9 @@ export type Messages = {
     title: string
     date: string
     lead: string
+    figureBefore: string
+    figureAfter: string
+    figureCaption: string
     sections: { title: string; paragraphs: string[] }[]
   }
   footer: {

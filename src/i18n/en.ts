@@ -447,6 +447,9 @@ export const en: Messages = {
     title: 'The month’s fee, at the start of the month.',
     date: '12 November 2026',
     lead: 'The statement opens at the end of the month. A transfer is one line, foreign currency another, the card another. You read what was charged, not the month you lived. Monthly subscription banking changes that order.',
+    figureBefore: 'End of the month',
+    figureAfter: 'Start of the month',
+    figureCaption: 'Each transaction used to leave its own charge until the end of the month. In a subscription that charge sits inside one choice before the month begins.',
     sections: [
       {
         title: 'The small surprises at the end of the month.',

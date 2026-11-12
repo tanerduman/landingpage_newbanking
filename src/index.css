@@ -3181,6 +3181,71 @@ td.row-action {
   line-height: 1.5;
 }
 
+.blog-figure {
+  margin: 28px 0 0;
+  max-width: 680px;
+}
+
+.blog-fig {
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 18px 18px 8px;
+}
+
+.blog-fig-row {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.blog-fig-row span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.blog-fig svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.blog-fig-lines,
+.blog-fig-pile,
+.blog-fig-calm {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.blog-fig-pile {
+  opacity: 0.45;
+}
+
+.blog-fig-fee {
+  fill: var(--lime);
+}
+
+.blog-fig-calm {
+  stroke: rgba(244, 241, 234, 0.22);
+  stroke-width: 2;
+}
+
+.blog-fig-dot {
+  fill: var(--muted);
+}
+
+.blog-figure figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
 .blog-article {
   max-width: 680px;
   margin-top: 36px;
@@ -3952,6 +4017,11 @@ td.row-action {
   .nav-links,
   .nav-cta a.btn {
     display: none;
+  }
+
+  .blog-fig-row {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .nav-ribbon-inner {
