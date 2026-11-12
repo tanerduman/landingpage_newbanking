@@ -284,6 +284,21 @@ export type Messages = {
     lead: string
     items: { q: string; a: string }[]
   }
+  chat: {
+    open: string
+    close: string
+    title: string
+    status: string
+    welcome: string
+    suggestions: string
+    placeholder: string
+    send: string
+    typing: string
+    reset: string
+    miss: string
+    missLink: string
+    prompts: { q: string; a: string; keys: string[] }[]
+  }
   cta: {
     title: string
     body: string

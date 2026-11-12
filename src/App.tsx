@@ -5,6 +5,7 @@ import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { type PlanId, type SignupIntent } from './waitlist'
+import HomeGuide from './HomeGuide.tsx'
 import HowDeck from './HowDeck.tsx'
 import LogoMark from './LogoMark.tsx'
 
@@ -222,6 +223,7 @@ export default function App() {
         />
       )}
       {toast && <SignupToast message={toast} onClose={() => setToast(null)} />}
+      <HomeGuide />
     </div>
   )
 }

@@ -437,6 +437,52 @@ export const en: Messages = {
       },
     ],
   },
+  chat: {
+    open: 'Ask',
+    close: 'Close',
+    title: 'AURE',
+    status: 'Prepared answers',
+    welcome: 'Pick a topic or type one. Answers come from the information on this page.',
+    suggestions: 'Common questions',
+    placeholder: 'Type a question',
+    send: 'Send',
+    typing: 'Preparing an answer',
+    reset: 'Clear chat',
+    miss: 'That question is not on the list yet. You can write through the support form. Account support goes to a person.',
+    missLink: 'Support page',
+    prompts: [
+      {
+        q: 'Do I have to take a plan?',
+        a: 'No. Basic opens at 0 ₺. Add Standard, Plus or Premium only when you want to.',
+        keys: ['plan', 'required', 'have to', 'free', 'basic'],
+      },
+      {
+        q: 'Are there hidden fees?',
+        a: 'No. The card fee is 0 ₺. Charges show before you confirm. FX bank commission is 0 ₺; only the legal BSMV applies.',
+        keys: ['fee', 'fees', 'hidden', 'commission', 'card', 'charge'],
+      },
+      {
+        q: 'How does overnight interest work?',
+        a: 'By day your balance stays spendable. Overnight, leftover cash earns the plan rate. In the morning it is yours again.',
+        keys: ['overnight', 'interest', 'balance', 'term'],
+      },
+      {
+        q: 'Does the account open immediately?',
+        a: 'No. The request joins the waiting list. A confirmation code arrives; the account does not open on the spot.',
+        keys: ['immediately', 'open', 'request', 'waiting', 'list', 'code'],
+      },
+      {
+        q: 'How do the offers work?',
+        a: 'Plus and Premium enrol you automatically, with no lock-in. At Migros, Sanal Market, Divan and Setur the rate follows your plan.',
+        keys: ['offer', 'offers', 'campaign', 'migros', 'setur', 'instalment', 'divan'],
+      },
+      {
+        q: 'Who handles support?',
+        a: 'Account support goes to a person. Plus reaches a representative directly; Premium also gets VIP branch priority. This window only shows answers from the page.',
+        keys: ['support', 'human', 'person', 'chatbot', 'representative', 'vip', 'branch'],
+      },
+    ],
+  },
   cta: {
     title: 'No surprise fees. Plans that pay you back.',
     body: 'Open the free account first. Add Standard, Plus or Premium when the simulator says it pays — or just when you want more.',

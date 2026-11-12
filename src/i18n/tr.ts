@@ -437,6 +437,52 @@ export const tr: Messages = {
       },
     ],
   },
+  chat: {
+    open: 'Sor',
+    close: 'Kapat',
+    title: 'AURE',
+    status: 'Hazır yanıtlar',
+    welcome: 'Bir konu seç veya yaz. Yanıtlar bu sayfadaki bilgilerden gelir.',
+    suggestions: 'Sık sorulanlar',
+    placeholder: 'Sorunu yaz',
+    send: 'Gönder',
+    typing: 'Yanıt hazırlanıyor',
+    reset: 'Sohbeti temizle',
+    miss: 'Bu soru hazır listede yok. Destek formundan yazabilirsin. Hesap desteği bir insana gider.',
+    missLink: 'Destek sayfası',
+    prompts: [
+      {
+        q: 'Paket almak zorunda mıyım?',
+        a: 'Hayır. Temel hesap 0 ₺ ile açılır. Standard, Plus veya Premium’u yalnızca istediğinde eklersin.',
+        keys: ['paket', 'zorunda', 'zorunlu', 'ücretsiz', 'temel'],
+      },
+      {
+        q: 'Gizli ücret var mı?',
+        a: 'Yok. Kart aidatı 0 ₺. Ücret satırları işlemden önce görünür; dövizde banka komisyonu alınmaz, yalnızca yasal BSMV yansır.',
+        keys: ['ücret', 'aidat', 'gizli', 'komisyon', 'kart', 'bsmv'],
+      },
+      {
+        q: 'Gecelik faiz nasıl işler?',
+        a: 'Gündüz bakiyen harcamaya açık kalır, vade kırılmaz. Gece kalan tutara paketine göre faiz işler; sabah yine kullanırsın.',
+        keys: ['faiz', 'gece', 'gecelik', 'vade', 'bakiye'],
+      },
+      {
+        q: 'Hesap hemen açılır mı?',
+        a: 'Hayır. Talep bekleme listesine düşer. Onay kodu gelir; hesap o anda açılmaz.',
+        keys: ['hemen', 'açılır', 'talep', 'bekleme', 'liste', 'onay'],
+      },
+      {
+        q: 'Kampanyalar nasıl kullanılır?',
+        a: 'Plus ve Premium’da kampanyaya taahhütsüz otomatik katılırsın. Migros, Sanal Market, Divan ve Setur’da oran paketine göre işler.',
+        keys: ['kampanya', 'migros', 'setur', 'taksit', 'divan', 'indirim'],
+      },
+      {
+        q: 'Destek kime bağlanır?',
+        a: 'Hesap desteği insana gider. Plus’ta doğrudan temsilci, Premium’da VIP şube sırası vardır. Bu pencere yalnızca sayfadaki yanıtları gösterir.',
+        keys: ['destek', 'temsilci', 'chatbot', 'insan', 'vip', 'şube'],
+      },
+    ],
+  },
   cta: {
     title: 'Sürpriz aidat yok. Kazandıran paketler var.',
     body: 'Önce ücretsiz hesabını aç. Standard, Plus veya Premium kazancını büyütünce ekle — veya simülatörde dene.',
