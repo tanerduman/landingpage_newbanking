@@ -4364,6 +4364,48 @@ td.row-action {
   color: #5c574d;
 }
 
+.interest-subtabs {
+  display: flex;
+  gap: 4px;
+  margin: 4px 0 22px;
+  border-bottom: 1px solid var(--line);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.interest-subtabs button {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  padding: 10px 14px 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.interest-subtabs button.active {
+  color: var(--text);
+  border-bottom-color: var(--lime);
+}
+
+.interest-subtabs em {
+  font-style: normal;
+  color: var(--muted);
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.interest-subtabs button.active em {
+  color: var(--text);
+}
+
+.sector-board[hidden],
+#interest-chart[hidden] {
+  display: none;
+}
+
 .interest-bars {
   display: grid;
   gap: 12px;

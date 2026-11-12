@@ -12,9 +12,11 @@ import { useI18n } from './i18n/LocaleContext.tsx'
 import type { SignupIntent } from './waitlist.ts'
 
 type Filter = 'all' | SignupIntent
+type InterestView = 'areas' | 'chart'
 
 export default function InterestPanel({ entries }: { entries: InterestEntry[] }) {
   const { t, locale } = useI18n()
+  const [view, setView] = useState<InterestView>('areas')
   const [filter, setFilter] = useState<Filter>('all')
   const [sectors, setSectors] = useState<SectorOption[]>([])
   const [labelTr, setLabelTr] = useState('')
@@ -146,7 +148,33 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
           <p className="lead">{t.waitlist.interestLead}</p>
         </div>
       </div>
-      <section className="sector-board">
+      <div className="interest-subtabs" role="tablist" aria-label={t.waitlist.interestViews}>
+        <button
+          type="button"
+          role="tab"
+          id="interest-tab-areas"
+          aria-selected={view === 'areas'}
+          aria-controls="interest-areas"
+          className={view === 'areas' ? 'active' : ''}
+          onClick={() => setView('areas')}
+        >
+          {t.waitlist.interestTabAreas}
+          <em>{sectors.length}</em>
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="interest-tab-chart"
+          aria-selected={view === 'chart'}
+          aria-controls="interest-chart"
+          className={view === 'chart' ? 'active' : ''}
+          onClick={() => setView('chart')}
+        >
+          {t.waitlist.interestTabChart}
+          <em>{entries.length}</em>
+        </button>
+      </div>
+      <section className="sector-board" id="interest-areas" role="tabpanel" aria-labelledby="interest-tab-areas" hidden={view !== 'areas'}>
         <h2>{t.waitlist.sectorTitle}</h2>
         <p>{t.waitlist.sectorLead}</p>
         <form className="sector-form" onSubmit={(e) => void addArea(e)}>
@@ -214,6 +242,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
           ))}
         </ul>
       </section>
+      <div id="interest-chart" role="tabpanel" aria-labelledby="interest-tab-chart" hidden={view !== 'chart'}>
       <div className="waitlist-stats">
         {filters.map((item) => (
           <button
@@ -265,6 +294,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
           </table>
         </div>
       )}
+      </div>
     </>
   )
 }
