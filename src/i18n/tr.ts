@@ -766,6 +766,8 @@ export const tr: Messages = {
     interestViews: 'İlgi görünümleri',
     interestTabAreas: 'Alanlar',
     interestTabChart: 'Dağılım',
+    interestPercent: 'Yüzde',
+    interestPercentLead: 'Bu filtredeki kişilerin kaçı bu alanı seçti.',
     sectorTitle: 'Görünecek alanlar',
     sectorLead: 'Buraya eklediğin alanlar, talep onayından sonra kişilere seçenek olarak çıkar.',
     sectorTr: 'Türkçe ad',

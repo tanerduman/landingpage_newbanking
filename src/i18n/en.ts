@@ -766,6 +766,8 @@ export const en: Messages = {
     interestViews: 'Interest views',
     interestTabAreas: 'Areas',
     interestTabChart: 'Distribution',
+    interestPercent: 'Percent',
+    interestPercentLead: 'Share of people in this filter who chose the area.',
     sectorTitle: 'Areas people can choose',
     sectorLead: 'Areas you add here become choices after a request is confirmed.',
     sectorTr: 'Turkish name',

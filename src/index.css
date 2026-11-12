@@ -4406,6 +4406,69 @@ td.row-action {
   display: none;
 }
 
+.interest-percent {
+  margin: 8px 0 8px;
+  max-width: 100%;
+}
+
+.interest-percent h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.interest-percent p {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.interest-columns {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.interest-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 76px;
+  flex: 0 0 76px;
+}
+
+.interest-column strong {
+  font-size: 13px;
+  letter-spacing: -0.02em;
+}
+
+.interest-column-track {
+  display: flex;
+  align-items: flex-end;
+  width: 28px;
+  height: 140px;
+  background: rgba(244, 241, 234, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.interest-column-fill {
+  width: 100%;
+  background: #d8ff4a;
+  border-radius: 99px;
+}
+
+.interest-column span {
+  height: 32px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+}
+
 .interest-bars {
   display: grid;
   gap: 12px;
