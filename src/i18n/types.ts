@@ -383,6 +383,7 @@ export type Messages = {
     interestSkip: string
     interestNeed: string
     interestSaved: string
+    interestNone: string
     sectors: Record<string, string>
   }
   confirm: {
@@ -483,6 +484,14 @@ export type Messages = {
     interestPerson: string
     interestPackage: string
     interestSectors: string
+    sectorTitle: string
+    sectorLead: string
+    sectorTr: string
+    sectorEn: string
+    sectorAdd: string
+    sectorSave: string
+    sectorEdit: string
+    sectorCancel: string
     supportLead: string
     supportEmpty: string
     message: string

@@ -4,13 +4,14 @@ import { secretDigest } from './auth.ts'
 import { CONFIRM_CODE_DIGITS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
 import { normalizeEmail, visitScope, type VisitScope } from './email.ts'
 import {
+  DEFAULT_SECTORS,
+  SECTOR_LIMIT,
   isBillingCycle,
   isIntent,
-  isInterestSector,
   isSupportKind,
   type BillingCycle,
   type InterestRow,
-  type InterestSector,
+  type SectorDef,
   type SupportKind,
   type SupportRow,
   type VisitStats,
@@ -63,8 +64,12 @@ type Store = {
   deleteSupport(id: string): Promise<boolean>
   setWaitlistRead(id: string, read: boolean): Promise<boolean>
   setSupportRead(id: string, read: boolean): Promise<boolean>
-  saveInterest(input: { emailNorm: string; sectors: InterestSector[] }): Promise<InterestRow | 'not_confirmed'>
+  saveInterest(input: { emailNorm: string; sectors: string[] }): Promise<InterestRow | 'not_confirmed'>
   listInterests(): Promise<InterestRow[]>
+  listSectors(): Promise<SectorDef[]>
+  createSector(input: { labelTr: string; labelEn: string }): Promise<SectorDef | 'sector_limit'>
+  updateSector(input: { id: string; labelTr: string; labelEn: string }): Promise<SectorDef | 'not_found'>
+  deleteSector(id: string): Promise<boolean>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -109,7 +114,7 @@ type SupportRecord = SupportRow & {
 type InterestRecord = {
   id: string
   emailNorm: string
-  sectors: InterestSector[]
+  sectors: string[]
   updatedAt: string
 }
 
@@ -119,8 +124,43 @@ type Memory = {
   waitlist: WaitlistRecord[]
   support: SupportRecord[]
   interests: InterestRecord[]
+  sectors: SectorDef[]
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
+}
+
+function sectorSlug(label: string) {
+  const letters: Record<string, string> = {
+    ç: 'c',
+    ğ: 'g',
+    ı: 'i',
+    i: 'i',
+    ö: 'o',
+    ş: 's',
+    ü: 'u',
+    â: 'a',
+    î: 'i',
+    û: 'u',
+  }
+  let out = ''
+  for (const char of label.trim().toLocaleLowerCase('tr')) out += letters[char] ?? char
+  out = out
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 32)
+  return out || 'alan'
+}
+
+function nextSectorId(label: string, taken: string[]) {
+  const base = sectorSlug(label)
+  if (!taken.includes(base)) return base
+  for (let n = 2; n < 100; n += 1) {
+    const id = `${base}-${n}`.slice(0, 40)
+    if (!taken.includes(id)) return id
+  }
+  return `${base}-${randomUUID().slice(0, 8)}`
 }
 
 function interestView(person: WaitlistRecord, row: InterestRecord): InterestRow | null {
@@ -225,6 +265,7 @@ function memoryStore(): Store {
     waitlist: [],
     support: [],
     interests: [],
+    sectors: DEFAULT_SECTORS.map((sector, position) => ({ ...sector, position })),
     adminSessions: new Map(),
     rates: new Map(),
   }
@@ -437,6 +478,34 @@ function memoryStore(): Store {
       }
       return rows
     },
+    async listSectors() {
+      return [...data.sectors].sort((a, b) => a.position - b.position)
+    },
+    async createSector(input) {
+      if (data.sectors.length >= SECTOR_LIMIT) return 'sector_limit'
+      const position = data.sectors.reduce((max, sector) => Math.max(max, sector.position), -1) + 1
+      const row: SectorDef = {
+        id: nextSectorId(input.labelTr, data.sectors.map((sector) => sector.id)),
+        labelTr: input.labelTr,
+        labelEn: input.labelEn,
+        position,
+      }
+      data.sectors.push(row)
+      return row
+    },
+    async updateSector(input) {
+      const row = data.sectors.find((sector) => sector.id === input.id)
+      if (!row) return 'not_found'
+      row.labelTr = input.labelTr
+      row.labelEn = input.labelEn
+      return row
+    },
+    async deleteSector(id) {
+      const index = data.sectors.findIndex((sector) => sector.id === id)
+      if (index === -1) return false
+      data.sectors.splice(index, 1)
+      return true
+    },
     async createAdminSession(input) {
       data.adminSessions.set(input.idHash, {
         user: input.user,
@@ -540,6 +609,16 @@ CREATE TABLE IF NOT EXISTS interest (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS interest_updated_at_idx ON interest (updated_at DESC);
+CREATE TABLE IF NOT EXISTS interest_sectors (
+  id TEXT PRIMARY KEY,
+  label_tr TEXT NOT NULL,
+  label_en TEXT NOT NULL,
+  position INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS app_meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS admin_sessions (
   id_hash TEXT PRIMARY KEY,
   user_name TEXT NOT NULL,
@@ -641,6 +720,21 @@ function postgresStore(url: string): Store {
           )
         } catch {
           /* duplicate historical emails: upsert still matches by email_norm */
+        }
+        const seeded = await pool.query(`SELECT 1 FROM app_meta WHERE key = 'interest_sectors_seeded'`)
+        if (!seeded.rows.length) {
+          for (const [position, sector] of DEFAULT_SECTORS.entries()) {
+            await pool.query(
+              `INSERT INTO interest_sectors (id, label_tr, label_en, position)
+               VALUES ($1, $2, $3, $4)
+               ON CONFLICT (id) DO NOTHING`,
+              [sector.id, sector.labelTr, sector.labelEn, position],
+            )
+          }
+          await pool.query(
+            `INSERT INTO app_meta (key, value) VALUES ('interest_sectors_seeded', '1')
+             ON CONFLICT (key) DO NOTHING`,
+          )
         }
       })()
     }
@@ -1033,7 +1127,10 @@ function postgresStore(url: string): Store {
       const rows: InterestRow[] = []
       for (const row of result.rows) {
         if (!isIntent(row.intent)) continue
-        const sectors = row.sectors.split(',').filter(isInterestSector)
+        const sectors = row.sectors
+          .split(',')
+          .map((item) => item.trim())
+          .filter((item) => item.length > 0 && item.length <= 40)
         if (!sectors.length) continue
         rows.push({
           id: row.id,
@@ -1045,6 +1142,52 @@ function postgresStore(url: string): Store {
         })
       }
       return rows
+    },
+    async listSectors() {
+      await ensure()
+      const result = await pool.query<{ id: string; label_tr: string; label_en: string; position: number }>(
+        `SELECT id, label_tr, label_en, position FROM interest_sectors ORDER BY position ASC, id ASC`,
+      )
+      return result.rows.map((row) => ({
+        id: row.id,
+        labelTr: row.label_tr,
+        labelEn: row.label_en,
+        position: row.position,
+      }))
+    },
+    async createSector(input) {
+      await ensure()
+      const count = await pool.query<{ count: string }>(`SELECT COUNT(*)::text AS count FROM interest_sectors`)
+      if (Number(count.rows[0]?.count ?? 0) >= SECTOR_LIMIT) return 'sector_limit'
+      const existing = await pool.query<{ id: string; position: number }>(
+        `SELECT id, position FROM interest_sectors`,
+      )
+      const position = existing.rows.reduce((max, row) => Math.max(max, row.position), -1) + 1
+      const id = nextSectorId(
+        input.labelTr,
+        existing.rows.map((row) => row.id),
+      )
+      await pool.query(
+        `INSERT INTO interest_sectors (id, label_tr, label_en, position) VALUES ($1, $2, $3, $4)`,
+        [id, input.labelTr, input.labelEn, position],
+      )
+      return { id, labelTr: input.labelTr, labelEn: input.labelEn, position }
+    },
+    async updateSector(input) {
+      await ensure()
+      const result = await pool.query<{ id: string; label_tr: string; label_en: string; position: number }>(
+        `UPDATE interest_sectors SET label_tr = $2, label_en = $3 WHERE id = $1
+         RETURNING id, label_tr, label_en, position`,
+        [input.id, input.labelTr, input.labelEn],
+      )
+      const row = result.rows[0]
+      if (!row) return 'not_found'
+      return { id: row.id, labelTr: row.label_tr, labelEn: row.label_en, position: row.position }
+    },
+    async deleteSector(id) {
+      await ensure()
+      const result = await pool.query(`DELETE FROM interest_sectors WHERE id = $1`, [id])
+      return (result.rowCount ?? 0) > 0
     },
     async createAdminSession(input) {
       await ensure()
@@ -1144,15 +1287,28 @@ export function validateWaitlistInput(body: unknown) {
   return { name, email, emailNorm: normalizeEmail(email), intent, cycle }
 }
 
-export function validateInterestInput(body: unknown) {
+export function sectorIdOk(value: unknown): value is string {
+  return typeof value === 'string' && /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/.test(value)
+}
+
+export function sectorLabels(body: unknown) {
+  if (!body || typeof body !== 'object') return 'invalid'
+  const data = body as { labelTr?: unknown; labelEn?: unknown }
+  const labelTr = typeof data.labelTr === 'string' ? data.labelTr.trim() : ''
+  const labelEn = typeof data.labelEn === 'string' ? data.labelEn.trim() : ''
+  if (labelTr.length < 2 || labelTr.length > 40 || labelEn.length < 2 || labelEn.length > 40) return 'sector'
+  return { labelTr, labelEn }
+}
+
+export function validateInterestInput(body: unknown, allowed: Set<string>) {
   if (!body || typeof body !== 'object') return 'invalid'
   const data = body as { email?: unknown; sectors?: unknown }
   const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : ''
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) return 'email'
-  if (!Array.isArray(data.sectors) || data.sectors.length < 1 || data.sectors.length > 8) return 'sectors'
-  const sectors: InterestSector[] = []
+  if (!Array.isArray(data.sectors) || data.sectors.length < 1 || data.sectors.length > allowed.size) return 'sectors'
+  const sectors: string[] = []
   for (const item of data.sectors) {
-    if (typeof item !== 'string' || !isInterestSector(item) || sectors.includes(item)) return 'sectors'
+    if (typeof item !== 'string' || !allowed.has(item) || sectors.includes(item)) return 'sectors'
     sectors.push(item)
   }
   return { emailNorm: normalizeEmail(email), sectors }

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { INTEREST_SECTORS, saveInterest, type InterestSector } from './interest.ts'
+import { useEffect, useState } from 'react'
+import { fetchSectors, saveInterest, sectorLabel, type SectorOption } from './interest.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 
 export default function InterestAsk({
@@ -11,8 +11,9 @@ export default function InterestAsk({
   intent: string
   onDone: (saved: boolean) => void
 }) {
-  const { t } = useI18n()
-  const [picked, setPicked] = useState<InterestSector[]>([])
+  const { t, locale } = useI18n()
+  const [options, setOptions] = useState<SectorOption[] | null>(null)
+  const [picked, setPicked] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const plan =
@@ -25,7 +26,21 @@ export default function InterestAsk({
           : t.plans.basicName
   const later = intent === 'account'
 
-  function toggle(id: InterestSector) {
+  useEffect(() => {
+    let cancelled = false
+    void fetchSectors()
+      .then((sectors) => {
+        if (!cancelled) setOptions(sectors)
+      })
+      .catch(() => {
+        if (!cancelled) setOptions([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  function toggle(id: string) {
     setPicked((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]))
     setError('')
   }
@@ -52,28 +67,32 @@ export default function InterestAsk({
       <h3 id="signup-title">{t.signup.interestTitle}</h3>
       <p>{t.signup.interestReady.replace('{name}', plan)}</p>
       <p className="interest-ask-q">{later ? t.signup.interestAskLater : t.signup.interestAsk}</p>
-      <p className="interest-hint">{t.signup.interestHint}</p>
-      <div className="interest-chips" role="group" aria-label={later ? t.signup.interestAskLater : t.signup.interestAsk}>
-        {INTEREST_SECTORS.map((id) => {
-          const on = picked.includes(id)
-          return (
-            <button
-              key={id}
-              type="button"
-              className={on ? 'interest-chip on' : 'interest-chip'}
-              aria-pressed={on}
-              onClick={() => toggle(id)}
-            >
-              {t.signup.sectors[id]}
-            </button>
-          )
-        })}
-      </div>
+      <p className="interest-hint">{options && options.length === 0 ? t.signup.interestNone : t.signup.interestHint}</p>
+      {options && options.length > 0 ? (
+        <div className="interest-chips" role="group" aria-label={later ? t.signup.interestAskLater : t.signup.interestAsk}>
+          {options.map((sector) => {
+            const on = picked.includes(sector.id)
+            return (
+              <button
+                key={sector.id}
+                type="button"
+                className={on ? 'interest-chip on' : 'interest-chip'}
+                aria-pressed={on}
+                onClick={() => toggle(sector.id)}
+              >
+                {sectorLabel(sector, locale)}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
       {error ? <p className="login-error">{error}</p> : null}
       <div className="interest-actions">
-        <button type="button" className="btn btn-solid" disabled={busy || picked.length === 0} onClick={() => void save()}>
-          {t.signup.interestSave}
-        </button>
+        {options && options.length > 0 ? (
+          <button type="button" className="btn btn-solid" disabled={busy || picked.length === 0} onClick={() => void save()}>
+            {t.signup.interestSave}
+          </button>
+        ) : null}
         <button type="button" className="interest-skip" onClick={() => onDone(false)}>
           {t.signup.interestSkip}
         </button>

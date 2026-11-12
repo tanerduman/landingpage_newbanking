@@ -16,7 +16,14 @@ import { CONFIRM_CODE_RE, CONFIRM_EMAIL_ATTEMPTS, CONFIRM_TTL_MS } from '../src/
 import { getFxRates } from './fx.ts'
 import { getGoldPrice } from './gold.ts'
 import { apiError, localeFromRequest, type ApiLocale } from './i18n.ts'
-import { getStore, validateInterestInput, validateSupportInput, validateWaitlistInput } from './store.ts'
+import {
+  getStore,
+  sectorIdOk,
+  sectorLabels,
+  validateInterestInput,
+  validateSupportInput,
+  validateWaitlistInput,
+} from './store.ts'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -330,12 +337,49 @@ async function handleInterest(request: Request) {
   if (await overLimit(`interest:ip:${clientKey(request)}`, 20, 300_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
-  const input = validateInterestInput(parsed.value)
+  const catalog = await store.listSectors()
+  const input = validateInterestInput(parsed.value, new Set(catalog.map((sector) => sector.id)))
   if (typeof input === 'string') return fail(request, input, 400, parsed.value)
   if (await overLimit(`interest:email:${input.emailNorm}`, 8, 300_000)) return fail(request, 'too_many', 429)
   const saved = await store.saveInterest(input)
   if (saved === 'not_confirmed') return fail(request, 'not_confirmed', 400, parsed.value)
   return json({ ok: true }, 200, request)
+}
+
+async function handleInterestSectors(request: Request) {
+  const store = getStore()
+  if (request.method === 'GET') {
+    if (await overLimit(`sectors:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ sectors: await store.listSectors() }, 200, request)
+  }
+  const denied = await requireAdmin(request)
+  if (denied) return denied
+  if (await overLimit(`sectors:write:${clientKey(request)}`, 40, 60_000)) return fail(request, 'too_many', 429)
+  const parsed = await readJson(request)
+  if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  if (request.method === 'POST') {
+    const labels = sectorLabels(parsed.value)
+    if (typeof labels === 'string') return fail(request, labels, 400, parsed.value)
+    const created = await store.createSector(labels)
+    if (created === 'sector_limit') return fail(request, 'sector_limit', 400, parsed.value)
+    return json({ sector: created }, 200, request)
+  }
+  const body = parsed.value as { id?: unknown; labelTr?: unknown; labelEn?: unknown } | null
+  const id = body?.id
+  if (!sectorIdOk(id)) return fail(request, 'invalid', 400, parsed.value)
+  if (request.method === 'DELETE') {
+    const removed = await store.deleteSector(id)
+    if (!removed) return fail(request, 'not_found', 404, parsed.value)
+    return json({ ok: true }, 200, request)
+  }
+  if (request.method === 'PATCH') {
+    const labels = sectorLabels(parsed.value)
+    if (typeof labels === 'string') return fail(request, labels, 400, parsed.value)
+    const updated = await store.updateSector({ id, ...labels })
+    if (updated === 'not_found') return fail(request, 'not_found', 404, parsed.value)
+    return json({ sector: updated }, 200, request)
+  }
+  return fail(request, 'invalid', 405)
 }
 
 async function handleSupport(request: Request) {
@@ -452,6 +496,12 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
     }
     if (path === '/api/interest' && (request.method === 'GET' || request.method === 'POST')) {
       return handleInterest(request)
+    }
+    if (
+      path === '/api/interest-sectors' &&
+      (request.method === 'GET' || request.method === 'POST' || request.method === 'PATCH' || request.method === 'DELETE')
+    ) {
+      return handleInterestSectors(request)
     }
     if (path === '/api/confirm' && request.method === 'POST') return handleConfirm(request)
     if (path === '/api/confirm-status' && request.method === 'POST') return handleConfirmStatus(request)

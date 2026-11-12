@@ -1,49 +1,96 @@
 import { apiFetch, readApiJson } from './api.ts'
-import { messages, readLocale } from './i18n/index.ts'
+import { messages, readLocale, type Locale } from './i18n/index.ts'
 
-export const INTEREST_SECTORS = [
-  'market',
-  'online',
-  'food',
-  'patisserie',
-  'travel',
-  'home',
-  'shopping',
-  'education',
-] as const
-
-export type InterestSector = (typeof INTEREST_SECTORS)[number]
+export type SectorOption = {
+  id: string
+  labelTr: string
+  labelEn: string
+  position: number
+}
 
 export type InterestEntry = {
   id: string
   name: string
   email: string
   intent: 'account' | 'standard' | 'plus' | 'premium'
-  sectors: InterestSector[]
+  sectors: string[]
   updatedAt: string
 }
 
-function isSector(value: string): value is InterestSector {
-  return (INTEREST_SECTORS as readonly string[]).includes(value)
+function cleanSectors(value: unknown) {
+  if (!Array.isArray(value)) return []
+  const sectors: string[] = []
+  for (const item of value) {
+    if (typeof item !== 'string') continue
+    const id = item.trim()
+    if (!id || id.length > 40 || sectors.includes(id)) continue
+    sectors.push(id)
+  }
+  return sectors
 }
 
 function normalize(row: InterestEntry): InterestEntry | null {
   const intent = row.intent
   if (intent !== 'account' && intent !== 'standard' && intent !== 'plus' && intent !== 'premium') return null
-  const sectors = Array.isArray(row.sectors) ? row.sectors.filter(isSector) : []
+  const sectors = cleanSectors(row.sectors)
   if (!sectors.length) return null
   return { ...row, intent, sectors }
 }
 
-export async function saveInterest(email: string, sectors: InterestSector[]) {
+function fail(remoteError: string | undefined) {
+  const t = messages(readLocale())
+  return remoteError || t.errors.interest_fail || t.signup.saveFail
+}
+
+export function sectorLabel(sector: SectorOption, locale: Locale) {
+  return locale === 'en' ? sector.labelEn : sector.labelTr
+}
+
+export async function fetchSectors(): Promise<SectorOption[]> {
+  const res = await apiFetch('/api/interest-sectors')
+  const remote = await readApiJson<{ sectors?: SectorOption[] }>(res)
+  if (!res?.ok || !remote?.sectors) return []
+  return remote.sectors.filter((sector) => sector && typeof sector.id === 'string' && sector.labelTr && sector.labelEn)
+}
+
+export async function createSector(labelTr: string, labelEn: string) {
+  const res = await apiFetch('/api/interest-sectors', {
+    method: 'POST',
+    body: JSON.stringify({ labelTr, labelEn, lang: readLocale() }),
+  })
+  const remote = await readApiJson<{ sector?: SectorOption; error?: string }>(res)
+  if (res?.ok && remote?.sector) return remote.sector
+  throw new Error(fail(remote?.error))
+}
+
+export async function updateSector(id: string, labelTr: string, labelEn: string) {
+  const res = await apiFetch('/api/interest-sectors', {
+    method: 'PATCH',
+    body: JSON.stringify({ id, labelTr, labelEn, lang: readLocale() }),
+  })
+  const remote = await readApiJson<{ sector?: SectorOption; error?: string }>(res)
+  if (res?.ok && remote?.sector) return remote.sector
+  throw new Error(fail(remote?.error))
+}
+
+export async function deleteSector(id: string) {
+  const res = await apiFetch('/api/interest-sectors', {
+    method: 'DELETE',
+    body: JSON.stringify({ id, lang: readLocale() }),
+  })
+  const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
+  if (res?.ok && remote?.ok) return
+  throw new Error(fail(remote?.error))
+}
+
+export async function saveInterest(email: string, sectors: string[]) {
   const res = await apiFetch('/api/interest', {
     method: 'POST',
     body: JSON.stringify({ email: email.trim().toLowerCase(), sectors, lang: readLocale() }),
   })
   const remote = await readApiJson<{ ok?: boolean; error?: string }>(res)
   if (res?.ok && remote?.ok) return
-  const t = messages(readLocale())
-  throw new Error(remote?.error || t.errors.interest_fail || t.signup.saveFail)
+  throw new Error(fail(remote?.error))
 }
 
 export async function fetchInterests(): Promise<{ entries: InterestEntry[]; authorized: boolean }> {
@@ -51,8 +98,11 @@ export async function fetchInterests(): Promise<{ entries: InterestEntry[]; auth
   if (res?.status === 401 || !res?.ok) return { entries: [], authorized: false }
   const remote = await readApiJson<{ entries?: InterestEntry[] }>(res)
   if (!remote?.entries) return { entries: [], authorized: false }
-  return { entries: remote.entries.flatMap((row) => {
-    const next = normalize(row)
-    return next ? [next] : []
-  }), authorized: true }
+  return {
+    entries: remote.entries.flatMap((row) => {
+      const next = normalize(row)
+      return next ? [next] : []
+    }),
+    authorized: true,
+  }
 }
