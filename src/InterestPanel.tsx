@@ -67,6 +67,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
     return (ai === -1 ? 1000 : ai) - (bi === -1 ? 1000 : bi)
   })
   const max = Math.max(1, ...ranked.map((id) => counts[id] ?? 0))
+  const percentOf = (id: string) => (visible.length === 0 ? 0 : Math.round(((counts[id] ?? 0) / visible.length) * 100))
   const planName = (intent: SignupIntent) =>
     intent === 'account'
       ? t.plans.basicName
@@ -256,6 +257,27 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
           </button>
         ))}
       </div>
+      {visible.length > 0 ? (
+        <section className="interest-percent" aria-label={t.waitlist.interestPercent}>
+          <h2>{t.waitlist.interestPercent}</h2>
+          <p>{t.waitlist.interestPercentLead}</p>
+          <div className="interest-columns">
+            {ranked.map((id) => {
+              const pct = percentOf(id)
+              const name = nameOf(id)
+              return (
+                <div className="interest-column" key={id} title={`${name} ${pct}%`}>
+                  <strong>{pct}%</strong>
+                  <div className="interest-column-track" role="img" aria-label={`${name} ${pct}%`}>
+                    <div className="interest-column-fill" style={{ height: `${pct}%` }} />
+                  </div>
+                  <span>{name}</span>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      ) : null}
       <div className="interest-bars" aria-label={t.waitlist.interestSectors}>
         {ranked.map((id) => (
           <div className="interest-bar-row" key={id}>

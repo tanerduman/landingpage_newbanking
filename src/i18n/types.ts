@@ -487,6 +487,8 @@ export type Messages = {
     interestViews: string
     interestTabAreas: string
     interestTabChart: string
+    interestPercent: string
+    interestPercentLead: string
     sectorTitle: string
     sectorLead: string
     sectorTr: string
