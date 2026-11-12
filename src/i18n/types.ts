@@ -374,6 +374,16 @@ export type Messages = {
     successAccount: string
     successPlan: string
     devCode: string
+    interestTitle: string
+    interestReady: string
+    interestAsk: string
+    interestAskLater: string
+    interestHint: string
+    interestSave: string
+    interestSkip: string
+    interestNeed: string
+    interestSaved: string
+    sectors: Record<string, string>
   }
   confirm: {
     working: string
@@ -466,6 +476,13 @@ export type Messages = {
     tabsLabel: string
     tabRequests: string
     tabSupport: string
+    tabInterests: string
+    interestTitle: string
+    interestLead: string
+    interestEmpty: string
+    interestPerson: string
+    interestPackage: string
+    interestSectors: string
     supportLead: string
     supportEmpty: string
     message: string

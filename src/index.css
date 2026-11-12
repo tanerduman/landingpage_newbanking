@@ -3393,6 +3393,7 @@ td.row-action {
 
 .admin-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin: 28px 0 8px;
 }
@@ -4283,5 +4284,133 @@ td.row-action {
   .how-brand-row em {
     display: block;
     margin-bottom: 4px;
+  }
+}
+
+.modal-card p.interest-ask-q,
+.interest-card p.interest-ask-q,
+.interest-ask-q {
+  color: #1c1a16;
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+.interest-hint {
+  font-size: 14px;
+}
+
+.interest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.interest-chip {
+  border: 1px solid #e4dfd4;
+  background: #fff;
+  color: #1c1a16;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.interest-chip.on {
+  background: #d8ff4a;
+  border-color: #d8ff4a;
+  color: #14210a;
+}
+
+.interest-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.interest-actions .btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.interest-skip {
+  background: none;
+  border: 0;
+  color: #5c574e;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 8px 0;
+}
+
+.interest-card {
+  background: #fff;
+  color: #1c1a16;
+  border-radius: 24px;
+  padding: 28px;
+  margin-top: 28px;
+  max-width: 520px;
+}
+
+.interest-card h3 {
+  color: #1c1a16;
+  font-size: 28px;
+  margin: 0 0 8px;
+}
+
+.interest-card p {
+  color: #5c574d;
+}
+
+.interest-bars {
+  display: grid;
+  gap: 12px;
+  margin: 22px 0 28px;
+  max-width: 720px;
+}
+
+.interest-bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 36px;
+  gap: 12px;
+  align-items: center;
+}
+
+.interest-track {
+  height: 10px;
+  background: rgba(244, 241, 234, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.interest-fill {
+  height: 100%;
+  background: #d8ff4a;
+  border-radius: 99px;
+}
+
+.interest-mail {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+@media (max-width: 640px) {
+  .interest-actions .btn {
+    width: 100%;
+  }
+
+  .interest-bar-row {
+    grid-template-columns: 1fr auto;
+  }
+
+  .interest-bar-row span {
+    grid-column: 1 / -1;
+  }
+
+  .interest-track {
+    grid-column: 1;
   }
 }

@@ -18,6 +18,8 @@ import {
   type WaitlistEntry,
 } from './waitlist'
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
+import InterestPanel from './InterestPanel.tsx'
+import { fetchInterests, type InterestEntry } from './interest.ts'
 import { fetchSupport, deleteSupportEntry, markSupportRead, type SupportEntry, type SupportKind } from './support.ts'
 import SupportPie from './SupportPie.tsx'
 import WaitlistPie from './WaitlistPie.tsx'
@@ -26,7 +28,7 @@ import LogoMark from './LogoMark.tsx'
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
 type KindFilter = 'all' | SupportKind
-type Panel = 'requests' | 'support'
+type Panel = 'requests' | 'support' | 'interests'
 
 const PAGE_SIZE = 10
 
@@ -39,6 +41,7 @@ export default function WaitlistPage() {
   const [loginBusy, setLoginBusy] = useState(false)
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
   const [support, setSupport] = useState<SupportEntry[]>([])
+  const [interests, setInterests] = useState<InterestEntry[]>([])
   const [panel, setPanel] = useState<Panel>('requests')
   const [visits, setVisits] = useState<VisitStats>(() => loadVisitStats())
   const [remote, setRemote] = useState(false)
@@ -85,16 +88,18 @@ export default function WaitlistPage() {
         setAuthed(false)
         setEntries([])
         setSupport([])
+        setInterests([])
         setRemote(false)
         return
       }
       setAuthed(true)
-      const [stats, tickets] = await Promise.all([fetchVisitStats(), fetchSupport()])
+      const [stats, tickets, interestList] = await Promise.all([fetchVisitStats(), fetchSupport(), fetchInterests()])
       setEntries(list.entries.filter((entry) => !removedIds.current.has(entry.id)))
       for (const id of removedIds.current) {
         if (!list.entries.some((entry) => entry.id === id)) removedIds.current.delete(id)
       }
       setSupport(tickets.entries.filter((entry) => !removedSupportIds.current.has(entry.id)))
+      setInterests(interestList.authorized ? interestList.entries : [])
       for (const id of removedSupportIds.current) {
         if (!tickets.entries.some((entry) => entry.id === id)) removedSupportIds.current.delete(id)
       }
@@ -141,7 +146,7 @@ export default function WaitlistPage() {
     }
   }
 
-  async function toggleRead(kind: Panel, id: string, read: boolean) {
+  async function toggleRead(kind: 'requests' | 'support', id: string, read: boolean) {
     const next = !read
     setReadingId(id)
     setDeleteError('')
@@ -165,6 +170,7 @@ export default function WaitlistPage() {
     setAuthed(false)
     setEntries([])
     setSupport([])
+    setInterests([])
     setPassword('')
   }
 
@@ -399,6 +405,16 @@ export default function WaitlistPage() {
               <span className="tab-unread">{t.waitlist.unreadCount.replace('{n}', String(unreadSupport))}</span>
             )}
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={panel === 'interests'}
+            className={panel === 'interests' ? 'active' : ''}
+            onClick={() => changePanel('interests')}
+          >
+            {t.waitlist.tabInterests}
+            <span>{interests.length}</span>
+          </button>
         </div>
         {panel === 'support' ? (
           <>
@@ -502,6 +518,8 @@ export default function WaitlistPage() {
               </div>
             )}
           </>
+        ) : panel === 'interests' ? (
+          <InterestPanel entries={interests} />
         ) : (
           <>
         <div className="section-head">

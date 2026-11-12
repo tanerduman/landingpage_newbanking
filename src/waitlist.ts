@@ -177,6 +177,8 @@ export async function confirmWaitlist(input: { token?: string; email?: string; c
   const remote = await readApiJson<{
     confirmed?: boolean
     purpose?: 'waitlist' | 'support'
+    email?: string
+    intent?: string
     error?: string
   }>(res)
   if (res?.ok && remote?.confirmed) {

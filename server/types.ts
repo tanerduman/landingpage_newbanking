@@ -35,6 +35,31 @@ export type SupportRow = {
 export const INTENTS = ['account', 'standard', 'plus', 'premium'] as const
 export type Intent = (typeof INTENTS)[number]
 
+export const INTEREST_SECTORS = [
+  'market',
+  'online',
+  'food',
+  'patisserie',
+  'travel',
+  'home',
+  'shopping',
+  'education',
+] as const
+export type InterestSector = (typeof INTEREST_SECTORS)[number]
+
+export function isInterestSector(value: string): value is InterestSector {
+  return (INTEREST_SECTORS as readonly string[]).includes(value)
+}
+
+export type InterestRow = {
+  id: string
+  name: string
+  email: string
+  intent: Intent
+  sectors: InterestSector[]
+  updatedAt: string
+}
+
 export const BILLING_CYCLES = ['none', 'monthly', 'yearly'] as const
 export type BillingCycle = (typeof BILLING_CYCLES)[number]
 

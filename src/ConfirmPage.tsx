@@ -3,6 +3,7 @@ import { confirmTokenFromLocation, withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
+import InterestAsk from './InterestAsk.tsx'
 import { confirmWaitlist } from './waitlist.ts'
 import LogoMark from './LogoMark.tsx'
 
@@ -30,6 +31,20 @@ export default function ConfirmPage() {
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [busy, setBusy] = useState(false)
+  const [confirmedEmail, setConfirmedEmail] = useState('')
+  const [confirmedIntent, setConfirmedIntent] = useState('')
+  const [interestDone, setInterestDone] = useState(false)
+  const [interestNote, setInterestNote] = useState('')
+
+  function applyConfirm(result: { purpose?: 'waitlist' | 'support'; email?: string; intent?: string }, typed = '') {
+    if (result.purpose === 'support') {
+      setPurpose('support')
+      return
+    }
+    setPurpose('waitlist')
+    setConfirmedEmail(result.email || typed)
+    setConfirmedIntent(result.intent || 'account')
+  }
 
   useEffect(() => {
     if (!tokenOk) return
@@ -37,7 +52,7 @@ export default function ConfirmPage() {
     void confirmFromLink(linkToken)
       .then((result) => {
         if (cancelled) return
-        if (result.purpose === 'support') setPurpose('support')
+        applyConfirm(result)
         setStatus('ok')
         const next = withBase('confirm')
         window.history.replaceState({}, '', next.startsWith('/') ? next : `/${next}`)
@@ -68,7 +83,7 @@ export default function ConfirmPage() {
     setDetail('')
     try {
       const result = await confirmWaitlist({ email, code })
-      if (result.purpose === 'support') setPurpose('support')
+      applyConfirm(result, email.trim())
       setStatus('ok')
     } catch (err) {
       setStatus('error')
@@ -102,6 +117,19 @@ export default function ConfirmPage() {
             </p>
             <h1>{t.confirm.okTitle}</h1>
             <p className="lead">{purpose === 'support' ? t.confirm.successSupport : t.confirm.success}</p>
+            {interestNote ? <p className="lead">{interestNote}</p> : null}
+            {purpose === 'waitlist' && confirmedEmail && !interestDone ? (
+              <div className="interest-card">
+                <InterestAsk
+                  email={confirmedEmail}
+                  intent={confirmedIntent}
+                  onDone={(saved) => {
+                    setInterestDone(true)
+                    if (saved) setInterestNote(t.signup.interestSaved)
+                  }}
+                />
+              </div>
+            ) : null}
           </>
         ) : status === 'working' ? (
           <>
