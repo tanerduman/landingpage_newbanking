@@ -83,8 +83,9 @@ export default function SiteHeader({
           <a href={withBase('support')} aria-current={active === 'support' ? 'page' : undefined}>
             {t.nav.support}
           </a>
-          <a href={withBase('blog')} aria-current={active === 'blog' ? 'page' : undefined}>
+          <a className="nav-blog" href={withBase('blog')} aria-current={active === 'blog' ? 'page' : undefined}>
             {t.nav.blog}
+            <span className="nav-new">{t.nav.newPage}</span>
           </a>
         </nav>
         <div className="nav-cta">
@@ -150,8 +151,9 @@ export default function SiteHeader({
         <a href={withBase('support')} onClick={() => setMenu(false)} aria-current={active === 'support' ? 'page' : undefined}>
           {t.nav.support}
         </a>
-        <a href={withBase('blog')} onClick={() => setMenu(false)} aria-current={active === 'blog' ? 'page' : undefined}>
+        <a className="nav-blog" href={withBase('blog')} onClick={() => setMenu(false)} aria-current={active === 'blog' ? 'page' : undefined}>
           {t.nav.blog}
+          <span className="nav-new">{t.nav.newPage}</span>
         </a>
         <button
           type="button"
