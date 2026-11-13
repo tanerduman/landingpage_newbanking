@@ -105,7 +105,9 @@ img {
 }
 
 .nav-links a.nav-support,
-.mobile-drawer a.nav-support {
+.mobile-drawer a.nav-support,
+.nav-links a.nav-blog,
+.mobile-drawer a.nav-blog {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -4114,8 +4116,11 @@ td.row-action {
     padding: 8px 0 18px;
   }
 
-  .mobile-drawer a.nav-support {
+  .mobile-drawer a.nav-support,
+  .mobile-drawer a.nav-blog {
     display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .mobile-drawer a,
