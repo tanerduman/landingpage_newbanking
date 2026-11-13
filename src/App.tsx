@@ -126,7 +126,38 @@ export default function App() {
 
         <section className="section how" id="how">
           <div className="wrap">
-            <h2>{t.how.title}</h2>
+            <div className="how-stage">
+              <svg className="how-orbit" viewBox="0 0 560 280" aria-hidden="true">
+                <defs>
+                  <radialGradient id="how-orbit-glow" cx="46%" cy="52%" r="48%">
+                    <stop offset="0%" stopColor="#d8ff4a" stopOpacity="0.22" />
+                    <stop offset="62%" stopColor="#d8ff4a" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
+                <circle cx="250" cy="146" r="132" fill="url(#how-orbit-glow)" />
+                <circle cx="250" cy="146" r="118" fill="none" stroke="#d8ff4a" strokeWidth="1.6" opacity="0.9" />
+                <circle cx="250" cy="146" r="78" fill="none" stroke="#d8ff4a" strokeWidth="1.25" opacity="0.45" strokeDasharray="3 7" />
+                <circle cx="250" cy="146" r="34" fill="none" stroke="#d8ff4a" strokeWidth="8" />
+                <g fontFamily="Bricolage Grotesque, sans-serif" fontSize="16" fontWeight="800">
+                  <g transform="translate(250 28)">
+                    <circle r="20" fill="#070708" />
+                    <circle r="16" fill="#d8ff4a" />
+                    <text textAnchor="middle" y="6" fill="#0b0b0c">01</text>
+                  </g>
+                  <g transform="translate(368 146)">
+                    <circle r="20" fill="#070708" />
+                    <circle r="16" fill="#d8ff4a" />
+                    <text textAnchor="middle" y="6" fill="#0b0b0c">02</text>
+                  </g>
+                  <g transform="translate(168 232)">
+                    <circle r="20" fill="#070708" />
+                    <circle r="16" fill="#d8ff4a" />
+                    <text textAnchor="middle" y="6" fill="#0b0b0c">03</text>
+                  </g>
+                </g>
+              </svg>
+              <h2>{t.how.title}</h2>
+            </div>
             <div className="how-grid">
               {t.how.steps.map((step, index) => (
                 <article className="how-card" key={step.title}>

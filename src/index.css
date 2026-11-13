@@ -949,6 +949,58 @@ h3 {
   line-height: 0.95;
 }
 
+.how-stage {
+  position: relative;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.how-orbit {
+  position: absolute;
+  left: 210px;
+  top: 50%;
+  width: 560px;
+  height: auto;
+  transform: translateY(-52%);
+  pointer-events: none;
+}
+
+.how-stage h2 {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  font-size: clamp(46px, 6vw, 72px);
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+  text-shadow:
+    0 0 12px #070708,
+    0 0 22px #070708,
+    0 2px 0 #070708;
+}
+
+@media (max-width: 800px) {
+  .how-stage {
+    min-height: 0;
+    align-items: flex-end;
+    padding-top: 156px;
+  }
+
+  .how-orbit {
+    left: 50%;
+    top: 0;
+    width: 260px;
+    transform: translateX(-50%);
+  }
+
+  .how-stage h2 {
+    font-size: 44px;
+    max-width: none;
+    margin-top: 8px;
+  }
+}
+
 .how-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
