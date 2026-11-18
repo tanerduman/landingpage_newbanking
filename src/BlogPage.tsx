@@ -79,7 +79,6 @@ export default function BlogPage() {
       {modal && (
         <SignupModal
           intent="account"
-          cycle="none"
           onClose={(msg) => {
             setModal(false)
             if (msg) setToast(msg)

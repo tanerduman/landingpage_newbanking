@@ -243,7 +243,6 @@ export default function App() {
       {modal && (
         <SignupModal
           intent={intent}
-          cycle={intent === 'account' ? 'none' : 'monthly'}
           onClose={(msg) => {
             closeModal()
             if (msg) setToast(msg)

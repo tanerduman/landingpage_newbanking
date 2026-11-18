@@ -247,7 +247,6 @@ export default function SupportPage() {
       {modal && (
         <SignupModal
           intent="account"
-          cycle="none"
           onClose={(msg) => {
             setModal(false)
             if (msg) setToast(msg)

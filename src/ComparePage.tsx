@@ -316,7 +316,6 @@ export default function ComparePage() {
       {intent && (
         <SignupModal
           intent={intent}
-          cycle={intent === 'account' ? 'none' : 'monthly'}
           onClose={(msg) => {
             setIntent(null)
             if (msg) setToast(msg)
