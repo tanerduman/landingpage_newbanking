@@ -180,6 +180,7 @@ export const tr: Messages = {
     yes: 'Evet, isterim',
     no: 'Hayır',
     close: 'Kapat',
+    thanks: 'Geri bildirimin için teşekkür ederiz.',
     fail: 'Cevap kaydedilemedi. Tekrar dene.',
   },
   plans: {
