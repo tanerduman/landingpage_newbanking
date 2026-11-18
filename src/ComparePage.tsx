@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { planColumns, type PlanColumnId } from './plans.ts'
 import { defaultPlanCatalog } from './planCatalogData.ts'
-import { fetchPlanCatalog, type PlanCatalog } from './planCatalog.ts'
+import { cachedPlanCatalog, loadPlanCatalog, type PlanCatalog } from './planCatalog.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import type { SignupIntent } from './waitlist'
@@ -155,9 +155,12 @@ const rowIcons: Record<string, string> = {
   koctas: 'home',
 }
 
+const priceHidden = { ...defaultPlanCatalog(), showPrices: false }
+
 export default function ComparePage() {
   const { t, locale } = useI18n()
-  const [catalog, setCatalog] = useState<PlanCatalog>(() => defaultPlanCatalog())
+  const [catalog, setCatalog] = useState<PlanCatalog | null>(cachedPlanCatalog)
+  const view = catalog ?? priceHidden
   const [intent, setIntent] = useState<SignupIntent | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [openHint, setOpenHint] = useState<string | null>(null)
@@ -173,17 +176,18 @@ export default function ComparePage() {
     premium: t.pkg.premium,
   }
   const hints = t.compare.hints as Record<string, string>
-  const groups = [...new Set(catalog.rows.map((row) => row.group))]
+  const groups = [...new Set(view.rows.map((row) => row.group))]
 
   useEffect(() => {
+    if (catalog) return
     let live = true
-    void fetchPlanCatalog().then((next) => {
-      if (live && next) setCatalog(next)
+    void loadPlanCatalog().then((next) => {
+      if (live) setCatalog(next ?? defaultPlanCatalog())
     })
     return () => {
       live = false
     }
-  }, [])
+  }, [catalog])
 
   useEffect(() => {
     if (!openHint) return
@@ -201,7 +205,7 @@ export default function ComparePage() {
         <main className="wrap compare-main">
           <p className="compare-kicker">{t.compare.kicker}</p>
           <h1>{t.compare.title}</h1>
-          <p className="compare-lead">{catalog.showPrices ? t.compare.lead : t.compare.leadHidden}</p>
+          <p className="compare-lead">{view.showPrices ? t.compare.lead : t.compare.leadHidden}</p>
 
           <div className="rev-board">
             <div className="rev-head">
@@ -209,8 +213,8 @@ export default function ComparePage() {
               {planColumns.map((col) => (
                 <div key={col.id} className="rev-plan">
                   <h2>{colName[col.id]}</h2>
-                  {catalog.showPrices ? (
-                    <strong className="rev-price">{locale === 'en' ? catalog.prices[col.id].en : catalog.prices[col.id].tr}</strong>
+                  {view.showPrices ? (
+                    <strong className="rev-price">{locale === 'en' ? view.prices[col.id].en : view.prices[col.id].tr}</strong>
                   ) : null}
                   <button type="button" className="rev-get" onClick={() => setIntent(col.id)}>
                     {t.plans.request}
@@ -232,7 +236,7 @@ export default function ComparePage() {
                     {groupLabel[group]}
                   </span>
                 </div>
-                {catalog.rows
+                {view.rows
                   .filter((row) => row.group === group)
                   .map((row) => (
                     <div key={row.id} className="rev-row">

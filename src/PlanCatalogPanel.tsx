@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchPlanCatalog, savePlanCatalog, PLAN_IDS, type PlanCatalog, type PlanColumn, type PlanGroup } from './planCatalog.ts'
+import { cachedPlanCatalog, loadPlanCatalog, savePlanCatalog, PLAN_IDS, type PlanCatalog, type PlanColumn, type PlanGroup } from './planCatalog.ts'
 import { defaultPlanCatalog } from './planCatalogData.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { messages, readLocale } from './i18n/index.ts'
@@ -19,7 +19,7 @@ function blankRow() {
 
 export default function PlanCatalogPanel() {
   const { t } = useI18n()
-  const [catalog, setCatalog] = useState<PlanCatalog>(() => defaultPlanCatalog())
+  const [catalog, setCatalog] = useState<PlanCatalog | null>(cachedPlanCatalog)
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
@@ -36,14 +36,15 @@ export default function PlanCatalogPanel() {
   }
 
   useEffect(() => {
+    if (catalog) return
     let live = true
-    void fetchPlanCatalog().then((next) => {
-      if (live && next) setCatalog(next)
+    void loadPlanCatalog().then((next) => {
+      if (live) setCatalog(next ?? defaultPlanCatalog())
     })
     return () => {
       live = false
     }
-  }, [])
+  }, [catalog])
 
   function patch(next: PlanCatalog) {
     setCatalog(next)
@@ -51,6 +52,7 @@ export default function PlanCatalogPanel() {
   }
 
   async function onSave() {
+    if (!catalog) return
     const ready: PlanCatalog = {
       showPrices: catalog.showPrices,
       prices: catalog.prices,
@@ -91,13 +93,15 @@ export default function PlanCatalogPanel() {
           <h1>{t.waitlist.planTitle}</h1>
           <p className="lead">{t.waitlist.planLead}</p>
         </div>
-        <button type="button" className="btn btn-solid" disabled={busy} onClick={() => void onSave()}>
+        <button type="button" className="btn btn-solid" disabled={busy || !catalog} onClick={() => void onSave()}>
           {t.waitlist.planSave}
         </button>
       </div>
       {note && <p className="plan-editor-note">{note}</p>}
       {error && <p className="waitlist-action-error">{error}</p>}
 
+      {catalog && (
+      <>
       <label className="plan-show-prices">
         <input
           type="checkbox"
@@ -226,6 +230,8 @@ export default function PlanCatalogPanel() {
           </article>
         ))}
       </div>
+      </>
+      )}
     </>
   )
 }
