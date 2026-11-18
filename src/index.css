@@ -4963,6 +4963,123 @@ td.row-action {
   }
 }
 
+.popup-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.popup-list {
+  display: grid;
+  gap: 16px;
+}
+
+.popup-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #101012;
+}
+
+.popup-card-top,
+.popup-card-actions,
+.popup-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.popup-card-top {
+  justify-content: space-between;
+}
+
+.popup-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.popup-active input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--lime);
+}
+
+.popup-card-actions button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.popup-card-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.popup-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.popup-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.popup-fields .popup-span {
+  grid-column: 1 / -1;
+}
+
+.popup-fields input,
+.popup-fields textarea {
+  width: 100%;
+  background: #111114;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  line-height: 1.45;
+}
+
+.popup-fields textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.popup-stats {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.popup-stats strong {
+  color: var(--text);
+}
+
+@media (max-width: 800px) {
+  .popup-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .waitlist-page .section-head {
+    flex-wrap: wrap;
+  }
+}
+
 .hero-copy-form {
   display: grid;
   gap: 14px;

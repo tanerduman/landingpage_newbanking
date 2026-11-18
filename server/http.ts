@@ -26,6 +26,8 @@ import {
 } from './store.ts'
 import { validatePlanCatalog } from './planCatalog.ts'
 import { validateHeroCopy } from './heroCopy.ts'
+import { validatePopupCatalog } from './popupCopy.ts'
+import { DEFAULT_POPUP_ID } from '../src/popupCopyData.ts'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -120,6 +122,14 @@ function isHeroCopyWrite(value: unknown) {
 
 function isWeekendFxWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'weekendFx' in value && (value as { weekendFx?: unknown }).weekendFx === true)
+}
+
+function isPopupCatalogWrite(value: unknown) {
+  return Boolean(value && typeof value === 'object' && 'popupCatalog' in value && (value as { popupCatalog?: unknown }).popupCatalog === true)
+}
+
+function isPopupSeenWrite(value: unknown) {
+  return Boolean(value && typeof value === 'object' && 'popupSeen' in value && (value as { popupSeen?: unknown }).popupSeen === true)
 }
 
 function weekendAnswer(value: unknown) {
@@ -242,6 +252,18 @@ async function handleWaitlist(request: Request) {
     if (await overLimit(`hero:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
     return json({ hero: await store.getHeroCopy() }, 200, request)
   }
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('ask') === '1') {
+    if (await overLimit(`popup:next:${clientKey(request)}`, 60, 60_000)) return fail(request, 'too_many', 429)
+    const visitor = new URL(request.url).searchParams.get('visitor')
+    if (!uuidLike(visitor)) return fail(request, 'bad_visit', 400)
+    return json({ next: await store.nextPopup(visitor) }, 200, request)
+  }
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('popups') === '1') {
+    const denied = await requireAdmin(request)
+    if (denied) return denied
+    if (await overLimit(`popup:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ popups: await store.getPopups(), stats: await store.popupStats() }, 200, request)
+  }
   if (request.method === 'GET' && new URL(request.url).searchParams.get('weekend') === '1') {
     const denied = await requireAdmin(request)
     if (denied) return denied
@@ -259,6 +281,13 @@ async function handleWaitlist(request: Request) {
     if (denied) return denied
     const parsed = await readJson(request, 40_000)
     if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    if (isPopupCatalogWrite(parsed.value)) {
+      if (await overLimit(`popup:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
+      const popups = validatePopupCatalog(parsed.value)
+      if (typeof popups === 'string') return fail(request, popups, 400, parsed.value)
+      const saved = await store.savePopups(popups)
+      return json({ popups: saved, stats: await store.popupStats() }, 200, request)
+    }
     if (isHeroCopyWrite(parsed.value)) {
       if (await overLimit(`hero:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
       const copy = validateHeroCopy(parsed.value)
@@ -294,6 +323,19 @@ async function handleWaitlist(request: Request) {
   }
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  if (isPopupSeenWrite(parsed.value)) {
+    const body = parsed.value as { id?: unknown; visitorId?: unknown; answer?: unknown }
+    const answer = body.answer == null ? null : body.answer === 'yes' || body.answer === 'no' ? body.answer : null
+    if ((body.answer != null && !answer) || typeof body.id !== 'string' || !uuidLike(body.visitorId)) {
+      return fail(request, 'invalid', 400, parsed.value)
+    }
+    if (await overLimit(`popup:seen:${clientKey(request)}`, 40, 600_000)) return fail(request, 'too_many', 429)
+    if (await overLimit(`popup:visitor:${body.visitorId}`, 16, 600_000)) return fail(request, 'too_many', 429)
+    const result = await store.markPopupSeen({ popupId: body.id, visitorId: body.visitorId, answer })
+    if (result === 'not_found') return fail(request, 'not_found', 404, parsed.value)
+    if (result === 'answered' && body.id === DEFAULT_POPUP_ID && answer) await store.saveWeekendFx(answer)
+    return json({ ok: true }, 200, request)
+  }
   if (isWeekendFxWrite(parsed.value)) {
     if (await overLimit(`weekend:ip:${clientKey(request)}`, 8, 600_000)) return fail(request, 'too_many', 429)
     const answer = weekendAnswer(parsed.value)

@@ -1,20 +1,12 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
+import { loadNextPopup, markPopupSeen, type SitePopup } from './popupCopy.ts'
 import { SignupToast } from './SignupModal.tsx'
 import Spinner from './Spinner.tsx'
-import { saveWeekendAnswer, type WeekendAnswer } from './weekendFx.ts'
+import { ensureVisitorId } from './visits.ts'
+import type { PopupText } from './popupCopyData.ts'
 
-const STORAGE_KEY = 'aure-weekend-fx'
-const HIDE_KEY = 'aure-weekend-fx-hide'
-
-function savedAnswer() {
-  try {
-    const value = localStorage.getItem(STORAGE_KEY)
-    return value === 'yes' || value === 'no'
-  } catch {
-    return false
-  }
-}
+const HIDE_KEY = 'aure-popup-hide'
 
 function hiddenThisVisit() {
   try {
@@ -24,27 +16,45 @@ function hiddenThisVisit() {
   }
 }
 
+function hideThisVisit() {
+  try {
+    sessionStorage.setItem(HIDE_KEY, '1')
+  } catch {
+    /* ignore */
+  }
+}
+
 export default function WeekendAsk({ active }: { active: boolean }) {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const titleId = useId()
+  const visitorId = useRef('')
+  const [popup, setPopup] = useState<SitePopup | null>(null)
   const [open, setOpen] = useState(false)
-  const [pending, setPending] = useState<WeekendAnswer | null>(null)
+  const [pending, setPending] = useState<'yes' | 'no' | null>(null)
   const [error, setError] = useState('')
   const [thanks, setThanks] = useState(false)
 
   useEffect(() => {
-    if (!active || savedAnswer() || hiddenThisVisit()) return
+    if (!active || hiddenThisVisit()) return
     let live = true
     let timer = 0
-    function tick() {
+    async function openNext() {
       if (!live) return
       if (document.querySelector('.modal')) {
-        timer = window.setTimeout(tick, 400)
+        timer = window.setTimeout(() => void openNext(), 400)
         return
       }
+      const visitor = ensureVisitorId()
+      if (!visitor) return
+      visitorId.current = visitor
+      const next = await loadNextPopup(visitor)
+      if (!live || !next) return
+      hideThisVisit()
+      setPopup(next)
       setOpen(true)
+      void markPopupSeen(visitor, next.id)
     }
-    timer = window.setTimeout(tick, 3000)
+    timer = window.setTimeout(() => void openNext(), 3000)
     return () => {
       live = false
       window.clearTimeout(timer)
@@ -52,11 +62,7 @@ export default function WeekendAsk({ active }: { active: boolean }) {
   }, [active])
 
   function dismiss() {
-    try {
-      sessionStorage.setItem(HIDE_KEY, '1')
-    } catch {
-      /* ignore */
-    }
+    hideThisVisit()
     setOpen(false)
   }
 
@@ -71,28 +77,30 @@ export default function WeekendAsk({ active }: { active: boolean }) {
 
   const busy = pending !== null
 
-  async function choose(answer: WeekendAnswer) {
-    if (pending) return
+  async function choose(answer: 'yes' | 'no') {
+    if (!popup || pending) return
     setPending(answer)
     setError('')
-    const ok = await saveWeekendAnswer(answer)
+    const result = await markPopupSeen(visitorId.current, popup.id, answer)
     setPending(null)
-    if (!ok) {
+    if (result !== 'ok') {
       setError(t.fxAsk.fail)
       return
-    }
-    try {
-      localStorage.setItem(STORAGE_KEY, answer)
-    } catch {
-      /* ignore */
     }
     setOpen(false)
     setThanks(true)
   }
 
-  if (!open) {
+  function line(text: PopupText) {
+    return text[locale]
+  }
+
+  if (!open || !popup) {
     return thanks ? <SignupToast message={t.fxAsk.thanks} onClose={() => setThanks(false)} /> : null
   }
+
+  const kicker = line(popup.kicker)
+  const tag = line(popup.tag)
 
   return (
     <div className="fx-ask" role="presentation" onClick={(event) => event.target === event.currentTarget && dismiss()}>
@@ -100,21 +108,26 @@ export default function WeekendAsk({ active }: { active: boolean }) {
         <button type="button" className="fx-ask-close" onClick={dismiss} aria-label={t.fxAsk.close}>
           ×
         </button>
-        <p className="fx-ask-kicker">
-          <span className="dot" />
-          {t.fxAsk.kicker}
-          <span className="fx-ask-days">{t.fxAsk.days}</span>
-        </p>
-        <h2 id={titleId}>{t.fxAsk.question}</h2>
+        {kicker || tag ? (
+          <p className="fx-ask-kicker">
+            <span className="dot" />
+            {kicker}
+            {tag ? <span className="fx-ask-days">{tag}</span> : null}
+          </p>
+        ) : null}
+        <h2 id={titleId}>{line(popup.question)}</h2>
         {error && <p className="fx-ask-error">{error}</p>}
         <div className="fx-ask-actions">
           <button type="button" className="fx-ask-yes" disabled={busy} aria-busy={pending === 'yes'} onClick={() => void choose('yes')}>
-            <span>{pending === 'yes' ? <Spinner /> : null}{t.fxAsk.yes}</span>
+            <span>
+              {pending === 'yes' ? <Spinner /> : null}
+              {line(popup.yes)}
+            </span>
             <i aria-hidden="true">→</i>
           </button>
           <button type="button" className="fx-ask-no" disabled={busy} aria-busy={pending === 'no'} onClick={() => void choose('no')}>
             {pending === 'no' ? <Spinner /> : null}
-            {t.fxAsk.no}
+            {line(popup.no)}
           </button>
         </div>
       </div>
