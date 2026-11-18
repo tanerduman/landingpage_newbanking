@@ -201,7 +201,7 @@ export default function ComparePage() {
         <main className="wrap compare-main">
           <p className="compare-kicker">{t.compare.kicker}</p>
           <h1>{t.compare.title}</h1>
-          <p className="compare-lead">{t.compare.lead}</p>
+          <p className="compare-lead">{catalog.showPrices ? t.compare.lead : t.compare.leadHidden}</p>
 
           <div className="rev-board">
             <div className="rev-head">
@@ -209,7 +209,9 @@ export default function ComparePage() {
               {planColumns.map((col) => (
                 <div key={col.id} className="rev-plan">
                   <h2>{colName[col.id]}</h2>
-                  <strong className="rev-price">{locale === 'en' ? catalog.prices[col.id].en : catalog.prices[col.id].tr}</strong>
+                  {catalog.showPrices ? (
+                    <strong className="rev-price">{locale === 'en' ? catalog.prices[col.id].en : catalog.prices[col.id].tr}</strong>
+                  ) : null}
                   <button type="button" className="rev-get" onClick={() => setIntent(col.id)}>
                     {t.plans.request}
                   </button>
