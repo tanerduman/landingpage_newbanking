@@ -642,13 +642,50 @@ h3 {
   bottom: 64px;
 }
 
+.hero-phone {
+  width: min(268px, 100%);
+  margin: 40px 56px 52px 0;
+  padding: 16px 11px 12px;
+  border-radius: 42px;
+  background: linear-gradient(165deg, #3c3c42 0%, #1c1c20 42%, #0e0e10 100%);
+  border: 1px solid rgba(244, 241, 234, 0.22);
+  box-shadow:
+    -22px 34px 46px rgba(0, 0, 0, 0.42),
+    0 12px 24px rgba(0, 0, 0, 0.28);
+  position: relative;
+  flex: none;
+  transform: rotate(-18deg);
+}
+
+.hero-phone::after {
+  content: "";
+  position: absolute;
+  top: 108px;
+  right: -3px;
+  width: 3px;
+  height: 64px;
+  border-radius: 0 3px 3px 0;
+  background: #2a2a30;
+}
+
+.hero-phone-speaker {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 72px;
+  height: 5px;
+  margin-left: -36px;
+  border-radius: 999px;
+  background: rgba(244, 241, 234, 0.28);
+}
+
 .hero-film {
   display: block;
-  width: min(300px, 100%);
+  width: 100%;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 28px;
+  border: 0;
+  border-radius: 32px;
   background: #101012;
   color: var(--text);
   text-align: left;
@@ -656,7 +693,6 @@ h3 {
   position: relative;
   aspect-ratio: 9 / 19.5;
   overflow: hidden;
-  box-shadow: var(--shadow);
 }
 
 .hero-film.is-video,
@@ -4752,6 +4788,12 @@ td.row-action {
     justify-content: center;
     height: auto;
     min-height: 0;
+  }
+
+  .hero-phone {
+    width: min(220px, 70vw);
+    margin: 28px auto 44px;
+    transform: rotate(-14deg);
   }
 
   .film-scene {
