@@ -60,7 +60,7 @@ export default function App() {
             </p>
             <h1>
               {t.hero.title}
-              <span className="hero-accent">{t.hero.titleAccent}</span>
+              {t.hero.titleAccent ? <span className="hero-accent">{t.hero.titleAccent}</span> : null}
             </h1>
             <p className="lead">{t.hero.lead}</p>
             <ul className="hero-checks">

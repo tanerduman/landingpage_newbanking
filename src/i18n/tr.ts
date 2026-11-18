@@ -4,7 +4,7 @@ export const tr: Messages = {
   htmlLang: 'tr',
   title: 'AURE — Paran her yerde daha güçlü',
   description:
-    'AURE — aidat yok, gizli komisyon yok. Paran uyurken bile kazansın. Transfer, yatırım ve alışveriş tek cüzdanda.',
+    'AURE — ihtiyacın kadar bankacılık, seçtiğin kadar avantaj. Sürpriz aidat ve gizli komisyon yok. Tek cüzdanda transfer, yatırım ve alışveriş.',
   nav: {
     how: 'Nasıl çalışır',
     plans: 'Paketler',
@@ -31,9 +31,9 @@ export const tr: Messages = {
   },
   hero: {
     eyebrow: 'Ücretsiz hesap',
-    title: 'Aidat yok, gizli\nkomisyon yok.',
-    titleAccent: 'Paran uyurken bile\nkazansın.',
-    lead: 'Transfer, yatırım ve alışveriş tek cüzdanda. Gecelik faiz otomatik işler. Sorunun olursa bot değil, gerçek biri saniyeler içinde yanıtlar.',
+    title: 'İhtiyacın kadar\nbankacılık.\nSeçtiğin kadar\navantaj.',
+    titleAccent: '',
+    lead: 'Sürpriz aidat ve gizli komisyon olmadan transferi, yatırımı ve alışverişi tek cüzdanda birleştiren yeni nesil bankacılık. Seçtiğin aylık paketle vadesiz parana gecelik faiz, paketine göre daralan makas, otomatik kampanya ve bekletmeyen canlı müşteri temsilcisi ayrıcalığını açarsın. Şimdilik yalnızca talep alıyoruz.',
     checks: ['Aidat 0 TL', 'Gizli komisyon yok', 'Canlı destek'],
     note: 'Ad ve e-posta yeter. Hesaplar açılınca öncelikli davet alırsın.',
     cardAccount: 'AURE Hesap',

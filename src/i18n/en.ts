@@ -4,7 +4,7 @@ export const en: Messages = {
   htmlLang: 'en',
   title: 'AURE — Your money, stronger everywhere',
   description:
-    'AURE — no fees and no hidden commission. Your money earns while you sleep. Transfers, investing and shopping in one wallet.',
+    'AURE — as much banking as you need, as much advantage as you choose. No surprise fees and no hidden commission.',
   nav: {
     how: 'How it works',
     plans: 'Plans',
@@ -31,9 +31,9 @@ export const en: Messages = {
   },
   hero: {
     eyebrow: 'Free account',
-    title: 'No fees, no hidden\ncommission.',
-    titleAccent: 'Your money earns\neven while you sleep.',
-    lead: 'Transfers, investing and shopping in one wallet. Overnight interest runs on its own. If you need help, a real person answers in seconds, not a bot.',
+    title: 'As much banking\nas you need.\nAs much advantage\nas you choose.',
+    titleAccent: '',
+    lead: 'Next-generation banking that puts transfers, investing and shopping in one wallet, without surprise fees or hidden commission. The monthly plan you choose opens overnight interest on demand balances, a spread that narrows with the plan, automatic offers, and a live representative who does not keep you waiting. For now we only take requests.',
     checks: ['Fee 0 TL', 'No hidden commission', 'Live support'],
     note: 'A name and an email are enough. You get a priority invite when accounts open.',
     cardAccount: 'AURE Account',
