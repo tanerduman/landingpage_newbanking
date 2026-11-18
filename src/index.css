@@ -1328,12 +1328,12 @@ h3 {
 
 .how-slide.is-forward,
 .how-visual.is-forward {
-  animation: how-forward 700ms ease;
+  animation: how-forward 300ms ease;
 }
 
 .how-slide.is-back,
 .how-visual.is-back {
-  animation: how-back 700ms ease;
+  animation: how-back 300ms ease;
 }
 
 @keyframes how-forward {
