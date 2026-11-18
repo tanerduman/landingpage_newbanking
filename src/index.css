@@ -514,10 +514,7 @@ h3 {
 .stage {
   position: relative;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  perspective: 1400px;
-  perspective-origin: 65% 45%;
 }
 
 .card-stack {
@@ -644,51 +641,13 @@ h3 {
   bottom: 64px;
 }
 
-.hero-phone {
-  width: min(460px, 100%);
-  margin: 18px 8px 28px 0;
-  padding: 11px 11px 11px 18px;
-  border-radius: 32px;
-  background: linear-gradient(115deg, #f3f3f5 0%, #b5b5bc 14%, #3a3a40 32%, #141418 100%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow:
-    -18px 28px 40px rgba(0, 0, 0, 0.4),
-    0 10px 18px rgba(0, 0, 0, 0.22);
-  position: relative;
-  flex: none;
-  transform: rotateX(6deg) rotateY(-22deg) rotateZ(7deg);
-  transform-origin: 55% 50%;
-}
-
-.hero-phone::after {
-  content: "";
-  position: absolute;
-  top: -3px;
-  left: 92px;
-  width: 64px;
-  height: 3px;
-  border-radius: 3px 3px 0 0;
-  background: #c8c8ce;
-}
-
-.hero-phone-speaker {
-  position: absolute;
-  top: 50%;
-  left: 6px;
-  width: 5px;
-  height: 56px;
-  margin: -28px 0 0;
-  border-radius: 999px;
-  background: rgba(244, 241, 234, 0.55);
-}
-
 .hero-film {
   display: block;
   width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 22px;
+  border-radius: 16px;
   background: #101012;
   color: var(--text);
   text-align: left;
@@ -698,31 +657,31 @@ h3 {
   overflow: hidden;
 }
 
-.hero-phone .film-scene {
+.hero-film .film-scene {
   justify-content: flex-end;
   padding: 44px 20px 70px;
 }
 
-.hero-phone .film-mark {
+.hero-film .film-mark {
   width: 28px;
   height: 28px;
   margin-bottom: 8px;
 }
 
-.hero-phone .film-scene h2 {
+.hero-film .film-scene h2 {
   font-size: clamp(22px, 2vw, 32px);
 }
 
-.hero-phone .film-rate {
+.hero-film .film-rate {
   font-size: clamp(40px, 4vw, 64px) !important;
 }
 
-.hero-phone .film-scene p {
+.hero-film .film-scene p {
   margin-top: 6px;
   font-size: 13px;
 }
 
-.hero-phone .film-bands {
+.hero-film .film-bands {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6px;
@@ -4819,18 +4778,11 @@ td.row-action {
   }
 
   .stage {
-    justify-content: center;
     height: auto;
     min-height: 0;
   }
 
-  .hero-phone {
-    width: min(340px, 92vw);
-    margin: 12px auto 28px;
-    transform: rotateX(5deg) rotateY(-14deg) rotateZ(5deg);
-  }
-
-  .hero-phone .film-scene {
+  .hero-film .film-scene {
     padding: 36px 14px 62px;
   }
 
