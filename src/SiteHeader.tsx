@@ -106,7 +106,7 @@ export default function SiteHeader({
             </p>
             <div className="nav-ribbon-actions">
               <button type="button" className="nav-ribbon-btn" onClick={onRequest}>
-                {t.nav.request}
+                {t.nav.queue}
               </button>
               <button type="button" className="nav-ribbon-close" aria-label={t.nav.ribbonClose} onClick={closeRibbon}>
                 <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">

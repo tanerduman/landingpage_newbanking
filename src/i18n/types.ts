@@ -20,6 +20,7 @@ export type Messages = {
     seePlans: string
     openFree: string
     request: string
+    queue: string
     ribbonTitle: string
     ribbonNote: string
     ribbonClose: string
@@ -30,7 +31,10 @@ export type Messages = {
   hero: {
     eyebrow: string
     title: string
+    titleAccent: string
     lead: string
+    checks: string[]
+    note: string
     cardAccount: string
     pillSupport: string
     pillSupportSub: string
@@ -40,6 +44,7 @@ export type Messages = {
   how: {
     title: string
     steps: { title: string; body: string }[]
+    disclaimer: string
     deckLabel: string
     prev: string
     next: string
