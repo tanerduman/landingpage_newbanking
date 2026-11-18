@@ -202,7 +202,7 @@ export const tr: Messages = {
     homeLead: 'Fiyat yok. İstediğin paketi seçip talep gönderirsin.',
     homeNote: 'Şimdilik hesap açmıyoruz. Talebin bekleme listesine yazılır.',
     compareLink: 'Tüm özellikleri karşılaştır',
-    request: 'Talep gönder',
+    request: 'Sıraya gir',
     recommended: 'Önerilen',
     freeLabel: 'Ücretsiz hesap',
     basicName: 'Temel',

@@ -202,7 +202,7 @@ export const en: Messages = {
     homeLead: 'No prices. Pick a plan and send a request.',
     homeNote: 'We are not opening accounts yet. Your request joins the waitlist.',
     compareLink: 'Compare every feature',
-    request: 'Send a request',
+    request: 'Join the line',
     recommended: 'Recommended',
     freeLabel: 'Free account',
     basicName: 'Basic',
