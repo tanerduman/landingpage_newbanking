@@ -640,6 +640,10 @@ h3 {
   bottom: 64px;
 }
 
+.hero-film-row {
+  padding: 8px 0 56px;
+}
+
 button.hero-film {
   display: block;
   width: 100%;
@@ -652,7 +656,7 @@ button.hero-film {
   text-align: left;
   cursor: pointer;
   position: relative;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 16 / 8;
   overflow: hidden;
   box-shadow: var(--shadow);
 }
