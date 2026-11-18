@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { withBase } from './base.ts'
 import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
+import Spinner from './Spinner.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
@@ -233,7 +234,8 @@ export default function SupportPage() {
                 </>
               )}
               {error && <p className="support-error">{error}</p>}
-              <button type="submit" className="btn btn-solid support-submit" disabled={busy}>
+              <button type="submit" className="btn btn-solid support-submit" disabled={busy} aria-busy={busy}>
+                {busy ? <Spinner /> : null}
                 {busy ? t.support.sending : phase === 'code' ? t.signup.confirm : t.signup.sendCode}
               </button>
             </form>

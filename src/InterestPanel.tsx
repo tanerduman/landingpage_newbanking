@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import Spinner from './Spinner.tsx'
 import {
   createSector,
   deleteSector,
@@ -25,7 +26,8 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
   const [editTr, setEditTr] = useState('')
   const [editEn, setEditEn] = useState('')
   const [armed, setArmed] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
+  const [pending, setPending] = useState<string | null>(null)
+  const busy = pending !== null
   const [formError, setFormError] = useState('')
   const filters: { id: Filter; label: string }[] = [
     { id: 'all', label: t.pkg.all },
@@ -87,7 +89,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
       setFormError(t.errors.sector)
       return
     }
-    setBusy(true)
+    setPending('add')
     setFormError('')
     try {
       const created = await createSector(labelTr.trim(), labelEn.trim())
@@ -97,7 +99,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
     } catch (err) {
       setFormError(err instanceof Error ? err.message : t.errors.interest_fail)
     } finally {
-      setBusy(false)
+      setPending(null)
     }
   }
 
@@ -106,7 +108,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
       setFormError(t.errors.sector)
       return
     }
-    setBusy(true)
+    setPending(`edit:${id}`)
     setFormError('')
     try {
       const saved = await updateSector(id, editTr.trim(), editEn.trim())
@@ -115,7 +117,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
     } catch (err) {
       setFormError(err instanceof Error ? err.message : t.errors.interest_fail)
     } finally {
-      setBusy(false)
+      setPending(null)
     }
   }
 
@@ -124,7 +126,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
       setArmed(id)
       return
     }
-    setBusy(true)
+    setPending(`delete:${id}`)
     setFormError('')
     try {
       await deleteSector(id)
@@ -134,7 +136,7 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
     } catch (err) {
       setFormError(err instanceof Error ? err.message : t.errors.interest_fail)
     } finally {
-      setBusy(false)
+      setPending(null)
     }
   }
 
@@ -187,7 +189,8 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
             {t.waitlist.sectorEn}
             <input value={labelEn} maxLength={40} onChange={(e) => setLabelEn(e.target.value)} />
           </label>
-          <button type="submit" className="btn btn-solid" disabled={busy}>
+          <button type="submit" className="btn btn-solid" disabled={busy} aria-busy={pending === 'add'}>
+            {pending === 'add' ? <Spinner /> : null}
             {t.waitlist.sectorAdd}
           </button>
         </form>
@@ -209,7 +212,8 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
               <div className="sector-actions">
                 {editing === sector.id ? (
                   <>
-                    <button type="button" className="btn btn-solid" disabled={busy} onClick={() => void saveEdit(sector.id)}>
+                    <button type="button" className="btn btn-solid" disabled={busy} aria-busy={pending === `edit:${sector.id}`} onClick={() => void saveEdit(sector.id)}>
+                      {pending === `edit:${sector.id}` ? <Spinner /> : null}
                       {t.waitlist.sectorSave}
                     </button>
                     <button type="button" className="btn btn-ghost" onClick={() => setEditing(null)}>
@@ -234,8 +238,10 @@ export default function InterestPanel({ entries }: { entries: InterestEntry[] })
                   type="button"
                   className={`row-delete${armed === sector.id ? ' armed' : ''}`}
                   disabled={busy}
+                  aria-busy={pending === `delete:${sector.id}`}
                   onClick={() => void remove(sector.id)}
                 >
+                  {pending === `delete:${sector.id}` ? <Spinner /> : null}
                   {armed === sector.id ? t.waitlist.deleteConfirm : t.waitlist.delete}
                 </button>
               </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Spinner from './Spinner.tsx'
 import { fetchSectors, saveInterest, sectorLabel, type SectorOption } from './interest.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 
@@ -89,7 +90,8 @@ export default function InterestAsk({
       {error ? <p className="login-error">{error}</p> : null}
       <div className="interest-actions">
         {options && options.length > 0 ? (
-          <button type="button" className="btn btn-solid" disabled={busy || picked.length === 0} onClick={() => void save()}>
+          <button type="button" className="btn btn-solid" disabled={busy || picked.length === 0} aria-busy={busy} onClick={() => void save()}>
+            {busy ? <Spinner /> : null}
             {t.signup.interestSave}
           </button>
         ) : null}

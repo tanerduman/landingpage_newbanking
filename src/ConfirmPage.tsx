@@ -3,6 +3,7 @@ import { confirmTokenFromLocation, withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
+import Spinner from './Spinner.tsx'
 import InterestAsk from './InterestAsk.tsx'
 import { confirmWaitlist } from './waitlist.ts'
 import LogoMark from './LogoMark.tsx'
@@ -173,7 +174,8 @@ export default function ConfirmPage() {
               placeholder="1234"
             />
             {status === 'error' && detail ? <p className="login-error">{detail}</p> : null}
-            <button type="submit" className="btn btn-solid login-submit" disabled={busy}>
+            <button type="submit" className="btn btn-solid login-submit" disabled={busy} aria-busy={busy}>
+              {busy ? <Spinner /> : null}
               {t.confirm.submit}
             </button>
           </form>

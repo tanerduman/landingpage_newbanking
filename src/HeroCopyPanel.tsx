@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Spinner from './Spinner.tsx'
 import { defaultHeroCopy, type HeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, saveHeroCopy } from './heroCopy.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -58,7 +59,8 @@ export default function HeroCopyPanel() {
           <h1>{t.waitlist.heroTitle}</h1>
           <p className="lead">{t.waitlist.heroLead}</p>
         </div>
-        <button type="button" className="btn btn-solid" disabled={busy || !copy} onClick={() => void onSave()}>
+        <button type="button" className="btn btn-solid" disabled={busy || !copy} aria-busy={busy} onClick={() => void onSave()}>
+          {busy ? <Spinner /> : null}
           {t.waitlist.planSave}
         </button>
       </div>
