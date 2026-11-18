@@ -42,6 +42,32 @@ export async function fetchPlanCatalog(): Promise<PlanCatalog | null> {
   return normalize(remote?.plans)
 }
 
+type PlanBoot = Window & {
+  __AURE_PLANS?: unknown
+  __AURE_PLANS_PROMISE?: Promise<unknown>
+}
+
+function boot(): PlanBoot | null {
+  if (typeof window === 'undefined') return null
+  return window as PlanBoot
+}
+
+export function cachedPlanCatalog(): PlanCatalog | null {
+  return normalize(boot()?.__AURE_PLANS)
+}
+
+let shared: Promise<PlanCatalog | null> | null = null
+
+export function loadPlanCatalog(): Promise<PlanCatalog | null> {
+  const cached = cachedPlanCatalog()
+  if (cached) return Promise.resolve(cached)
+  if (!shared) {
+    const pending = boot()?.__AURE_PLANS_PROMISE
+    shared = Promise.resolve(pending).then((value) => normalize(value) ?? fetchPlanCatalog())
+  }
+  return shared
+}
+
 export async function savePlanCatalog(catalog: PlanCatalog): Promise<PlanCatalog> {
   const res = await apiFetch('/api/waitlist', {
     method: 'PATCH',
@@ -50,5 +76,8 @@ export async function savePlanCatalog(catalog: PlanCatalog): Promise<PlanCatalog
   const remote = await readApiJson<{ plans?: PlanCatalog; error?: string }>(res)
   const saved = normalize(remote?.plans)
   if (!res?.ok || !saved) throw new Error(remote?.error || 'invalid')
+  const win = boot()
+  if (win) win.__AURE_PLANS = saved
+  shared = Promise.resolve(saved)
   return saved
 }
