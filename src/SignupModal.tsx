@@ -236,7 +236,7 @@ export function SignupModal({
         )}
         <div className="modal-actions">
           <button type="submit" className="btn btn-solid" disabled={busy}>
-            {phase === 'code' ? t.signup.confirm : t.signup.sendCode}
+            {phase === 'code' ? t.signup.confirm : t.nav.queue}
           </button>
           <button type="button" className="btn btn-ghost" onClick={() => onClose()}>
             {t.signup.cancel}
