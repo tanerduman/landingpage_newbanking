@@ -30,7 +30,7 @@ export const tr: Messages = {
   },
   hero: {
     eyebrow: 'Ücretsiz hesap',
-    title: 'Önce ücretsiz hesap.\nSonra paketin.',
+    title: 'İhtiyacın kadar bankacılık.\nSeçtiğin kadar avantaj.',
     lead: 'Sürpriz aidat ve gizli komisyon olmadan transferi, yatırımı ve alışverişi tek cüzdanda birleştiren yeni nesil bankacılık. Seçtiğin aylık paketle vadesiz parana gecelik faiz, paketine göre daralan makas, otomatik kampanya ve bekletmeyen canlı müşteri temsilcisi ayrıcalığını açarsın. Şimdilik yalnızca talep alıyoruz.',
     cardAccount: 'AURE Hesap',
     pillSupport: '✨ Chatbot yok',
