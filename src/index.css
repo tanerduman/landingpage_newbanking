@@ -641,7 +641,32 @@ h3 {
 }
 
 .hero-film-row {
-  padding: 8px 0 56px;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 72px;
+}
+
+.hero-phone {
+  width: min(340px, 100%);
+  padding: 18px 12px 12px;
+  border-radius: 48px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(216, 255, 74, 0.16), transparent 42%),
+    linear-gradient(180deg, #242428, #0d0d10);
+  border: 1px solid rgba(244, 241, 234, 0.16);
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+.hero-phone-speaker {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 78px;
+  height: 6px;
+  margin-left: -39px;
+  border-radius: 999px;
+  background: rgba(244, 241, 234, 0.22);
 }
 
 .hero-film {
@@ -649,16 +674,15 @@ h3 {
   width: 100%;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 28px;
+  border: 0;
+  border-radius: 36px;
   background: #101012;
   color: var(--text);
   text-align: left;
   cursor: pointer;
   position: relative;
-  aspect-ratio: 16 / 8;
+  aspect-ratio: 9 / 19.5;
   overflow: hidden;
-  box-shadow: var(--shadow);
 }
 
 .hero-film.is-video,
@@ -671,7 +695,7 @@ h3 {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   background: #070708;
 }
 
@@ -704,9 +728,10 @@ h3 {
 }
 
 .hero-film-preview {
-  width: 100%;
-  max-height: 280px;
-  border-radius: 16px;
+  width: min(220px, 100%);
+  aspect-ratio: 9 / 19.5;
+  object-fit: cover;
+  border-radius: 28px;
   background: #070708;
 }
 
@@ -4749,12 +4774,12 @@ td.row-action {
     display: grid;
   }
 
-  .hero-film {
-    aspect-ratio: 4 / 5;
+  .hero-phone {
+    width: min(300px, 100%);
   }
 
   .film-scene {
-    padding: 22px 22px 72px;
+    padding: 22px 20px 72px;
   }
 
   .cta-band,
