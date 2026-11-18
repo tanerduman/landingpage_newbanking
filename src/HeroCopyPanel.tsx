@@ -1,32 +1,34 @@
 import { useEffect, useState } from 'react'
 import { defaultHeroCopy, type HeroCopy } from './heroCopyData.ts'
-import { fetchHeroCopy, saveHeroCopy } from './heroCopy.ts'
+import { cachedHeroCopy, loadHeroCopy, saveHeroCopy } from './heroCopy.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { messages, readLocale } from './i18n/index.ts'
 
 export default function HeroCopyPanel() {
   const { t } = useI18n()
-  const [copy, setCopy] = useState<HeroCopy>(() => defaultHeroCopy())
+  const [copy, setCopy] = useState<HeroCopy | null>(cachedHeroCopy)
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
 
   useEffect(() => {
+    if (copy) return
     let live = true
-    void fetchHeroCopy().then((next) => {
-      if (live && next) setCopy(next)
+    void loadHeroCopy().then((next) => {
+      if (live) setCopy(next ?? defaultHeroCopy())
     })
     return () => {
       live = false
     }
-  }, [])
+  }, [copy])
 
   function update(key: 'title' | 'lead', lang: 'tr' | 'en', value: string) {
     setNote('')
-    setCopy((current) => ({ ...current, [key]: { ...current[key], [lang]: value } }))
+    setCopy((current) => (current ? { ...current, [key]: { ...current[key], [lang]: value } } : current))
   }
 
   async function onSave() {
+    if (!copy) return
     const ready: HeroCopy = {
       title: { tr: copy.title.tr.trim(), en: copy.title.en.trim() },
       lead: { tr: copy.lead.tr.trim(), en: copy.lead.en.trim() },
@@ -56,13 +58,14 @@ export default function HeroCopyPanel() {
           <h1>{t.waitlist.heroTitle}</h1>
           <p className="lead">{t.waitlist.heroLead}</p>
         </div>
-        <button type="button" className="btn btn-solid" disabled={busy} onClick={() => void onSave()}>
+        <button type="button" className="btn btn-solid" disabled={busy || !copy} onClick={() => void onSave()}>
           {t.waitlist.planSave}
         </button>
       </div>
       {note && <p className="plan-editor-note">{note}</p>}
       {error && <p className="waitlist-action-error">{error}</p>}
 
+      {copy && (
       <div className="hero-copy-form">
         <label>
           {t.waitlist.heroTitleTr}
@@ -81,6 +84,7 @@ export default function HeroCopyPanel() {
           <textarea rows={7} maxLength={900} value={copy.lead.en} onChange={(event) => update('lead', 'en', event.target.value)} />
         </label>
       </div>
+      )}
     </>
   )
 }

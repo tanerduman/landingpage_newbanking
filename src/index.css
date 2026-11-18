@@ -416,6 +416,14 @@ h3 {
   overflow-wrap: break-word;
 }
 
+.hero h1.hero-pending {
+  min-height: 3.8em;
+}
+
+.hero p.lead.hero-pending {
+  min-height: 7.75em;
+}
+
 .hero-accent {
   display: block;
   color: var(--lime);

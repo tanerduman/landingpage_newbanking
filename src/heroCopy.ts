@@ -29,6 +29,32 @@ export async function fetchHeroCopy(): Promise<HeroCopy | null> {
   return normalizeHeroCopy(remote?.hero)
 }
 
+type HeroBoot = Window & {
+  __AURE_HERO?: unknown
+  __AURE_HERO_PROMISE?: Promise<unknown>
+}
+
+function boot(): HeroBoot | null {
+  if (typeof window === 'undefined') return null
+  return window as HeroBoot
+}
+
+export function cachedHeroCopy(): HeroCopy | null {
+  return normalizeHeroCopy(boot()?.__AURE_HERO)
+}
+
+let shared: Promise<HeroCopy | null> | null = null
+
+export function loadHeroCopy(): Promise<HeroCopy | null> {
+  const cached = cachedHeroCopy()
+  if (cached) return Promise.resolve(cached)
+  if (!shared) {
+    const pending = boot()?.__AURE_HERO_PROMISE
+    shared = Promise.resolve(pending).then((value) => normalizeHeroCopy(value) ?? fetchHeroCopy())
+  }
+  return shared
+}
+
 export async function saveHeroCopy(copy: HeroCopy): Promise<HeroCopy> {
   const res = await apiFetch('/api/waitlist', {
     method: 'PATCH',
@@ -37,5 +63,8 @@ export async function saveHeroCopy(copy: HeroCopy): Promise<HeroCopy> {
   const remote = await readApiJson<{ hero?: HeroCopy; error?: string }>(res)
   const saved = normalizeHeroCopy(remote?.hero)
   if (!res?.ok || !saved) throw new Error(remote?.error || 'invalid')
+  const win = boot()
+  if (win) win.__AURE_HERO = saved
+  shared = Promise.resolve(saved)
   return saved
 }
