@@ -2875,6 +2875,74 @@ footer {
   color: #111;
 }
 
+.pkg-pill.weekend-closed {
+  background: #2a2a2e;
+  color: var(--text);
+}
+
+.popup-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.popup-picks button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px 8px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.popup-picks button span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 280px;
+}
+
+.popup-picks button b {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.popup-picks button.active {
+  background: var(--lime);
+  color: var(--ink);
+  border-color: var(--lime);
+}
+
+.popup-picks button.active b {
+  color: var(--ink);
+}
+
+.popup-analysis-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 14px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.popup-analysis-title em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+}
+
 .modal {
   position: fixed;
   inset: 0;

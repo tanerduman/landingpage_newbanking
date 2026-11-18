@@ -105,9 +105,18 @@ function statsOf(value: unknown): PopupStat[] {
   if (!Array.isArray(value)) return []
   return value.flatMap((item) => {
     if (!item || typeof item !== 'object') return []
-    const row = item as { id?: unknown; shown?: unknown; yes?: unknown; no?: unknown }
+    const row = item as { id?: unknown; shown?: unknown; yes?: unknown; no?: unknown; recent?: unknown }
     if (typeof row.id !== 'string') return []
-    return [{ id: row.id, shown: Number(row.shown) || 0, yes: Number(row.yes) || 0, no: Number(row.no) || 0 }]
+    const recent = Array.isArray(row.recent)
+      ? row.recent.flatMap((event) => {
+          if (!event || typeof event !== 'object') return []
+          const entry = event as { at?: unknown; answer?: unknown; ref?: unknown }
+          if (typeof entry.at !== 'string' || typeof entry.ref !== 'string') return []
+          const answer: 'yes' | 'no' | null = entry.answer === 'yes' || entry.answer === 'no' ? entry.answer : null
+          return [{ at: entry.at, answer, ref: entry.ref }]
+        })
+      : []
+    return [{ id: row.id, shown: Number(row.shown) || 0, yes: Number(row.yes) || 0, no: Number(row.no) || 0, recent }]
   })
 }
 

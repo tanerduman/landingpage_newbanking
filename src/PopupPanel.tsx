@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { messages, readLocale } from './i18n/index.ts'
 import { blankPopup, fetchPopupAdmin, POPUP_LIMIT, savePopupCatalog, type PopupStat, type SitePopup } from './popupCopy.ts'
+import PopupAnalytics from './PopupAnalytics.tsx'
 import type { PopupText } from './popupCopyData.ts'
 import Spinner from './Spinner.tsx'
 
@@ -18,6 +19,7 @@ export default function PopupPanel() {
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [armed, setArmed] = useState<string | null>(null)
+  const [view, setView] = useState<'edit' | 'stats'>('edit')
 
   useEffect(() => {
     let live = true
@@ -91,8 +93,22 @@ export default function PopupPanel() {
     }
   }
 
+  const shownTotal = stats.reduce((sum, row) => sum + row.shown, 0)
+
   return (
     <>
+      <div className="interest-subtabs" role="tablist" aria-label={t.waitlist.popupViews}>
+        <button type="button" role="tab" aria-selected={view === 'edit'} className={view === 'edit' ? 'active' : ''} onClick={() => setView('edit')}>
+          {t.waitlist.popupTabEdit}
+          <em>{popups?.length ?? 0}</em>
+        </button>
+        <button type="button" role="tab" aria-selected={view === 'stats'} className={view === 'stats' ? 'active' : ''} onClick={() => setView('stats')}>
+          {t.waitlist.popupTabStats}
+          <em>{shownTotal}</em>
+        </button>
+      </div>
+      {view === 'stats' ? <PopupAnalytics /> : null}
+      <div hidden={view !== 'edit'}>
       <div className="section-head">
         <div>
           <div className="eyebrow">
@@ -221,6 +237,7 @@ export default function PopupPanel() {
             </article>
           )
         })}
+      </div>
       </div>
     </>
   )

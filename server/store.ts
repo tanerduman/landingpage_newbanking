@@ -160,14 +160,20 @@ function popupCatalog(popups: SitePopup[] | null) {
   return popups ?? defaultPopups()
 }
 
+function popupEvent(row: PopupSeenRow) {
+  return { at: row.shownAt, answer: row.answer, ref: row.visitorId.slice(-6) }
+}
+
 function popupStatsFrom(popups: SitePopup[], seen: PopupSeenRow[]): PopupStat[] {
   return popups.map((popup) => {
     const rows = seen.filter((row) => row.popupId === popup.id)
+    const recent = [...rows].sort((a, b) => (a.shownAt < b.shownAt ? 1 : -1)).slice(0, 40)
     return {
       id: popup.id,
       shown: rows.length,
       yes: rows.filter((row) => row.answer === 'yes').length,
       no: rows.filter((row) => row.answer === 'no').length,
+      recent: recent.map(popupEvent),
     }
   })
 }
@@ -1440,9 +1446,31 @@ function postgresStore(url: string): Store {
          GROUP BY popup_id`,
       )
       const byId = new Map(counts.rows.map((row) => [row.popup_id, row]))
+      const recent = await pool.query<{ popup_id: string; visitor_id: string; answer: string | null; shown_at: Date }>(
+        `SELECT popup_id, visitor_id, answer, shown_at
+         FROM (
+           SELECT popup_id, visitor_id, answer, shown_at,
+                  ROW_NUMBER() OVER (PARTITION BY popup_id ORDER BY shown_at DESC) AS n
+           FROM popup_seen
+         ) ranked
+         WHERE n <= 40
+         ORDER BY shown_at DESC`,
+      )
       return popups.map((popup) => {
         const row = byId.get(popup.id)
-        return { id: popup.id, shown: row?.shown ?? 0, yes: row?.yes ?? 0, no: row?.no ?? 0 }
+        return {
+          id: popup.id,
+          shown: row?.shown ?? 0,
+          yes: row?.yes ?? 0,
+          no: row?.no ?? 0,
+          recent: recent.rows
+            .filter((item) => item.popup_id === popup.id)
+            .map((item) => ({
+              at: item.shown_at.toISOString(),
+              answer: item.answer === 'yes' || item.answer === 'no' ? item.answer : null,
+              ref: item.visitor_id.slice(-6),
+            })),
+        }
       })
     },
     async nextPopup(visitorId) {
