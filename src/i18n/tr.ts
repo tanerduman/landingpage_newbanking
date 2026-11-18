@@ -771,7 +771,7 @@ export const tr: Messages = {
     tabHero: 'Karşılama',
     tabWeekend: 'Hafta sonu',
     weekendTitle: 'Hafta sonu kuru.',
-    weekendLead: 'Sayfa açıldıktan 5 saniye sonra sorulan hafta sonu kuru sorusunun cevapları. Her tarayıcı bir kez sayılır.',
+    weekendLead: 'Sayfa açıldıktan 3 saniye sonra sorulan hafta sonu kuru sorusunun cevapları. Her tarayıcı bir kez sayılır.',
     weekendYes: 'Evet, isterim',
     weekendNo: 'Hayır',
     weekendEmpty: 'Henüz cevap yok.',
