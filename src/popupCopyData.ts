@@ -10,11 +10,18 @@ export type SitePopup = {
   no: PopupText
 }
 
+export type PopupEvent = {
+  at: string
+  answer: 'yes' | 'no' | null
+  ref: string
+}
+
 export type PopupStat = {
   id: string
   shown: number
   yes: number
   no: number
+  recent: PopupEvent[]
 }
 
 export const POPUP_LIMIT = 8

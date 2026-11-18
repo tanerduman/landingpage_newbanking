@@ -513,6 +513,16 @@ export type Messages = {
     popupShown: string
     popupYesCount: string
     popupNoCount: string
+    popupViews: string
+    popupTabEdit: string
+    popupTabStats: string
+    popupStatsTitle: string
+    popupStatsLead: string
+    popupStatsChart: string
+    popupStatsEmpty: string
+    popupPick: string
+    popupClosed: string
+    popupOffline: string
     weekendTitle: string
     weekendLead: string
     weekendYes: string
