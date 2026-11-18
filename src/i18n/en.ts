@@ -4,7 +4,7 @@ export const en: Messages = {
   htmlLang: 'en',
   title: 'AURE — Your money, stronger everywhere',
   description:
-    'AURE — a free account, no surprise card fees. Overnight interest, instalments at the cash price, zero-commission investing and a human on the line.',
+    'AURE — no surprise fees and no hidden commission. Transfers, investing and shopping in one wallet, with overnight interest, a narrowing spread, automatic offers and a live representative.',
   nav: {
     how: 'How it works',
     plans: 'Plans',
@@ -31,7 +31,7 @@ export const en: Messages = {
   hero: {
     eyebrow: 'Free account',
     title: 'Open a free account first.\nThen pick a plan.',
-    lead: 'Start on Basic. Move to Standard, Plus or Premium whenever you want. For now we only take requests.',
+    lead: 'Next-generation banking that puts transfers, investing and shopping in one wallet, without surprise fees or hidden commission. The monthly plan you choose opens overnight interest on demand balances, a spread that narrows with the plan, automatic offers, and a live representative who does not keep you waiting. For now we only take requests.',
     cardAccount: 'AURE Account',
     pillSupport: '✨ No chatbot',
     pillSupportSub: 'Live support in seconds',
