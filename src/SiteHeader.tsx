@@ -32,7 +32,6 @@ export default function SiteHeader({
   const [fx, setFx] = useState<FxQuote[]>([])
   const [gold, setGold] = useState(0)
   const howHref = active ? withBase('#how') : '#how'
-  const plansHref = withBase('karsilastir')
 
   useEffect(() => {
     let cancelled = false
@@ -70,9 +69,8 @@ export default function SiteHeader({
         </a>
         <nav className="nav-links">
           <a href={howHref}>{t.nav.how}</a>
-          <a href={plansHref}>{t.nav.plans}</a>
           <a href={withBase('karsilastir')} aria-current={active === 'compare' ? 'page' : undefined}>
-            {t.nav.compare}
+            {t.nav.plans}
           </a>
           <a href={withBase('hesaplama')} aria-current={active === 'calc' ? 'page' : undefined}>
             {t.nav.calc}
@@ -136,11 +134,8 @@ export default function SiteHeader({
         <a href={howHref} onClick={() => setMenu(false)}>
           {t.nav.how}
         </a>
-        <a href={plansHref} onClick={() => setMenu(false)}>
-          {t.nav.plans}
-        </a>
         <a href={withBase('karsilastir')} onClick={() => setMenu(false)} aria-current={active === 'compare' ? 'page' : undefined}>
-          {t.nav.compare}
+          {t.nav.plans}
         </a>
         <a href={withBase('hesaplama')} onClick={() => setMenu(false)} aria-current={active === 'calc' ? 'page' : undefined}>
           {t.nav.calc}
