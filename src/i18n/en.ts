@@ -180,6 +180,7 @@ export const en: Messages = {
     yes: 'Yes, I would',
     no: 'No',
     close: 'Close',
+    thanks: 'Thank you for your feedback.',
     fail: 'The answer could not be saved. Try again.',
   },
   plans: {

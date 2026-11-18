@@ -112,6 +112,7 @@ export type Messages = {
     yes: string
     no: string
     close: string
+    thanks: string
     fail: string
   }
   plans: {

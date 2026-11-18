@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
+import { SignupToast } from './SignupModal.tsx'
 import { saveWeekendAnswer, type WeekendAnswer } from './weekendFx.ts'
 
 const STORAGE_KEY = 'aure-weekend-fx'
@@ -28,6 +29,7 @@ export default function WeekendAsk({ active }: { active: boolean }) {
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [thanks, setThanks] = useState(false)
 
   useEffect(() => {
     if (!active || savedAnswer() || hiddenThisVisit()) return
@@ -82,9 +84,12 @@ export default function WeekendAsk({ active }: { active: boolean }) {
       /* ignore */
     }
     setOpen(false)
+    setThanks(true)
   }
 
-  if (!open) return null
+  if (!open) {
+    return thanks ? <SignupToast message={t.fxAsk.thanks} onClose={() => setThanks(false)} /> : null
+  }
 
   return (
     <div className="fx-ask" role="presentation" onClick={(event) => event.target === event.currentTarget && dismiss()}>
