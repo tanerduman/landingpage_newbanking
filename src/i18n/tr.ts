@@ -41,6 +41,42 @@ export const tr: Messages = {
     pillSupportSub: 'Saniyeler içinde yanıt',
     pillInterest: 'Uyurken kazan',
     pillInterestSub: 'Faiz her gece otomatik işler',
+    film: {
+      label: 'Örnek film',
+      play: 'Filmi oynat',
+      pause: 'Durdur',
+      replay: 'Yeniden oynat',
+      duration: '0:12',
+      rate: '%34',
+      bands: [
+        { name: 'Temel', value: '%4' },
+        { name: 'Standard', value: '%2' },
+        { name: 'Plus', value: '%1' },
+        { name: 'Premium', value: '%0,5' },
+      ],
+      scenes: [
+        {
+          kicker: 'AURE',
+          title: 'İhtiyacın kadar\nbankacılık.',
+          note: 'Seçtiğin kadar avantaj. Tek cüzdan.',
+        },
+        {
+          kicker: 'Gecelik faiz',
+          title: '%34',
+          note: 'Vadesiz para her gece kendi kendine çalışır.',
+        },
+        {
+          kicker: 'Döviz',
+          title: 'Makas daralır.',
+          note: 'Paket yükseldikçe alış-satış aralığı küçülür.',
+        },
+        {
+          kicker: 'Sıra sende',
+          title: 'Hesaplar açılmadan\nsıranı al.',
+          note: 'Ad ve e-posta yeter.',
+        },
+      ],
+    },
   },
   how: {
     title: 'Nasıl çalışır',

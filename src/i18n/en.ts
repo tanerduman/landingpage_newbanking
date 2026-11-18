@@ -41,6 +41,42 @@ export const en: Messages = {
     pillSupportSub: 'An answer in seconds',
     pillInterest: 'Earn while you sleep',
     pillInterestSub: 'Interest runs every night',
+    film: {
+      label: 'Sample film',
+      play: 'Play film',
+      pause: 'Pause',
+      replay: 'Play again',
+      duration: '0:12',
+      rate: '%34',
+      bands: [
+        { name: 'Basic', value: '%4' },
+        { name: 'Standard', value: '%2' },
+        { name: 'Plus', value: '%1' },
+        { name: 'Premium', value: '%0.5' },
+      ],
+      scenes: [
+        {
+          kicker: 'AURE',
+          title: 'As much banking\nas you need.',
+          note: 'As much advantage as you choose. One wallet.',
+        },
+        {
+          kicker: 'Overnight interest',
+          title: '%34',
+          note: 'Money on demand works every night on its own.',
+        },
+        {
+          kicker: 'Foreign exchange',
+          title: 'The spread narrows.',
+          note: 'The buy-sell gap shrinks as the plan rises.',
+        },
+        {
+          kicker: 'Your place',
+          title: 'Take your place\nbefore accounts open.',
+          note: 'A name and an email are enough.',
+        },
+      ],
+    },
   },
   how: {
     title: 'How it works',

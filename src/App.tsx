@@ -7,16 +7,7 @@ import { type SignupIntent } from './waitlist'
 import HowDeck from './HowDeck.tsx'
 import { defaultHeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, type HeroCopy } from './heroCopy.ts'
-import LogoMark from './LogoMark.tsx'
-
-function CardBrand() {
-  return (
-    <span className="card-brand">
-      <LogoMark className="card-brand-mark" />
-      AURE
-    </span>
-  )
-}
+import HeroFilm from './HeroFilm.tsx'
 
 export default function App() {
   const { t, locale } = useI18n()
@@ -81,58 +72,7 @@ export default function App() {
             <p className="hero-note">{t.hero.note}</p>
           </div>
 
-          <div className="stage is-account">
-            <div className="card-stack" aria-hidden="true">
-              <article className="bank-card card-account">
-                <div className="card-top">
-                  <span className="chip" />
-                  <CardBrand />
-                </div>
-                <div>
-                  <small>{t.hero.cardAccount}</small>
-                  <b>•••• 4208</b>
-                </div>
-              </article>
-              <article className="bank-card card-standard">
-                <div className="card-top">
-                  <span className="chip" />
-                  <CardBrand />
-                </div>
-                <div>
-                  <small>AURE Standard</small>
-                  <b>•••• 4412</b>
-                </div>
-              </article>
-              <article className="bank-card card-plus">
-                <div className="card-top">
-                  <span className="chip" />
-                  <CardBrand />
-                </div>
-                <div>
-                  <small>AURE Plus</small>
-                  <b>•••• 8821</b>
-                </div>
-              </article>
-              <article className="bank-card card-premium">
-                <div className="card-top">
-                  <span className="chip" />
-                  <CardBrand />
-                </div>
-                <div>
-                  <small>AURE Premium</small>
-                  <b>•••• 1904</b>
-                </div>
-              </article>
-            </div>
-            <div className="float-pill pill-fx">
-              <strong>{t.hero.pillSupport}</strong>
-              {t.hero.pillSupportSub}
-            </div>
-            <div className="float-pill pill-atm">
-              <strong>{t.hero.pillInterest}</strong>
-              {t.hero.pillInterestSub}
-            </div>
-          </div>
+          <HeroFilm />
         </div>
 
         <section className="section how" id="how">
