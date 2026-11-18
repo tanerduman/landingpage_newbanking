@@ -23,6 +23,7 @@ import InterestPanel from './InterestPanel.tsx'
 import PlanCatalogPanel from './PlanCatalogPanel.tsx'
 import HeroCopyPanel from './HeroCopyPanel.tsx'
 import WeekendFxPanel from './WeekendFxPanel.tsx'
+import PopupPanel from './PopupPanel.tsx'
 import { fetchInterests, type InterestEntry } from './interest.ts'
 import { fetchSupport, deleteSupportEntry, markSupportRead, type SupportEntry, type SupportKind } from './support.ts'
 import SupportPie from './SupportPie.tsx'
@@ -32,7 +33,7 @@ import LogoMark from './LogoMark.tsx'
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
 type KindFilter = 'all' | SupportKind
-type Panel = 'requests' | 'support' | 'interests' | 'plans' | 'hero' | 'weekend'
+type Panel = 'requests' | 'support' | 'interests' | 'plans' | 'hero' | 'weekend' | 'popups'
 
 const PAGE_SIZE = 10
 
@@ -455,6 +456,15 @@ export default function WaitlistPage() {
           >
             {t.waitlist.tabWeekend}
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={panel === 'popups'}
+            className={panel === 'popups' ? 'active' : ''}
+            onClick={() => changePanel('popups')}
+          >
+            {t.waitlist.tabPopups}
+          </button>
         </div>
         {panel === 'support' ? (
           <>
@@ -570,6 +580,8 @@ export default function WaitlistPage() {
           <HeroCopyPanel />
         ) : panel === 'weekend' ? (
           <WeekendFxPanel />
+        ) : panel === 'popups' ? (
+          <PopupPanel />
         ) : (
           <>
         <div className="section-head">

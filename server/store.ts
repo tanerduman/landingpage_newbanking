@@ -7,6 +7,8 @@ import { validatePlanCatalog } from './planCatalog.ts'
 import { defaultPlanCatalog, type PlanCatalog } from '../src/planCatalogData.ts'
 import { validateHeroCopy } from './heroCopy.ts'
 import { defaultHeroCopy, type HeroCopy } from '../src/heroCopyData.ts'
+import { validatePopupCatalog } from './popupCopy.ts'
+import { defaultPopups, type PopupStat, type SitePopup } from '../src/popupCopyData.ts'
 import {
   DEFAULT_SECTORS,
   SECTOR_LIMIT,
@@ -80,6 +82,11 @@ type Store = {
   saveHeroCopy(copy: HeroCopy): Promise<HeroCopy>
   saveWeekendFx(answer: WeekendFxAnswer): Promise<WeekendFxRow>
   weekendFxStats(): Promise<WeekendFxStats>
+  getPopups(): Promise<SitePopup[]>
+  savePopups(popups: SitePopup[]): Promise<SitePopup[]>
+  popupStats(): Promise<PopupStat[]>
+  nextPopup(visitorId: string): Promise<SitePopup | null>
+  markPopupSeen(input: { popupId: string; visitorId: string; answer: WeekendFxAnswer | null }): Promise<'shown' | 'answered' | 'unchanged' | 'not_found'>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -142,6 +149,29 @@ export type WeekendFxStats = {
   recent: WeekendFxRow[]
 }
 
+type PopupSeenRow = {
+  popupId: string
+  visitorId: string
+  answer: WeekendFxAnswer | null
+  shownAt: string
+}
+
+function popupCatalog(popups: SitePopup[] | null) {
+  return popups ?? defaultPopups()
+}
+
+function popupStatsFrom(popups: SitePopup[], seen: PopupSeenRow[]): PopupStat[] {
+  return popups.map((popup) => {
+    const rows = seen.filter((row) => row.popupId === popup.id)
+    return {
+      id: popup.id,
+      shown: rows.length,
+      yes: rows.filter((row) => row.answer === 'yes').length,
+      no: rows.filter((row) => row.answer === 'no').length,
+    }
+  })
+}
+
 type Memory = {
   visitors: Map<string, { firstSeen: string; lastSeen: string; scope: VisitScope }>
   sessions: Map<string, { visitorId: string; createdAt: string; scope: VisitScope }>
@@ -151,6 +181,8 @@ type Memory = {
   sectors: SectorDef[]
   planCatalog: PlanCatalog | null
   heroCopy: HeroCopy | null
+  popups: SitePopup[] | null
+  popupSeen: PopupSeenRow[]
   weekendFx: WeekendFxRow[]
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
@@ -306,6 +338,8 @@ function memoryStore(): Store {
     sectors: DEFAULT_SECTORS.map((sector, position) => ({ ...sector, position })),
     planCatalog: null,
     heroCopy: null,
+    popups: null,
+    popupSeen: [],
     weekendFx: [],
     adminSessions: new Map(),
     rates: new Map(),
@@ -569,6 +603,41 @@ function memoryStore(): Store {
     async weekendFxStats() {
       return weekendStats(data.weekendFx)
     },
+    async getPopups() {
+      return popupCatalog(data.popups)
+    },
+    async savePopups(popups) {
+      data.popups = popups
+      const ids = new Set(popups.map((popup) => popup.id))
+      data.popupSeen = data.popupSeen.filter((row) => ids.has(row.popupId))
+      return popups
+    },
+    async popupStats() {
+      return popupStatsFrom(popupCatalog(data.popups), data.popupSeen)
+    },
+    async nextPopup(visitorId) {
+      const seen = new Set(data.popupSeen.filter((row) => row.visitorId === visitorId).map((row) => row.popupId))
+      return popupCatalog(data.popups).find((popup) => popup.active && !seen.has(popup.id)) ?? null
+    },
+    async markPopupSeen(input) {
+      const popup = popupCatalog(data.popups).find((item) => item.id === input.popupId)
+      if (!popup) return 'not_found'
+      const existing = data.popupSeen.find((row) => row.popupId === input.popupId && row.visitorId === input.visitorId)
+      if (!existing) {
+        data.popupSeen.push({
+          popupId: input.popupId,
+          visitorId: input.visitorId,
+          answer: input.answer,
+          shownAt: new Date().toISOString(),
+        })
+        return input.answer ? 'answered' : 'shown'
+      }
+      if (input.answer && !existing.answer) {
+        existing.answer = input.answer
+        return 'answered'
+      }
+      return 'unchanged'
+    },
     async createAdminSession(input) {
       data.adminSessions.set(input.idHash, {
         user: input.user,
@@ -694,6 +763,18 @@ CREATE TABLE IF NOT EXISTS weekend_fx (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS weekend_fx_created_at_idx ON weekend_fx (created_at DESC);
+CREATE TABLE IF NOT EXISTS site_popups (
+  id TEXT PRIMARY KEY,
+  payload TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS popup_seen (
+  popup_id TEXT NOT NULL,
+  visitor_id TEXT NOT NULL,
+  answer TEXT,
+  shown_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (popup_id, visitor_id)
+);
 CREATE TABLE IF NOT EXISTS app_meta (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -1321,6 +1402,75 @@ function postgresStore(url: string): Store {
       )
       const row = result.rows[0]
       return { id: row.id, answer: row.answer === 'no' ? 'no' : 'yes', createdAt: row.created_at.toISOString() }
+    },
+    async getPopups() {
+      await ensure()
+      const result = await pool.query<{ payload: string }>(`SELECT payload FROM site_popups WHERE id = 'current'`)
+      const raw = result.rows[0]?.payload
+      if (!raw) return defaultPopups()
+      try {
+        const parsed = validatePopupCatalog(JSON.parse(raw))
+        return typeof parsed === 'string' ? defaultPopups() : parsed
+      } catch {
+        return defaultPopups()
+      }
+    },
+    async savePopups(popups) {
+      await ensure()
+      await pool.query(
+        `INSERT INTO site_popups (id, payload, updated_at)
+         VALUES ('current', $1, NOW())
+         ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = NOW()`,
+        [JSON.stringify({ popups })],
+      )
+      const ids = popups.map((popup) => popup.id)
+      if (ids.length === 0) await pool.query(`DELETE FROM popup_seen`)
+      else await pool.query(`DELETE FROM popup_seen WHERE NOT (popup_id = ANY($1::text[]))`, [ids])
+      return popups
+    },
+    async popupStats() {
+      await ensure()
+      const popups = await this.getPopups()
+      const counts = await pool.query<{ popup_id: string; shown: number; yes: number; no: number }>(
+        `SELECT popup_id,
+                COUNT(*)::int AS shown,
+                COUNT(*) FILTER (WHERE answer = 'yes')::int AS yes,
+                COUNT(*) FILTER (WHERE answer = 'no')::int AS no
+         FROM popup_seen
+         GROUP BY popup_id`,
+      )
+      const byId = new Map(counts.rows.map((row) => [row.popup_id, row]))
+      return popups.map((popup) => {
+        const row = byId.get(popup.id)
+        return { id: popup.id, shown: row?.shown ?? 0, yes: row?.yes ?? 0, no: row?.no ?? 0 }
+      })
+    },
+    async nextPopup(visitorId) {
+      await ensure()
+      const seen = await pool.query<{ popup_id: string }>(`SELECT popup_id FROM popup_seen WHERE visitor_id = $1`, [visitorId])
+      const seenIds = new Set(seen.rows.map((row) => row.popup_id))
+      const popups = await this.getPopups()
+      return popups.find((popup) => popup.active && !seenIds.has(popup.id)) ?? null
+    },
+    async markPopupSeen(input) {
+      await ensure()
+      const popups = await this.getPopups()
+      if (!popups.some((popup) => popup.id === input.popupId)) return 'not_found'
+      const inserted = await pool.query<{ answer: string | null }>(
+        `INSERT INTO popup_seen (popup_id, visitor_id, answer)
+         VALUES ($1, $2, $3)
+         ON CONFLICT (popup_id, visitor_id) DO NOTHING
+         RETURNING answer`,
+        [input.popupId, input.visitorId, input.answer],
+      )
+      if (inserted.rows[0]) return input.answer ? 'answered' : 'shown'
+      if (!input.answer) return 'unchanged'
+      const updated = await pool.query(
+        `UPDATE popup_seen SET answer = $3
+         WHERE popup_id = $1 AND visitor_id = $2 AND answer IS NULL`,
+        [input.popupId, input.visitorId, input.answer],
+      )
+      return (updated.rowCount ?? 0) > 0 ? 'answered' : 'unchanged'
     },
     async weekendFxStats() {
       await ensure()

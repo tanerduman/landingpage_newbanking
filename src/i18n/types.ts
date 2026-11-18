@@ -492,6 +492,27 @@ export type Messages = {
     tabPlans: string
     tabHero: string
     tabWeekend: string
+    tabPopups: string
+    popupTitle: string
+    popupLead: string
+    popupAdd: string
+    popupActive: string
+    popupEmpty: string
+    popupUp: string
+    popupDown: string
+    popupKickerTr: string
+    popupKickerEn: string
+    popupTagTr: string
+    popupTagEn: string
+    popupQuestionTr: string
+    popupQuestionEn: string
+    popupYesTr: string
+    popupYesEn: string
+    popupNoTr: string
+    popupNoEn: string
+    popupShown: string
+    popupYesCount: string
+    popupNoCount: string
     weekendTitle: string
     weekendLead: string
     weekendYes: string

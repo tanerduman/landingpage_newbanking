@@ -35,6 +35,19 @@ function saveVisitStats(stats: VisitStats) {
   window.dispatchEvent(new Event('aure-visits'))
 }
 
+export function ensureVisitorId() {
+  try {
+    let visitor = localStorage.getItem(VISITOR_KEY)
+    if (!visitor) {
+      visitor = crypto.randomUUID()
+      localStorage.setItem(VISITOR_KEY, visitor)
+    }
+    return visitor
+  } catch {
+    return ''
+  }
+}
+
 function ids() {
   let visitor = localStorage.getItem(VISITOR_KEY)
   const newVisitor = !visitor
