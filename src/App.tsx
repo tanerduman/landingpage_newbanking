@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { withBase } from './base.ts'
-import { plans, type PlanColumnId } from './plans.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { type PlanId, type SignupIntent } from './waitlist'
+import { type SignupIntent } from './waitlist'
 import HowDeck from './HowDeck.tsx'
 import { defaultHeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, type HeroCopy } from './heroCopy.ts'
@@ -19,11 +18,8 @@ function CardBrand() {
   )
 }
 
-const homePlanIds = ['standard', 'plus', 'premium'] as const satisfies readonly PlanId[]
-
 export default function App() {
   const { t, locale } = useI18n()
-  const [selected, setSelected] = useState<PlanId | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -40,21 +36,8 @@ export default function App() {
     }
   }, [hero])
 
-  const perks: Record<PlanColumnId, string[]> = {
-    account: t.plans.accountPerks,
-    standard: t.plans.standardPerks,
-    plus: t.plans.plusPerks,
-    premium: t.plans.premiumPerks,
-  }
-
   function openAccount() {
     setIntent('account')
-    setModal(true)
-  }
-
-  function openPlan(id: PlanId) {
-    setSelected(id)
-    setIntent(id)
     setModal(true)
   }
 
@@ -91,14 +74,14 @@ export default function App() {
               <button className="btn btn-solid" onClick={openAccount}>
                 {t.nav.queue}
               </button>
-              <a className="btn btn-ghost" href="#plans">
+              <a className="btn btn-ghost" href={withBase('karsilastir')}>
                 {t.nav.seePlans}
               </a>
             </div>
             <p className="hero-note">{t.hero.note}</p>
           </div>
 
-          <div className={`stage is-${intent === 'account' ? 'account' : selected ?? 'account'}`}>
+          <div className="stage is-account">
             <div className="card-stack" aria-hidden="true">
               <article className="bank-card card-account">
                 <div className="card-top">
@@ -166,51 +149,6 @@ export default function App() {
             </div>
             <p className="how-disclaimer">{t.how.disclaimer}</p>
             <HowDeck />
-          </div>
-        </section>
-
-        <section className="section plans-section" id="plans">
-          <div className="wrap">
-            <div className="plans-intro">
-              <h2>{t.plans.homeTitle}</h2>
-              <p>{t.plans.homeLead}</p>
-            </div>
-            <div className="plans plans-home">
-              <article className="plan-card plan-quiet">
-                <div className="plan-kicker">{t.plans.freeLabel}</div>
-                <h3>{t.plans.basicName}</h3>
-                <ul>
-                  {perks.account.map((perk) => (
-                    <li key={perk}>{perk}</li>
-                  ))}
-                </ul>
-                <button type="button" className="plan-link" onClick={openAccount}>
-                  {t.plans.request}
-                </button>
-              </article>
-              {homePlanIds.map((id) => {
-                const plan = plans.find((item) => item.id === id)
-                if (!plan) return null
-                return (
-                  <article key={id} className="plan-card plan-quiet">
-                    <div className="plan-kicker" />
-                    <h3>{plan.name}</h3>
-                    <ul>
-                      {perks[id].map((perk) => (
-                        <li key={perk}>{perk}</li>
-                      ))}
-                    </ul>
-                    <button type="button" className="btn btn-solid plan-add" onClick={() => openPlan(id)}>
-                      {t.plans.request}
-                    </button>
-                  </article>
-                )
-              })}
-            </div>
-            <p className="plans-note">{t.plans.homeNote}</p>
-            <p className="plans-more">
-              <a href={withBase('karsilastir')}>{t.plans.compareLink}</a>
-            </p>
           </div>
         </section>
       </main>
