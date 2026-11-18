@@ -174,6 +174,8 @@ export const tr: Messages = {
     goldHint: 'Gram altın, TRY',
   },
   fxAsk: {
+    kicker: 'Hafta sonu',
+    days: 'Cmt · Paz',
     question: 'Döviz işlemlerinizde hafta sonu da avantajlı kurlara erişmek ister misiniz?',
     yes: 'Evet, isterim',
     no: 'Hayır',

@@ -106,6 +106,8 @@ export type Messages = {
     goldHint: string
   }
   fxAsk: {
+    kicker: string
+    days: string
     question: string
     yes: string
     no: string

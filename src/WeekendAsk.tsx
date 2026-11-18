@@ -89,16 +89,22 @@ export default function WeekendAsk({ active }: { active: boolean }) {
   return (
     <div className="fx-ask" role="presentation" onClick={(event) => event.target === event.currentTarget && dismiss()}>
       <div className="fx-ask-card" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <button type="button" className="modal-close" onClick={dismiss} aria-label={t.fxAsk.close}>
+        <button type="button" className="fx-ask-close" onClick={dismiss} aria-label={t.fxAsk.close}>
           ×
         </button>
+        <p className="fx-ask-kicker">
+          <span className="dot" />
+          {t.fxAsk.kicker}
+          <span className="fx-ask-days">{t.fxAsk.days}</span>
+        </p>
         <h2 id={titleId}>{t.fxAsk.question}</h2>
         {error && <p className="fx-ask-error">{error}</p>}
         <div className="fx-ask-actions">
-          <button type="button" className="btn btn-solid" disabled={busy} onClick={() => void choose('yes')}>
-            {t.fxAsk.yes}
+          <button type="button" className="fx-ask-yes" disabled={busy} onClick={() => void choose('yes')}>
+            <span>{t.fxAsk.yes}</span>
+            <i aria-hidden="true">→</i>
           </button>
-          <button type="button" className="btn btn-dark" disabled={busy} onClick={() => void choose('no')}>
+          <button type="button" className="fx-ask-no" disabled={busy} onClick={() => void choose('no')}>
             {t.fxAsk.no}
           </button>
         </div>

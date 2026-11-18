@@ -2664,40 +2664,167 @@ footer {
   z-index: 80;
   display: grid;
   place-items: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.62);
+  padding: 24px;
+  background: rgba(7, 7, 8, 0.62);
+  backdrop-filter: blur(14px);
 }
 
 .fx-ask-card {
   position: relative;
-  width: min(480px, 100%);
-  background: #fff;
-  color: #111;
-  border-radius: 28px;
-  padding: 56px 28px 24px;
+  width: min(520px, 100%);
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(216, 255, 74, 0.16), transparent 42%),
+    #101012;
+  color: var(--text);
+  border: 1px solid rgba(244, 241, 234, 0.14);
+  border-radius: 32px;
+  padding: 28px 28px 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  animation: fx-ask-in 0.42s ease;
+}
+
+.fx-ask-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.fx-ask-close:hover {
+  color: var(--text);
+  border-color: rgba(244, 241, 234, 0.28);
+}
+
+.fx-ask-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 48px);
+  margin: 0;
+  padding: 6px 12px 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
+.fx-ask-days {
+  color: var(--lime);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .fx-ask-card h2 {
-  margin: 0 0 22px;
-  font-size: clamp(26px, 4vw, 34px);
-  letter-spacing: -0.04em;
-  line-height: 1.08;
+  margin: 18px 0 22px;
+  font-size: clamp(32px, 4.4vw, 46px);
+  letter-spacing: -0.05em;
+  line-height: 0.98;
+  color: var(--text);
+  overflow-wrap: break-word;
+}
+
+.fx-ask-yes:focus-visible,
+.fx-ask-no:focus-visible,
+.fx-ask-close:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
 }
 
 .fx-ask-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  display: grid;
+  gap: 8px;
 }
 
-.fx-ask-actions .btn {
-  flex: 1 1 160px;
+.fx-ask-yes,
+.fx-ask-no {
+  width: 100%;
+  min-height: 56px;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.fx-ask-yes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 22px;
+  border: 0;
+  background: var(--lime);
+  color: var(--ink);
+}
+
+.fx-ask-yes i {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: var(--lime);
+  font-style: normal;
+}
+
+.fx-ask-no {
+  border: 1px solid rgba(244, 241, 234, 0.16);
+  background: transparent;
+  color: var(--text);
+}
+
+.fx-ask-yes:disabled,
+.fx-ask-no:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .fx-ask-error {
   margin: 0 0 14px;
-  color: #9a3b32;
+  color: #ffb4a8;
   font-size: 14px;
+}
+
+@keyframes fx-ask-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .fx-ask {
+    place-items: end center;
+    padding: 12px;
+  }
+
+  .fx-ask-card {
+    padding: 24px 20px 18px;
+    border-radius: 28px;
+  }
+
+  .fx-ask-card h2 {
+    font-size: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-ask-card {
+    animation: none;
+  }
 }
 
 .weekend-legend {

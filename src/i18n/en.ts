@@ -174,6 +174,8 @@ export const en: Messages = {
     goldHint: 'Gram gold, TRY',
   },
   fxAsk: {
+    kicker: 'Weekend',
+    days: 'Sat · Sun',
     question: 'Would you like access to advantageous rates on your FX trades over the weekend as well?',
     yes: 'Yes, I would',
     no: 'No',
