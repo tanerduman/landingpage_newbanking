@@ -58,16 +58,30 @@ export default function App() {
             <p className="hero-kicker">
               <span className="dot" /> {t.hero.eyebrow}
             </p>
-            <h1>{t.hero.title}</h1>
+            <h1>
+              {t.hero.title}
+              <span className="hero-accent">{t.hero.titleAccent}</span>
+            </h1>
             <p className="lead">{t.hero.lead}</p>
+            <ul className="hero-checks">
+              {t.hero.checks.map((item) => (
+                <li key={item}>
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M3.2 8.2 L6.4 11.4 L12.8 4.6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
             <div className="hero-actions">
               <button className="btn btn-solid" onClick={openAccount}>
-                {t.nav.request}
+                {t.nav.queue}
               </button>
               <a className="btn btn-ghost" href="#plans">
                 {t.nav.seePlans}
               </a>
             </div>
+            <p className="hero-note">{t.hero.note}</p>
           </div>
 
           <div className={`stage is-${intent === 'account' ? 'account' : selected ?? 'account'}`}>
@@ -79,7 +93,7 @@ export default function App() {
                 </div>
                 <div>
                   <small>{t.hero.cardAccount}</small>
-                  <b>•••• 2208</b>
+                  <b>•••• 4208</b>
                 </div>
               </article>
               <article className="bank-card card-standard">
@@ -136,6 +150,7 @@ export default function App() {
                 </article>
               ))}
             </div>
+            <p className="how-disclaimer">{t.how.disclaimer}</p>
             <HowDeck />
           </div>
         </section>
