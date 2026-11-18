@@ -642,36 +642,13 @@ h3 {
   bottom: 64px;
 }
 
-.hero-phone {
-  width: min(300px, 100%);
-  padding: 18px 12px 12px;
-  border-radius: 48px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(216, 255, 74, 0.16), transparent 42%),
-    linear-gradient(180deg, #242428, #0d0d10);
-  border: 1px solid rgba(244, 241, 234, 0.16);
-  box-shadow: var(--shadow);
-  position: relative;
-}
-
-.hero-phone-speaker {
-  position: absolute;
-  top: 7px;
-  left: 50%;
-  width: 78px;
-  height: 6px;
-  margin-left: -39px;
-  border-radius: 999px;
-  background: rgba(244, 241, 234, 0.22);
-}
-
 .hero-film {
   display: block;
-  width: 100%;
+  width: min(300px, 100%);
   margin: 0;
   padding: 0;
-  border: 0;
-  border-radius: 36px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
   background: #101012;
   color: var(--text);
   text-align: left;
@@ -679,6 +656,7 @@ h3 {
   position: relative;
   aspect-ratio: 9 / 19.5;
   overflow: hidden;
+  box-shadow: var(--shadow);
 }
 
 .hero-film.is-video,
