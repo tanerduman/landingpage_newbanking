@@ -7,7 +7,7 @@ import { useI18n } from './i18n/LocaleContext.tsx'
 import { type PlanId, type SignupIntent } from './waitlist'
 import HowDeck from './HowDeck.tsx'
 import { defaultHeroCopy } from './heroCopyData.ts'
-import { fetchHeroCopy, type HeroCopy } from './heroCopy.ts'
+import { cachedHeroCopy, loadHeroCopy, type HeroCopy } from './heroCopy.ts'
 import LogoMark from './LogoMark.tsx'
 
 function CardBrand() {
@@ -27,17 +27,18 @@ export default function App() {
   const [intent, setIntent] = useState<SignupIntent>('account')
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
-  const [hero, setHero] = useState<HeroCopy>(() => defaultHeroCopy())
+  const [hero, setHero] = useState<HeroCopy | null>(cachedHeroCopy)
 
   useEffect(() => {
+    if (hero) return
     let live = true
-    void fetchHeroCopy().then((next) => {
-      if (live && next) setHero(next)
+    void loadHeroCopy().then((next) => {
+      if (live) setHero(next ?? defaultHeroCopy())
     })
     return () => {
       live = false
     }
-  }, [])
+  }, [hero])
 
   const perks: Record<PlanColumnId, string[]> = {
     account: t.plans.accountPerks,
@@ -71,11 +72,11 @@ export default function App() {
             <p className="hero-kicker">
               <span className="dot" /> {t.hero.eyebrow}
             </p>
-            <h1>
-              {locale === 'en' ? hero.title.en : hero.title.tr}
-              {t.hero.titleAccent ? <span className="hero-accent">{t.hero.titleAccent}</span> : null}
+            <h1 className={hero ? undefined : 'hero-pending'}>
+              {hero ? (locale === 'en' ? hero.title.en : hero.title.tr) : null}
+              {hero && t.hero.titleAccent ? <span className="hero-accent">{t.hero.titleAccent}</span> : null}
             </h1>
-            <p className="lead">{locale === 'en' ? hero.lead.en : hero.lead.tr}</p>
+            <p className={hero ? 'lead' : 'lead hero-pending'}>{hero ? (locale === 'en' ? hero.lead.en : hero.lead.tr) : null}</p>
             <ul className="hero-checks">
               {t.hero.checks.map((item) => (
                 <li key={item}>
