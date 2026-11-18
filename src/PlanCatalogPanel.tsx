@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Spinner from './Spinner.tsx'
 import { cachedPlanCatalog, loadPlanCatalog, savePlanCatalog, PLAN_IDS, type PlanCatalog, type PlanColumn, type PlanGroup } from './planCatalog.ts'
 import { defaultPlanCatalog } from './planCatalogData.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -93,7 +94,8 @@ export default function PlanCatalogPanel() {
           <h1>{t.waitlist.planTitle}</h1>
           <p className="lead">{t.waitlist.planLead}</p>
         </div>
-        <button type="button" className="btn btn-solid" disabled={busy || !catalog} onClick={() => void onSave()}>
+        <button type="button" className="btn btn-solid" disabled={busy || !catalog} aria-busy={busy} onClick={() => void onSave()}>
+          {busy ? <Spinner /> : null}
           {t.waitlist.planSave}
         </button>
       </div>

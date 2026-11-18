@@ -3,6 +3,7 @@ import { CONFIRM_CODE_DIGITS, CONFIRM_CODE_RE } from './confirmCode.ts'
 import InterestAsk from './InterestAsk.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { plans } from './plans.ts'
+import Spinner from './Spinner.tsx'
 import {
   addWaitlistEntry,
   confirmWaitlist,
@@ -210,7 +211,8 @@ export function SignupModal({
           </p>
         )}
         <div className="modal-actions">
-          <button type="submit" className="btn btn-solid" disabled={busy}>
+          <button type="submit" className="btn btn-solid" disabled={busy} aria-busy={busy}>
+            {busy ? <Spinner /> : null}
             {phase === 'code' ? t.signup.confirm : t.nav.queue}
           </button>
           <button type="button" className="btn btn-ghost" onClick={() => onClose()}>

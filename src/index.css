@@ -335,6 +335,31 @@ img {
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
+.spin {
+  width: 0.95em;
+  height: 0.95em;
+  margin-right: 8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+  vertical-align: -0.15em;
+  animation: aure-spin 0.7s linear infinite;
+}
+
+@keyframes aure-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation-duration: 1.6s;
+  }
+}
+
 .btn:hover {
   transform: translateY(-1px);
 }

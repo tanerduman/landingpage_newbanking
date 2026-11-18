@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { SignupToast } from './SignupModal.tsx'
+import Spinner from './Spinner.tsx'
 import { saveWeekendAnswer, type WeekendAnswer } from './weekendFx.ts'
 
 const STORAGE_KEY = 'aure-weekend-fx'
@@ -27,7 +28,7 @@ export default function WeekendAsk({ active }: { active: boolean }) {
   const { t } = useI18n()
   const titleId = useId()
   const [open, setOpen] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const [pending, setPending] = useState<WeekendAnswer | null>(null)
   const [error, setError] = useState('')
   const [thanks, setThanks] = useState(false)
 
@@ -68,12 +69,14 @@ export default function WeekendAsk({ active }: { active: boolean }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
+  const busy = pending !== null
+
   async function choose(answer: WeekendAnswer) {
-    if (busy) return
-    setBusy(true)
+    if (pending) return
+    setPending(answer)
     setError('')
     const ok = await saveWeekendAnswer(answer)
-    setBusy(false)
+    setPending(null)
     if (!ok) {
       setError(t.fxAsk.fail)
       return
@@ -105,11 +108,12 @@ export default function WeekendAsk({ active }: { active: boolean }) {
         <h2 id={titleId}>{t.fxAsk.question}</h2>
         {error && <p className="fx-ask-error">{error}</p>}
         <div className="fx-ask-actions">
-          <button type="button" className="fx-ask-yes" disabled={busy} onClick={() => void choose('yes')}>
-            <span>{t.fxAsk.yes}</span>
+          <button type="button" className="fx-ask-yes" disabled={busy} aria-busy={pending === 'yes'} onClick={() => void choose('yes')}>
+            <span>{pending === 'yes' ? <Spinner /> : null}{t.fxAsk.yes}</span>
             <i aria-hidden="true">→</i>
           </button>
-          <button type="button" className="fx-ask-no" disabled={busy} onClick={() => void choose('no')}>
+          <button type="button" className="fx-ask-no" disabled={busy} aria-busy={pending === 'no'} onClick={() => void choose('no')}>
+            {pending === 'no' ? <Spinner /> : null}
             {t.fxAsk.no}
           </button>
         </div>

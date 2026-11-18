@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import Spinner from './Spinner.tsx'
 import { withBase } from './base.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -42,6 +43,7 @@ export default function WaitlistPage() {
   const [password, setPassword] = useState('')
   const [loginError, setLoginError] = useState('')
   const [loginBusy, setLoginBusy] = useState(false)
+  const [leaving, setLeaving] = useState(false)
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
   const [support, setSupport] = useState<SupportEntry[]>([])
   const [interests, setInterests] = useState<InterestEntry[]>([])
@@ -169,12 +171,18 @@ export default function WaitlistPage() {
   }
 
   async function signOut() {
-    await logoutWaitlist()
-    setAuthed(false)
-    setEntries([])
-    setSupport([])
-    setInterests([])
-    setPassword('')
+    if (leaving) return
+    setLeaving(true)
+    try {
+      await logoutWaitlist()
+      setAuthed(false)
+      setEntries([])
+      setSupport([])
+      setInterests([])
+      setPassword('')
+    } finally {
+      setLeaving(false)
+    }
   }
 
   const counts = useMemo(() => countByIntent(entries), [entries])
@@ -289,7 +297,8 @@ export default function WaitlistPage() {
           <div className="waitlist-nav-actions">
             <LangSwitch />
             {authed && (
-              <button type="button" className="btn btn-ghost" onClick={signOut}>
+              <button type="button" className="btn btn-ghost" onClick={() => void signOut()} disabled={leaving} aria-busy={leaving}>
+                {leaving ? <Spinner /> : null}
                 {t.waitlist.logout}
               </button>
             )}
@@ -374,7 +383,8 @@ export default function WaitlistPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
               {loginError && <p className="login-error">{loginError}</p>}
-              <button type="submit" className="btn btn-solid login-submit" disabled={loginBusy}>
+              <button type="submit" className="btn btn-solid login-submit" disabled={loginBusy} aria-busy={loginBusy}>
+                {loginBusy ? <Spinner /> : null}
                 {t.waitlist.loginSubmit}
               </button>
             </form>
@@ -502,7 +512,9 @@ export default function WaitlistPage() {
                             disabled={readingId === row.id}
                             aria-label={`${row.read ? t.waitlist.markUnread : t.waitlist.markRead} ${row.name}`}
                             onClick={() => void toggleRead('support', row.id, row.read)}
+                            aria-busy={readingId === row.id}
                           >
+                            {readingId === row.id ? <Spinner /> : null}
                             {row.read ? t.waitlist.read : t.waitlist.unread}
                           </button>
                         </td>
@@ -517,7 +529,9 @@ export default function WaitlistPage() {
                                 : `${t.waitlist.delete} ${row.name}`
                             }
                             onClick={() => void removeSupport(row.id)}
+                            aria-busy={deletingId === row.id}
                           >
+                            {deletingId === row.id ? <Spinner /> : null}
                             {deletingId === row.id
                               ? t.waitlist.deleting
                               : confirmId === row.id
@@ -678,7 +692,9 @@ export default function WaitlistPage() {
                         disabled={readingId === row.id}
                         aria-label={`${row.read ? t.waitlist.markUnread : t.waitlist.markRead} ${row.name}`}
                         onClick={() => void toggleRead('requests', row.id, row.read)}
+                        aria-busy={readingId === row.id}
                       >
+                        {readingId === row.id ? <Spinner /> : null}
                         {row.read ? t.waitlist.read : t.waitlist.unread}
                       </button>
                     </td>
@@ -693,7 +709,9 @@ export default function WaitlistPage() {
                             : `${t.waitlist.delete} ${row.name}`
                         }
                         onClick={() => void removeEntry(row.id)}
+                        aria-busy={deletingId === row.id}
                       >
+                        {deletingId === row.id ? <Spinner /> : null}
                         {deletingId === row.id
                           ? t.waitlist.deleting
                           : confirmId === row.id
