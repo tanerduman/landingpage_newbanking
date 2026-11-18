@@ -30,7 +30,7 @@ export const en: Messages = {
   },
   hero: {
     eyebrow: 'Free account',
-    title: 'Open a free account first.\nThen pick a plan.',
+    title: 'As much banking as you need.\nAs much advantage as you choose.',
     lead: 'Next-generation banking that puts transfers, investing and shopping in one wallet, without surprise fees or hidden commission. The monthly plan you choose opens overnight interest on demand balances, a spread that narrows with the plan, automatic offers, and a live representative who does not keep you waiting. For now we only take requests.',
     cardAccount: 'AURE Account',
     pillSupport: '✨ No chatbot',
