@@ -153,7 +153,7 @@ export default function PopupAnalytics() {
               <thead>
                 <tr>
                   <th>{t.waitlist.date}</th>
-                  <th>{t.waitlist.weekendAnswer}</th>
+                  <th>{t.waitlist.popupAnswer}</th>
                 </tr>
               </thead>
               <tbody>

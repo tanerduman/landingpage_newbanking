@@ -80,13 +80,11 @@ type Store = {
   savePlanCatalog(catalog: PlanCatalog): Promise<PlanCatalog>
   getHeroCopy(): Promise<HeroCopy>
   saveHeroCopy(copy: HeroCopy): Promise<HeroCopy>
-  saveWeekendFx(answer: WeekendFxAnswer): Promise<WeekendFxRow>
-  weekendFxStats(): Promise<WeekendFxStats>
   getPopups(): Promise<SitePopup[]>
   savePopups(popups: SitePopup[]): Promise<SitePopup[]>
   popupStats(): Promise<PopupStat[]>
   nextPopup(visitorId: string): Promise<SitePopup | null>
-  markPopupSeen(input: { popupId: string; visitorId: string; answer: WeekendFxAnswer | null }): Promise<'shown' | 'answered' | 'unchanged' | 'not_found'>
+  markPopupSeen(input: { popupId: string; visitorId: string; answer: 'yes' | 'no' | null }): Promise<'shown' | 'answered' | 'unchanged' | 'not_found'>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -135,24 +133,10 @@ type InterestRecord = {
   updatedAt: string
 }
 
-export type WeekendFxAnswer = 'yes' | 'no'
-
-export type WeekendFxRow = {
-  id: string
-  answer: WeekendFxAnswer
-  createdAt: string
-}
-
-export type WeekendFxStats = {
-  yes: number
-  no: number
-  recent: WeekendFxRow[]
-}
-
 type PopupSeenRow = {
   popupId: string
   visitorId: string
-  answer: WeekendFxAnswer | null
+  answer: 'yes' | 'no' | null
   shownAt: string
 }
 
@@ -189,7 +173,6 @@ type Memory = {
   heroCopy: HeroCopy | null
   popups: SitePopup[] | null
   popupSeen: PopupSeenRow[]
-  weekendFx: WeekendFxRow[]
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
 }
@@ -323,17 +306,6 @@ function statsFromMemory(data: Memory, scope: VisitScope): VisitStats {
   return { unique, views, lastVisit, scope }
 }
 
-function weekendStats(rows: WeekendFxRow[]): WeekendFxStats {
-  let yes = 0
-  let no = 0
-  for (const row of rows) {
-    if (row.answer === 'yes') yes += 1
-    else no += 1
-  }
-  const recent = [...rows].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, 30)
-  return { yes, no, recent }
-}
-
 function memoryStore(): Store {
   const data: Memory = {
     visitors: new Map(),
@@ -346,7 +318,6 @@ function memoryStore(): Store {
     heroCopy: null,
     popups: null,
     popupSeen: [],
-    weekendFx: [],
     adminSessions: new Map(),
     rates: new Map(),
   }
@@ -600,14 +571,6 @@ function memoryStore(): Store {
     async saveHeroCopy(copy) {
       data.heroCopy = copy
       return copy
-    },
-    async saveWeekendFx(answer) {
-      const row: WeekendFxRow = { id: randomUUID(), answer, createdAt: new Date().toISOString() }
-      data.weekendFx.push(row)
-      return row
-    },
-    async weekendFxStats() {
-      return weekendStats(data.weekendFx)
     },
     async getPopups() {
       return popupCatalog(data.popups)
@@ -1399,16 +1362,6 @@ function postgresStore(url: string): Store {
       )
       return copy
     },
-    async saveWeekendFx(answer) {
-      await ensure()
-      const id = randomUUID()
-      const result = await pool.query<{ id: string; answer: string; created_at: Date }>(
-        `INSERT INTO weekend_fx (id, answer) VALUES ($1, $2) RETURNING id, answer, created_at`,
-        [id, answer],
-      )
-      const row = result.rows[0]
-      return { id: row.id, answer: row.answer === 'no' ? 'no' : 'yes', createdAt: row.created_at.toISOString() }
-    },
     async getPopups() {
       await ensure()
       const result = await pool.query<{ payload: string }>(`SELECT payload FROM site_popups WHERE id = 'current'`)
@@ -1499,30 +1452,6 @@ function postgresStore(url: string): Store {
         [input.popupId, input.visitorId, input.answer],
       )
       return (updated.rowCount ?? 0) > 0 ? 'answered' : 'unchanged'
-    },
-    async weekendFxStats() {
-      await ensure()
-      const counts = await pool.query<{ answer: string; n: number }>(
-        `SELECT answer, COUNT(*)::int AS n FROM weekend_fx GROUP BY answer`,
-      )
-      const recent = await pool.query<{ id: string; answer: string; created_at: Date }>(
-        `SELECT id, answer, created_at FROM weekend_fx ORDER BY created_at DESC LIMIT 30`,
-      )
-      let yes = 0
-      let no = 0
-      for (const row of counts.rows) {
-        if (row.answer === 'yes') yes = row.n
-        if (row.answer === 'no') no = row.n
-      }
-      return {
-        yes,
-        no,
-        recent: recent.rows.map((row) => ({
-          id: row.id,
-          answer: row.answer === 'no' ? 'no' as const : 'yes' as const,
-          createdAt: row.created_at.toISOString(),
-        })),
-      }
     },
     async createAdminSession(input) {
       await ensure()

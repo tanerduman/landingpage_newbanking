@@ -491,7 +491,6 @@ export type Messages = {
     tabInterests: string
     tabPlans: string
     tabHero: string
-    tabWeekend: string
     tabPopups: string
     popupTitle: string
     popupLead: string
@@ -523,14 +522,7 @@ export type Messages = {
     popupPick: string
     popupClosed: string
     popupOffline: string
-    weekendTitle: string
-    weekendLead: string
-    weekendYes: string
-    weekendNo: string
-    weekendEmpty: string
-    weekendTotal: string
-    weekendChart: string
-    weekendAnswer: string
+    popupAnswer: string
     heroTitle: string
     heroLead: string
     heroTitleTr: string

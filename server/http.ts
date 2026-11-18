@@ -27,7 +27,6 @@ import {
 import { validatePlanCatalog } from './planCatalog.ts'
 import { validateHeroCopy } from './heroCopy.ts'
 import { validatePopupCatalog } from './popupCopy.ts'
-import { DEFAULT_POPUP_ID } from '../src/popupCopyData.ts'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -120,21 +119,12 @@ function isHeroCopyWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'heroCopy' in value && (value as { heroCopy?: unknown }).heroCopy === true)
 }
 
-function isWeekendFxWrite(value: unknown) {
-  return Boolean(value && typeof value === 'object' && 'weekendFx' in value && (value as { weekendFx?: unknown }).weekendFx === true)
-}
-
 function isPopupCatalogWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'popupCatalog' in value && (value as { popupCatalog?: unknown }).popupCatalog === true)
 }
 
 function isPopupSeenWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'popupSeen' in value && (value as { popupSeen?: unknown }).popupSeen === true)
-}
-
-function weekendAnswer(value: unknown) {
-  const answer = value && typeof value === 'object' ? (value as { answer?: unknown }).answer : null
-  return answer === 'yes' || answer === 'no' ? answer : null
 }
 
 function waitlistId(value: unknown): value is string {
@@ -264,12 +254,6 @@ async function handleWaitlist(request: Request) {
     if (await overLimit(`popup:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
     return json({ popups: await store.getPopups(), stats: await store.popupStats() }, 200, request)
   }
-  if (request.method === 'GET' && new URL(request.url).searchParams.get('weekend') === '1') {
-    const denied = await requireAdmin(request)
-    if (denied) return denied
-    if (await overLimit(`weekend:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
-    return json({ weekend: await store.weekendFxStats() }, 200, request)
-  }
   if (request.method === 'GET') {
     const denied = await requireAdmin(request)
     if (denied) return denied
@@ -333,15 +317,7 @@ async function handleWaitlist(request: Request) {
     if (await overLimit(`popup:visitor:${body.visitorId}`, 16, 600_000)) return fail(request, 'too_many', 429)
     const result = await store.markPopupSeen({ popupId: body.id, visitorId: body.visitorId, answer })
     if (result === 'not_found') return fail(request, 'not_found', 404, parsed.value)
-    if (result === 'answered' && body.id === DEFAULT_POPUP_ID && answer) await store.saveWeekendFx(answer)
     return json({ ok: true }, 200, request)
-  }
-  if (isWeekendFxWrite(parsed.value)) {
-    if (await overLimit(`weekend:ip:${clientKey(request)}`, 8, 600_000)) return fail(request, 'too_many', 429)
-    const answer = weekendAnswer(parsed.value)
-    if (!answer) return fail(request, 'invalid', 400, parsed.value)
-    const saved = await store.saveWeekendFx(answer)
-    return json({ ok: true, answer: saved.answer }, 200, request)
   }
   if (await overLimit(`waitlist:ip:${clientKey(request)}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const locale = localeFromRequest(request, parsed.value)
