@@ -118,6 +118,15 @@ function isHeroCopyWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'heroCopy' in value && (value as { heroCopy?: unknown }).heroCopy === true)
 }
 
+function isWeekendFxWrite(value: unknown) {
+  return Boolean(value && typeof value === 'object' && 'weekendFx' in value && (value as { weekendFx?: unknown }).weekendFx === true)
+}
+
+function weekendAnswer(value: unknown) {
+  const answer = value && typeof value === 'object' ? (value as { answer?: unknown }).answer : null
+  return answer === 'yes' || answer === 'no' ? answer : null
+}
+
 function waitlistId(value: unknown): value is string {
   return (
     typeof value === 'string' &&
@@ -233,6 +242,12 @@ async function handleWaitlist(request: Request) {
     if (await overLimit(`hero:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
     return json({ hero: await store.getHeroCopy() }, 200, request)
   }
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('weekend') === '1') {
+    const denied = await requireAdmin(request)
+    if (denied) return denied
+    if (await overLimit(`weekend:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ weekend: await store.weekendFxStats() }, 200, request)
+  }
   if (request.method === 'GET') {
     const denied = await requireAdmin(request)
     if (denied) return denied
@@ -277,9 +292,16 @@ async function handleWaitlist(request: Request) {
     if (!removed) return fail(request, 'not_found', 404, parsed.value)
     return json({ ok: true }, 200, request)
   }
-  if (await overLimit(`waitlist:ip:${clientKey(request)}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const parsed = await readJson(request)
   if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+  if (isWeekendFxWrite(parsed.value)) {
+    if (await overLimit(`weekend:ip:${clientKey(request)}`, 8, 600_000)) return fail(request, 'too_many', 429)
+    const answer = weekendAnswer(parsed.value)
+    if (!answer) return fail(request, 'invalid', 400, parsed.value)
+    const saved = await store.saveWeekendFx(answer)
+    return json({ ok: true, answer: saved.answer }, 200, request)
+  }
+  if (await overLimit(`waitlist:ip:${clientKey(request)}`, 20, 600_000)) return fail(request, 'too_many', 429)
   const locale = localeFromRequest(request, parsed.value)
   const valid = validateWaitlistInput(parsed.value)
   if (typeof valid === 'string') return fail(request, valid, 400, parsed.value)
