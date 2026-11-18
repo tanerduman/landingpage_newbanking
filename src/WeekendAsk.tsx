@@ -41,7 +41,7 @@ export default function WeekendAsk({ active }: { active: boolean }) {
       }
       setOpen(true)
     }
-    timer = window.setTimeout(tick, 5000)
+    timer = window.setTimeout(tick, 3000)
     return () => {
       live = false
       window.clearTimeout(timer)

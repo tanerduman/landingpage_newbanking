@@ -771,7 +771,7 @@ export const en: Messages = {
     tabHero: 'Welcome',
     tabWeekend: 'Weekend',
     weekendTitle: 'Weekend rates.',
-    weekendLead: 'Answers to the weekend-rate question asked 5 seconds after the page opens. Each browser is counted once.',
+    weekendLead: 'Answers to the weekend-rate question asked 3 seconds after the page opens. Each browser is counted once.',
     weekendYes: 'Yes, I would',
     weekendNo: 'No',
     weekendEmpty: 'No answers yet.',
