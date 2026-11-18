@@ -484,6 +484,13 @@ export type Messages = {
     tabSupport: string
     tabInterests: string
     tabPlans: string
+    tabHero: string
+    heroTitle: string
+    heroLead: string
+    heroTitleTr: string
+    heroTitleEn: string
+    heroLeadTr: string
+    heroLeadEn: string
     planTitle: string
     planLead: string
     planPrice: string

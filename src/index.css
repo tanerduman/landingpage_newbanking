@@ -413,6 +413,7 @@ h3 {
   letter-spacing: -0.05em;
   margin: 18px 0 18px;
   white-space: pre-line;
+  overflow-wrap: break-word;
 }
 
 .hero-accent {
@@ -457,6 +458,7 @@ h3 {
 .hero p.lead {
   font-size: 18px;
   line-height: 1.55;
+  overflow-wrap: break-word;
   color: var(--muted);
   max-width: 520px;
 }
@@ -4740,4 +4742,31 @@ td.row-action {
   .plan-row-top {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+.hero-copy-form {
+  display: grid;
+  gap: 14px;
+  max-width: 760px;
+  margin-top: 18px;
+}
+
+.hero-copy-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.hero-copy-form textarea {
+  width: 100%;
+  min-height: 96px;
+  resize: vertical;
+  background: #111114;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  line-height: 1.45;
 }

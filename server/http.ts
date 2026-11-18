@@ -25,6 +25,7 @@ import {
   validateWaitlistInput,
 } from './store.ts'
 import { validatePlanCatalog } from './planCatalog.ts'
+import { validateHeroCopy } from './heroCopy.ts'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -111,6 +112,10 @@ function uuidLike(value: unknown): value is string {
 
 function isPlanCatalogWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'planCatalog' in value && (value as { planCatalog?: unknown }).planCatalog === true)
+}
+
+function isHeroCopyWrite(value: unknown) {
+  return Boolean(value && typeof value === 'object' && 'heroCopy' in value && (value as { heroCopy?: unknown }).heroCopy === true)
 }
 
 function waitlistId(value: unknown): value is string {
@@ -224,6 +229,10 @@ async function handleWaitlist(request: Request) {
     if (await overLimit(`plans:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
     return json({ plans: await store.getPlanCatalog() }, 200, request)
   }
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('hero') === '1') {
+    if (await overLimit(`hero:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ hero: await store.getHeroCopy() }, 200, request)
+  }
   if (request.method === 'GET') {
     const denied = await requireAdmin(request)
     if (denied) return denied
@@ -235,6 +244,13 @@ async function handleWaitlist(request: Request) {
     if (denied) return denied
     const parsed = await readJson(request, 40_000)
     if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    if (isHeroCopyWrite(parsed.value)) {
+      if (await overLimit(`hero:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
+      const copy = validateHeroCopy(parsed.value)
+      if (typeof copy === 'string') return fail(request, copy, 400, parsed.value)
+      const saved = await store.saveHeroCopy(copy)
+      return json({ hero: saved }, 200, request)
+    }
     if (isPlanCatalogWrite(parsed.value)) {
       if (await overLimit(`plans:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
       const catalog = validatePlanCatalog(parsed.value)

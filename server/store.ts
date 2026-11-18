@@ -5,6 +5,8 @@ import { CONFIRM_CODE_DIGITS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
 import { normalizeEmail, visitScope, type VisitScope } from './email.ts'
 import { validatePlanCatalog } from './planCatalog.ts'
 import { defaultPlanCatalog, type PlanCatalog } from '../src/planCatalogData.ts'
+import { validateHeroCopy } from './heroCopy.ts'
+import { defaultHeroCopy, type HeroCopy } from '../src/heroCopyData.ts'
 import {
   DEFAULT_SECTORS,
   SECTOR_LIMIT,
@@ -74,6 +76,8 @@ type Store = {
   deleteSector(id: string): Promise<boolean>
   getPlanCatalog(): Promise<PlanCatalog>
   savePlanCatalog(catalog: PlanCatalog): Promise<PlanCatalog>
+  getHeroCopy(): Promise<HeroCopy>
+  saveHeroCopy(copy: HeroCopy): Promise<HeroCopy>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -130,6 +134,7 @@ type Memory = {
   interests: InterestRecord[]
   sectors: SectorDef[]
   planCatalog: PlanCatalog | null
+  heroCopy: HeroCopy | null
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
 }
@@ -272,6 +277,7 @@ function memoryStore(): Store {
     interests: [],
     sectors: DEFAULT_SECTORS.map((sector, position) => ({ ...sector, position })),
     planCatalog: null,
+    heroCopy: null,
     adminSessions: new Map(),
     rates: new Map(),
   }
@@ -519,6 +525,13 @@ function memoryStore(): Store {
       data.planCatalog = catalog
       return catalog
     },
+    async getHeroCopy() {
+      return data.heroCopy ?? defaultHeroCopy()
+    },
+    async saveHeroCopy(copy) {
+      data.heroCopy = copy
+      return copy
+    },
     async createAdminSession(input) {
       data.adminSessions.set(input.idHash, {
         user: input.user,
@@ -629,6 +642,11 @@ CREATE TABLE IF NOT EXISTS interest_sectors (
   position INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS plan_catalog (
+  id TEXT PRIMARY KEY,
+  payload TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS hero_copy (
   id TEXT PRIMARY KEY,
   payload TEXT NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -1228,6 +1246,28 @@ function postgresStore(url: string): Store {
         [JSON.stringify(catalog)],
       )
       return catalog
+    },
+    async getHeroCopy() {
+      await ensure()
+      const result = await pool.query<{ payload: string }>(`SELECT payload FROM hero_copy WHERE id = 'current'`)
+      const raw = result.rows[0]?.payload
+      if (!raw) return defaultHeroCopy()
+      try {
+        const parsed = validateHeroCopy(JSON.parse(raw))
+        return typeof parsed === 'string' ? defaultHeroCopy() : parsed
+      } catch {
+        return defaultHeroCopy()
+      }
+    },
+    async saveHeroCopy(copy) {
+      await ensure()
+      await pool.query(
+        `INSERT INTO hero_copy (id, payload, updated_at)
+         VALUES ('current', $1, NOW())
+         ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = NOW()`,
+        [JSON.stringify(copy)],
+      )
+      return copy
     },
     async createAdminSession(input) {
       await ensure()

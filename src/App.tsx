@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { withBase } from './base.ts'
 import { plans, type PlanColumnId } from './plans.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
@@ -6,6 +6,8 @@ import SiteHeader from './SiteHeader.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { type PlanId, type SignupIntent } from './waitlist'
 import HowDeck from './HowDeck.tsx'
+import { defaultHeroCopy } from './heroCopyData.ts'
+import { fetchHeroCopy, type HeroCopy } from './heroCopy.ts'
 import LogoMark from './LogoMark.tsx'
 
 function CardBrand() {
@@ -20,11 +22,22 @@ function CardBrand() {
 const homePlanIds = ['standard', 'plus', 'premium'] as const satisfies readonly PlanId[]
 
 export default function App() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [selected, setSelected] = useState<PlanId | null>(null)
   const [intent, setIntent] = useState<SignupIntent>('account')
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
+  const [hero, setHero] = useState<HeroCopy>(() => defaultHeroCopy())
+
+  useEffect(() => {
+    let live = true
+    void fetchHeroCopy().then((next) => {
+      if (live && next) setHero(next)
+    })
+    return () => {
+      live = false
+    }
+  }, [])
 
   const perks: Record<PlanColumnId, string[]> = {
     account: t.plans.accountPerks,
@@ -59,10 +72,10 @@ export default function App() {
               <span className="dot" /> {t.hero.eyebrow}
             </p>
             <h1>
-              {t.hero.title}
+              {locale === 'en' ? hero.title.en : hero.title.tr}
               {t.hero.titleAccent ? <span className="hero-accent">{t.hero.titleAccent}</span> : null}
             </h1>
-            <p className="lead">{t.hero.lead}</p>
+            <p className="lead">{locale === 'en' ? hero.lead.en : hero.lead.tr}</p>
             <ul className="hero-checks">
               {t.hero.checks.map((item) => (
                 <li key={item}>
