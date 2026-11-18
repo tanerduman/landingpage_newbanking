@@ -22,7 +22,6 @@ import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 import InterestPanel from './InterestPanel.tsx'
 import PlanCatalogPanel from './PlanCatalogPanel.tsx'
 import HeroCopyPanel from './HeroCopyPanel.tsx'
-import WeekendFxPanel from './WeekendFxPanel.tsx'
 import PopupPanel from './PopupPanel.tsx'
 import { fetchInterests, type InterestEntry } from './interest.ts'
 import { fetchSupport, deleteSupportEntry, markSupportRead, type SupportEntry, type SupportKind } from './support.ts'
@@ -33,7 +32,7 @@ import LogoMark from './LogoMark.tsx'
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
 type KindFilter = 'all' | SupportKind
-type Panel = 'requests' | 'support' | 'interests' | 'plans' | 'hero' | 'weekend' | 'popups'
+type Panel = 'requests' | 'support' | 'interests' | 'plans' | 'hero' | 'popups'
 
 const PAGE_SIZE = 10
 
@@ -450,15 +449,6 @@ export default function WaitlistPage() {
           <button
             type="button"
             role="tab"
-            aria-selected={panel === 'weekend'}
-            className={panel === 'weekend' ? 'active' : ''}
-            onClick={() => changePanel('weekend')}
-          >
-            {t.waitlist.tabWeekend}
-          </button>
-          <button
-            type="button"
-            role="tab"
             aria-selected={panel === 'popups'}
             className={panel === 'popups' ? 'active' : ''}
             onClick={() => changePanel('popups')}
@@ -578,8 +568,6 @@ export default function WaitlistPage() {
           <PlanCatalogPanel />
         ) : panel === 'hero' ? (
           <HeroCopyPanel />
-        ) : panel === 'weekend' ? (
-          <WeekendFxPanel />
         ) : panel === 'popups' ? (
           <PopupPanel />
         ) : (
