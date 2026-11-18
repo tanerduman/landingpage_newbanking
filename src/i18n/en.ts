@@ -710,7 +710,7 @@ export const en: Messages = {
     dictate: 'Speak it',
     dictateStop: 'Stop',
     dictateDenied: 'The microphone is unavailable. You can type the description.',
-    submit: 'Send',
+    submit: 'Send the support message',
     sending: 'Sending',
     successTitle: 'Message received.',
     success: 'Your email is confirmed. The support message is on the list.',

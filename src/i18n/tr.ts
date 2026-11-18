@@ -710,7 +710,7 @@ export const tr: Messages = {
     dictate: 'Sesle anlat',
     dictateStop: 'Durdur',
     dictateDenied: 'Mikrofon kullanılamadı. Açıklamayı yazabilirsin.',
-    submit: 'Gönder',
+    submit: 'Destek Mesajını İlet',
     sending: 'Gönderiliyor',
     successTitle: 'Mesajın alındı.',
     success: 'E-postan onaylandı. Destek kaydın listeye eklendi.',
