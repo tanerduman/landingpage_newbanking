@@ -40,6 +40,16 @@ export type Messages = {
     pillSupportSub: string
     pillInterest: string
     pillInterestSub: string
+    film: {
+      label: string
+      play: string
+      pause: string
+      replay: string
+      duration: string
+      rate: string
+      bands: { name: string; value: string }[]
+      scenes: { kicker: string; title: string; note: string }[]
+    }
   }
   how: {
     title: string
@@ -529,6 +539,17 @@ export type Messages = {
     heroTitleEn: string
     heroLeadTr: string
     heroLeadEn: string
+    filmTitle: string
+    filmLead: string
+    filmPick: string
+    filmUpload: string
+    filmUploading: string
+    filmReady: string
+    filmEmpty: string
+    filmNeed: string
+    filmType: string
+    filmBig: string
+    filmFail: string
     planTitle: string
     planLead: string
     planShowPrices: string

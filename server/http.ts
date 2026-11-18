@@ -27,6 +27,8 @@ import {
 import { validatePlanCatalog } from './planCatalog.ts'
 import { validateHeroCopy } from './heroCopy.ts'
 import { validatePopupCatalog } from './popupCopy.ts'
+import { currentFilmUrl, filmEventType, receiveFilmUpload } from './film.ts'
+import type { HandleUploadBody } from '@vercel/blob/client'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -237,6 +239,10 @@ async function handleWaitlist(request: Request) {
   if (request.method === 'GET' && new URL(request.url).searchParams.get('plans') === '1') {
     if (await overLimit(`plans:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
     return json({ plans: await store.getPlanCatalog() }, 200, request)
+  }
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('film') === '1') {
+    if (await overLimit(`film:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ url: await currentFilmUrl() }, 200, request)
   }
   if (request.method === 'GET' && new URL(request.url).searchParams.get('hero') === '1') {
     if (await overLimit(`hero:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
@@ -536,6 +542,31 @@ async function handleConfirmStatus(request: Request) {
   return json({ confirmed }, 200, request)
 }
 
+async function routeFilmUpload(request: Request, path: string) {
+  if (request.method !== 'POST' || path !== '/api/waitlist') return null
+  const length = Number(request.headers.get('content-length') || '0')
+  if (length > 20_000) return null
+  let body: unknown
+  try {
+    body = await request.clone().json()
+  } catch {
+    return null
+  }
+  const type = filmEventType(body)
+  if (!type) return null
+  if (type === 'blob.generate-client-token') {
+    const denied = await rejectBot(request, path)
+    if (denied) return denied
+    if (!(await adminPresent(request))) return fail(request, 'unauthorized', 401)
+  }
+  try {
+    const result = await receiveFilmUpload(body as HandleUploadBody, request, () => adminPresent(request))
+    return json(result, 200, request)
+  } catch {
+    return json({ error: 'film_type' }, 400, request)
+  }
+}
+
 export async function handleApiRequest(request: Request): Promise<Response | null> {
   const url = new URL(request.url)
   const path = url.pathname.replace(/\/+$/, '') || '/'
@@ -546,6 +577,8 @@ export async function handleApiRequest(request: Request): Promise<Response | nul
   }
 
   try {
+    const filmUpload = await routeFilmUpload(request, path)
+    if (filmUpload) return filmUpload
     const denied = await rejectBot(request, path)
     if (denied) return denied
     if (path === '/api/health' && request.method === 'GET') return handleHealth(request)
