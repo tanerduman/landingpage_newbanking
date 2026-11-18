@@ -32,7 +32,7 @@ export default function SiteHeader({
   const [fx, setFx] = useState<FxQuote[]>([])
   const [gold, setGold] = useState(0)
   const howHref = active ? withBase('#how') : '#how'
-  const plansHref = active ? withBase('#plans') : '#plans'
+  const plansHref = withBase('karsilastir')
 
   useEffect(() => {
     let cancelled = false
