@@ -24,6 +24,7 @@ import {
   validateSupportInput,
   validateWaitlistInput,
 } from './store.ts'
+import { validatePlanCatalog } from './planCatalog.ts'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -108,6 +109,10 @@ function uuidLike(value: unknown): value is string {
   return typeof value === 'string' && /^[0-9a-f-]{8,80}$/i.test(value)
 }
 
+function isPlanCatalogWrite(value: unknown) {
+  return Boolean(value && typeof value === 'object' && 'planCatalog' in value && (value as { planCatalog?: unknown }).planCatalog === true)
+}
+
 function waitlistId(value: unknown): value is string {
   return (
     typeof value === 'string' &&
@@ -115,11 +120,11 @@ function waitlistId(value: unknown): value is string {
   )
 }
 
-async function readJson(request: Request) {
+async function readJson(request: Request, max = 8_000) {
   const length = Number(request.headers.get('content-length') || '0')
-  if (length > 8_000) return { error: 'too_big' as const }
+  if (length > max) return { error: 'too_big' as const }
   const text = await request.text()
-  if (text.length > 8_000) return { error: 'too_big' as const }
+  if (text.length > max) return { error: 'too_big' as const }
   if (!text) return { value: null }
   try {
     return { value: JSON.parse(text) as unknown }
@@ -215,6 +220,10 @@ async function handleVisits(request: Request) {
 
 async function handleWaitlist(request: Request) {
   const store = getStore()
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('plans') === '1') {
+    if (await overLimit(`plans:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ plans: await store.getPlanCatalog() }, 200, request)
+  }
   if (request.method === 'GET') {
     const denied = await requireAdmin(request)
     if (denied) return denied
@@ -224,9 +233,16 @@ async function handleWaitlist(request: Request) {
   if (request.method === 'PATCH') {
     const denied = await requireAdmin(request)
     if (denied) return denied
-    if (await overLimit(`waitlist-read:ip:${clientKey(request)}`, 80, 60_000)) return fail(request, 'too_many', 429)
-    const parsed = await readJson(request)
+    const parsed = await readJson(request, 40_000)
     if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    if (isPlanCatalogWrite(parsed.value)) {
+      if (await overLimit(`plans:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
+      const catalog = validatePlanCatalog(parsed.value)
+      if (typeof catalog === 'string') return fail(request, catalog, 400, parsed.value)
+      const saved = await store.savePlanCatalog(catalog)
+      return json({ plans: saved }, 200, request)
+    }
+    if (await overLimit(`waitlist-read:ip:${clientKey(request)}`, 80, 60_000)) return fail(request, 'too_many', 429)
     const body = parsed.value as { id?: unknown; read?: unknown } | null
     if (!waitlistId(body?.id) || typeof body.read !== 'boolean') return fail(request, 'invalid', 400, parsed.value)
     const updated = await store.setWaitlistRead(body.id, body.read)

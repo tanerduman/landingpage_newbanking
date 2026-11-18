@@ -1,6 +1,7 @@
 export const botProtectedRoutes = [
   { path: '/api/waitlist', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/waitlist', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },
+  { path: '/api/waitlist', method: 'PATCH', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/waitlist', method: 'DELETE', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/support', method: 'POST', advancedOptions: { checkLevel: 'deepAnalysis' as const } },
   { path: '/api/support', method: 'GET', advancedOptions: { checkLevel: 'basic' as const } },

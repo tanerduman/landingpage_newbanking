@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
-import { localizeFeature } from './i18n/format.ts'
-import { comparisonRows, planColumns, type FeatureValue, type PlanColumnId } from './plans.ts'
+import { planColumns, type PlanColumnId } from './plans.ts'
+import { defaultPlanCatalog } from './planCatalogData.ts'
+import { fetchPlanCatalog, type PlanCatalog } from './planCatalog.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import type { SignupIntent } from './waitlist'
@@ -124,18 +125,39 @@ function Check() {
   )
 }
 
-function Cell({ value }: { value: FeatureValue }) {
-  if (value === true) return <span className="rev-check"><Check /></span>
-  if (value === false) return <span className="rev-dash">—</span>
+function Cell({ value }: { value: string }) {
+  if (value === '✓') return <span className="rev-check"><Check /></span>
+  if (value === '—' || value === '-' || value === '') return <span className="rev-dash">—</span>
   return <span className="rev-value">{value}</span>
 }
 
 const groupIcon = { bank: 'card', travel: 'plane', brand: 'shop' }
+const rowIcons: Record<string, string> = {
+  overnight: 'save',
+  eft: 'send',
+  atm: 'atm',
+  fxLimit: 'fx',
+  fxFee: 'fx',
+  fxFeeOver: 'fx',
+  fxSellFee: 'fx',
+  goldSpread: 'save',
+  stock: 'stock',
+  liveData: 'stock',
+  installments: 'card',
+  cashback: 'save',
+  autoCampaign: 'shop',
+  support: 'card',
+  setur: 'plane',
+  migros: 'shop',
+  migrosOnline: 'bag',
+  divan: 'cake',
+  neo: 'book',
+  koctas: 'home',
+}
 
 export default function ComparePage() {
   const { t, locale } = useI18n()
-  const rows = comparisonRows.filter((row) => row.id !== 'planFee')
-  const groups = [...new Set(rows.map((row) => row.group))]
+  const [catalog, setCatalog] = useState<PlanCatalog>(() => defaultPlanCatalog())
   const [intent, setIntent] = useState<SignupIntent | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [openHint, setOpenHint] = useState<string | null>(null)
@@ -150,6 +172,18 @@ export default function ComparePage() {
     plus: t.pkg.plus,
     premium: t.pkg.premium,
   }
+  const hints = t.compare.hints as Record<string, string>
+  const groups = [...new Set(catalog.rows.map((row) => row.group))]
+
+  useEffect(() => {
+    let live = true
+    void fetchPlanCatalog().then((next) => {
+      if (live && next) setCatalog(next)
+    })
+    return () => {
+      live = false
+    }
+  }, [])
 
   useEffect(() => {
     if (!openHint) return
@@ -175,6 +209,7 @@ export default function ComparePage() {
               {planColumns.map((col) => (
                 <div key={col.id} className="rev-plan">
                   <h2>{colName[col.id]}</h2>
+                  <strong className="rev-price">{locale === 'en' ? catalog.prices[col.id].en : catalog.prices[col.id].tr}</strong>
                   <button type="button" className="rev-get" onClick={() => setIntent(col.id)}>
                     {t.plans.request}
                   </button>
@@ -195,52 +230,54 @@ export default function ComparePage() {
                     {groupLabel[group]}
                   </span>
                 </div>
-                {rows
+                {catalog.rows
                   .filter((row) => row.group === group)
                   .map((row) => (
                     <div key={row.id} className="rev-row">
                       <div className="rev-feat">
                         <span className="rev-ico">
-                          <Icon name={row.icon} />
+                          <Icon name={rowIcons[row.id] ?? groupIcon[row.group]} />
                         </span>
-                        <span>{t.compare.rows[row.id]}</span>
-                        <button
-                          type="button"
-                          className="rev-info"
-                          aria-label={`${t.compare.info}: ${t.compare.rows[row.id]}`}
-                          aria-expanded={openHint === row.id}
-                          aria-controls={openHint === row.id ? `hint-${row.id}` : undefined}
-                          onMouseEnter={row.id === 'koctas' ? () => setOpenHint(row.id) : undefined}
-                          onMouseLeave={
-                            row.id === 'koctas'
-                              ? () => setOpenHint((current) => (current === row.id ? null : current))
-                              : undefined
-                          }
-                          onFocus={row.id === 'koctas' ? () => setOpenHint(row.id) : undefined}
-                          onBlur={
-                            row.id === 'koctas'
-                              ? () => setOpenHint((current) => (current === row.id ? null : current))
-                              : undefined
-                          }
-                          onClick={() => {
-                            if (row.id === 'koctas' && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-                              setOpenHint(row.id)
-                              return
+                        <span>{locale === 'en' ? row.labelEn : row.labelTr}</span>
+                        {hints[row.id] && (
+                          <button
+                            type="button"
+                            className="rev-info"
+                            aria-label={`${t.compare.info}: ${locale === 'en' ? row.labelEn : row.labelTr}`}
+                            aria-expanded={openHint === row.id}
+                            aria-controls={openHint === row.id ? `hint-${row.id}` : undefined}
+                            onMouseEnter={row.id === 'koctas' ? () => setOpenHint(row.id) : undefined}
+                            onMouseLeave={
+                              row.id === 'koctas'
+                                ? () => setOpenHint((current) => (current === row.id ? null : current))
+                                : undefined
                             }
-                            setOpenHint((current) => (current === row.id ? null : row.id))
-                          }}
-                        >
-                          i
-                        </button>
-                        {openHint === row.id && t.compare.hints[row.id] && (
+                            onFocus={row.id === 'koctas' ? () => setOpenHint(row.id) : undefined}
+                            onBlur={
+                              row.id === 'koctas'
+                                ? () => setOpenHint((current) => (current === row.id ? null : current))
+                                : undefined
+                            }
+                            onClick={() => {
+                              if (row.id === 'koctas' && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+                                setOpenHint(row.id)
+                                return
+                              }
+                              setOpenHint((current) => (current === row.id ? null : row.id))
+                            }}
+                          >
+                            i
+                          </button>
+                        )}
+                        {openHint === row.id && hints[row.id] && (
                           <span className="rev-hint" id={`hint-${row.id}`} role="tooltip">
-                            {t.compare.hints[row.id]}
+                            {hints[row.id]}
                           </span>
                         )}
                       </div>
                       {planColumns.map((col) => (
                         <div key={col.id} className="rev-cell">
-                          <Cell value={localizeFeature(row.values[col.id], t, locale)} />
+                          <Cell value={locale === 'en' ? row.values[col.id].en : row.values[col.id].tr} />
                         </div>
                       ))}
                     </div>

@@ -483,6 +483,21 @@ export type Messages = {
     tabRequests: string
     tabSupport: string
     tabInterests: string
+    tabPlans: string
+    planTitle: string
+    planLead: string
+    planPrice: string
+    planRows: string
+    planLabelTr: string
+    planLabelEn: string
+    planAdd: string
+    planSave: string
+    planSaved: string
+    planGroup: string
+    planGroupBank: string
+    planGroupTravel: string
+    planGroupBrand: string
+    planDelete: string
     interestTitle: string
     interestLead: string
     interestEmpty: string

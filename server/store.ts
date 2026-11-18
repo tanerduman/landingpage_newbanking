@@ -3,6 +3,8 @@ import pg from 'pg'
 import { secretDigest } from './auth.ts'
 import { CONFIRM_CODE_DIGITS, CONFIRM_TTL_MS } from '../src/confirmCode.ts'
 import { normalizeEmail, visitScope, type VisitScope } from './email.ts'
+import { validatePlanCatalog } from './planCatalog.ts'
+import { defaultPlanCatalog, type PlanCatalog } from '../src/planCatalogData.ts'
 import {
   DEFAULT_SECTORS,
   SECTOR_LIMIT,
@@ -70,6 +72,8 @@ type Store = {
   createSector(input: { labelTr: string; labelEn: string }): Promise<SectorDef | 'sector_limit'>
   updateSector(input: { id: string; labelTr: string; labelEn: string }): Promise<SectorDef | 'not_found'>
   deleteSector(id: string): Promise<boolean>
+  getPlanCatalog(): Promise<PlanCatalog>
+  savePlanCatalog(catalog: PlanCatalog): Promise<PlanCatalog>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -125,6 +129,7 @@ type Memory = {
   support: SupportRecord[]
   interests: InterestRecord[]
   sectors: SectorDef[]
+  planCatalog: PlanCatalog | null
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
 }
@@ -266,6 +271,7 @@ function memoryStore(): Store {
     support: [],
     interests: [],
     sectors: DEFAULT_SECTORS.map((sector, position) => ({ ...sector, position })),
+    planCatalog: null,
     adminSessions: new Map(),
     rates: new Map(),
   }
@@ -506,6 +512,13 @@ function memoryStore(): Store {
       data.sectors.splice(index, 1)
       return true
     },
+    async getPlanCatalog() {
+      return data.planCatalog ?? defaultPlanCatalog()
+    },
+    async savePlanCatalog(catalog) {
+      data.planCatalog = catalog
+      return catalog
+    },
     async createAdminSession(input) {
       data.adminSessions.set(input.idHash, {
         user: input.user,
@@ -614,6 +627,11 @@ CREATE TABLE IF NOT EXISTS interest_sectors (
   label_tr TEXT NOT NULL,
   label_en TEXT NOT NULL,
   position INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS plan_catalog (
+  id TEXT PRIMARY KEY,
+  payload TEXT NOT NULL,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE TABLE IF NOT EXISTS app_meta (
   key TEXT PRIMARY KEY,
@@ -1188,6 +1206,28 @@ function postgresStore(url: string): Store {
       await ensure()
       const result = await pool.query(`DELETE FROM interest_sectors WHERE id = $1`, [id])
       return (result.rowCount ?? 0) > 0
+    },
+    async getPlanCatalog() {
+      await ensure()
+      const result = await pool.query<{ payload: string }>(`SELECT payload FROM plan_catalog WHERE id = 'current'`)
+      const raw = result.rows[0]?.payload
+      if (!raw) return defaultPlanCatalog()
+      try {
+        const parsed = validatePlanCatalog(JSON.parse(raw))
+        return typeof parsed === 'string' ? defaultPlanCatalog() : parsed
+      } catch {
+        return defaultPlanCatalog()
+      }
+    },
+    async savePlanCatalog(catalog) {
+      await ensure()
+      await pool.query(
+        `INSERT INTO plan_catalog (id, payload, updated_at)
+         VALUES ('current', $1, NOW())
+         ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, updated_at = NOW()`,
+        [JSON.stringify(catalog)],
+      )
+      return catalog
     },
     async createAdminSession(input) {
       await ensure()
