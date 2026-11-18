@@ -20,6 +20,7 @@ import {
 import { fetchVisitStats, loadVisitStats, type VisitStats } from './visits.ts'
 import InterestPanel from './InterestPanel.tsx'
 import PlanCatalogPanel from './PlanCatalogPanel.tsx'
+import HeroCopyPanel from './HeroCopyPanel.tsx'
 import { fetchInterests, type InterestEntry } from './interest.ts'
 import { fetchSupport, deleteSupportEntry, markSupportRead, type SupportEntry, type SupportKind } from './support.ts'
 import SupportPie from './SupportPie.tsx'
@@ -29,7 +30,7 @@ import LogoMark from './LogoMark.tsx'
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
 type KindFilter = 'all' | SupportKind
-type Panel = 'requests' | 'support' | 'interests' | 'plans'
+type Panel = 'requests' | 'support' | 'interests' | 'plans' | 'hero'
 
 const PAGE_SIZE = 10
 
@@ -425,6 +426,15 @@ export default function WaitlistPage() {
           >
             {t.waitlist.tabPlans}
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={panel === 'hero'}
+            className={panel === 'hero' ? 'active' : ''}
+            onClick={() => changePanel('hero')}
+          >
+            {t.waitlist.tabHero}
+          </button>
         </div>
         {panel === 'support' ? (
           <>
@@ -532,6 +542,8 @@ export default function WaitlistPage() {
           <InterestPanel entries={interests} />
         ) : panel === 'plans' ? (
           <PlanCatalogPanel />
+        ) : panel === 'hero' ? (
+          <HeroCopyPanel />
         ) : (
           <>
         <div className="section-head">
