@@ -236,7 +236,7 @@ export default function SupportPage() {
               {error && <p className="support-error">{error}</p>}
               <button type="submit" className="btn btn-solid support-submit" disabled={busy} aria-busy={busy}>
                 {busy ? <Spinner /> : null}
-                {busy ? t.support.sending : phase === 'code' ? t.signup.confirm : t.signup.sendCode}
+                {busy ? t.support.sending : phase === 'code' ? t.signup.confirm : t.support.submit}
               </button>
             </form>
         )}
