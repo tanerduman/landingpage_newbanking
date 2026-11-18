@@ -513,7 +513,9 @@ h3 {
 
 .stage {
   position: relative;
-  min-height: 560px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .card-stack {
@@ -640,14 +642,8 @@ h3 {
   bottom: 64px;
 }
 
-.hero-film-row {
-  display: flex;
-  justify-content: center;
-  padding: 12px 0 72px;
-}
-
 .hero-phone {
-  width: min(340px, 100%);
+  width: min(300px, 100%);
   padding: 18px 12px 12px;
   border-radius: 48px;
   background:
@@ -4774,8 +4770,10 @@ td.row-action {
     display: grid;
   }
 
-  .hero-phone {
-    width: min(300px, 100%);
+  .stage {
+    justify-content: center;
+    height: auto;
+    min-height: 0;
   }
 
   .film-scene {
@@ -4834,7 +4832,6 @@ td.row-action {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .stage,
   .card-stack {
     min-height: 460px;
     height: 460px;
