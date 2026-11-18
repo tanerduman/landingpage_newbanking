@@ -8,17 +8,14 @@ import {
   confirmWaitlist,
   fetchConfirmStatus,
   onWaitlistConfirmed,
-  type BillingCycle,
   type SignupIntent,
 } from './waitlist'
 
 export function SignupModal({
   intent,
-  cycle = 'monthly',
   onClose,
 }: {
   intent: SignupIntent
-  cycle?: BillingCycle
   onClose: (toast?: string) => void
 }) {
   const { t, locale } = useI18n()
@@ -30,7 +27,6 @@ export function SignupModal({
   const [code, setCode] = useState('')
   const [devCode, setDevCode] = useState('')
   const [statusToken, setStatusToken] = useState('')
-  const [billing, setBilling] = useState<BillingCycle>(intent === 'account' ? 'none' : cycle)
   const plan = plans.find((p) => p.id === intent)
   const planName = intent === 'account' ? t.pkg.account : (plan?.name ?? t.pkg.standard)
   const successToast =
@@ -123,7 +119,7 @@ export function SignupModal({
         email,
         intent,
         lang: locale,
-        cycle: intent === 'account' ? 'none' : billing === 'yearly' ? 'yearly' : 'monthly',
+        cycle: intent === 'account' ? 'none' : 'monthly',
       })
       if (result.status === 'pending') {
         setDevCode(result.devCode || '')
@@ -185,27 +181,6 @@ export function SignupModal({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ada@email.com"
             />
-            {intent !== 'account' && (
-              <>
-                <label>{t.signup.period}</label>
-                <div className="toggle" role="tablist" aria-label={t.signup.period}>
-                  <button
-                    type="button"
-                    className={billing !== 'yearly' ? 'active' : ''}
-                    onClick={() => setBilling('monthly')}
-                  >
-                    {t.plans.monthly}
-                  </button>
-                  <button
-                    type="button"
-                    className={billing === 'yearly' ? 'active' : ''}
-                    onClick={() => setBilling('yearly')}
-                  >
-                    {t.plans.yearly} <span className="save-tag">{t.plans.saveTag}</span>
-                  </button>
-                </div>
-              </>
-            )}
           </>
         ) : (
           <>

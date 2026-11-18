@@ -341,8 +341,7 @@ img {
 
 .btn:focus-visible,
 .plan-card:focus-visible,
-.faq-q:focus-visible,
-.toggle button:focus-visible {
+.faq-q:focus-visible {
   outline: 2px solid var(--lime);
   outline-offset: 3px;
 }
@@ -723,41 +722,6 @@ h3 {
 .ivory .section-head p,
 .ivory .muted {
   color: #5c574d;
-}
-
-.toggle {
-  display: inline-flex;
-  padding: 5px;
-  background: var(--bg-soft);
-  border-radius: 999px;
-}
-
-.ivory .toggle {
-  background: #e7e1d4;
-}
-
-.toggle button {
-  border: 0;
-  background: transparent;
-  color: inherit;
-  padding: 10px 16px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.toggle button.active {
-  background: var(--lime);
-  color: var(--ink);
-}
-
-.save-tag {
-  margin-left: 8px;
-  font-size: 11px;
-  background: var(--ink);
-  color: var(--lime);
-  padding: 2px 7px;
-  border-radius: 999px;
 }
 
 .account-banner {
@@ -2754,10 +2718,6 @@ footer {
   font-size: 13px;
   font-weight: 600;
   margin: 14px 0 6px;
-}
-
-.modal-card .toggle {
-  background: #e7e1d4;
 }
 
 .modal-card input {

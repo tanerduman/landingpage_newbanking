@@ -112,10 +112,6 @@ export type Messages = {
     bannerCta: string
     upgradeTitle: string
     upgradeLead: string
-    billingAria: string
-    monthly: string
-    yearly: string
-    saveTag: string
     perMonth: string
     perYear: string
     featured: string
@@ -364,7 +360,6 @@ export type Messages = {
     name: string
     namePh: string
     email: string
-    period: string
     codeLabel: string
     codeSent: string
     sendCode: string

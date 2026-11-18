@@ -189,7 +189,6 @@ export default function CalcPage() {
       {modal && (
         <SignupModal
           intent="account"
-          cycle="none"
           onClose={(msg) => {
             setModal(false)
             if (msg) setToast(msg)

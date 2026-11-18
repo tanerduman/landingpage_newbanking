@@ -61,7 +61,6 @@ export default function PartnersPage() {
       {modal && (
         <SignupModal
           intent="account"
-          cycle="none"
           onClose={(msg) => {
             setModal(false)
             if (msg) setToast(msg)
