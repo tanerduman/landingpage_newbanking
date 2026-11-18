@@ -514,7 +514,6 @@ h3 {
 .stage {
   position: relative;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
 }
 
@@ -642,57 +641,51 @@ h3 {
   bottom: 64px;
 }
 
-.hero-phone {
-  width: min(268px, 100%);
-  margin: 40px 56px 52px 0;
-  padding: 16px 11px 12px;
-  border-radius: 42px;
-  background: linear-gradient(165deg, #3c3c42 0%, #1c1c20 42%, #0e0e10 100%);
-  border: 1px solid rgba(244, 241, 234, 0.22);
-  box-shadow:
-    -22px 34px 46px rgba(0, 0, 0, 0.42),
-    0 12px 24px rgba(0, 0, 0, 0.28);
-  position: relative;
-  flex: none;
-  transform: rotate(-18deg);
-}
-
-.hero-phone::after {
-  content: "";
-  position: absolute;
-  top: 108px;
-  right: -3px;
-  width: 3px;
-  height: 64px;
-  border-radius: 0 3px 3px 0;
-  background: #2a2a30;
-}
-
-.hero-phone-speaker {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  width: 72px;
-  height: 5px;
-  margin-left: -36px;
-  border-radius: 999px;
-  background: rgba(244, 241, 234, 0.28);
-}
-
 .hero-film {
   display: block;
   width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: 32px;
+  border-radius: 16px;
   background: #101012;
   color: var(--text);
   text-align: left;
   cursor: pointer;
   position: relative;
-  aspect-ratio: 9 / 19.5;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
+}
+
+.hero-film .film-scene {
+  justify-content: flex-end;
+  padding: 44px 20px 70px;
+}
+
+.hero-film .film-mark {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 8px;
+}
+
+.hero-film .film-scene h2 {
+  font-size: clamp(22px, 2vw, 32px);
+}
+
+.hero-film .film-rate {
+  font-size: clamp(40px, 4vw, 64px) !important;
+}
+
+.hero-film .film-scene p {
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.hero-film .film-bands {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 10px;
 }
 
 .hero-film.is-video,
@@ -738,8 +731,8 @@ h3 {
 }
 
 .hero-film-preview {
-  width: min(220px, 100%);
-  aspect-ratio: 9 / 19.5;
+  width: min(420px, 100%);
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   border-radius: 28px;
   background: #070708;
@@ -4785,19 +4778,12 @@ td.row-action {
   }
 
   .stage {
-    justify-content: center;
     height: auto;
     min-height: 0;
   }
 
-  .hero-phone {
-    width: min(220px, 70vw);
-    margin: 28px auto 44px;
-    transform: rotate(-14deg);
-  }
-
-  .film-scene {
-    padding: 22px 20px 72px;
+  .hero-film .film-scene {
+    padding: 36px 14px 62px;
   }
 
   .cta-band,

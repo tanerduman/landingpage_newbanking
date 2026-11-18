@@ -11,12 +11,9 @@ function filmClock(ms: number) {
 }
 
 export default function HeroFilm({ src }: { src?: string | null }) {
-  return (
-    <div className="hero-phone">
-      <span className="hero-phone-speaker" aria-hidden="true" />
-      {src ? <FilmVideo src={src} /> : src === undefined ? <div className="hero-film hero-film-pending" aria-hidden="true" /> : <SampleFilm />}
-    </div>
-  )
+  if (src) return <FilmVideo src={src} />
+  if (src === undefined) return <div className="hero-film hero-film-pending" aria-hidden="true" />
+  return <SampleFilm />
 }
 
 function FilmVideo({ src }: { src: string }) {
