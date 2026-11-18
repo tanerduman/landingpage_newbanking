@@ -2658,6 +2658,71 @@ footer {
   color: var(--lime);
 }
 
+.fx-ask {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.fx-ask-card {
+  position: relative;
+  width: min(480px, 100%);
+  background: #fff;
+  color: #111;
+  border-radius: 28px;
+  padding: 56px 28px 24px;
+}
+
+.fx-ask-card h2 {
+  margin: 0 0 22px;
+  font-size: clamp(26px, 4vw, 34px);
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+}
+
+.fx-ask-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.fx-ask-actions .btn {
+  flex: 1 1 160px;
+}
+
+.fx-ask-error {
+  margin: 0 0 14px;
+  color: #9a3b32;
+  font-size: 14px;
+}
+
+.weekend-legend {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: #101012;
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.pkg-pill.weekend-yes {
+  background: #d8ff4a;
+  color: #111;
+}
+
+.pkg-pill.weekend-no {
+  background: #ffb4a8;
+  color: #111;
+}
+
 .modal {
   position: fixed;
   inset: 0;

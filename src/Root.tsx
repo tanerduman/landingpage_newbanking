@@ -20,6 +20,7 @@ import {
   isWaitlistLocation,
 } from './base.ts'
 import { recordVisit } from './visits.ts'
+import WeekendAsk from './WeekendAsk.tsx'
 
 function pageFromLocation() {
   if (isWaitlistLocation()) return 'waitlist'
@@ -85,5 +86,12 @@ export default function Root() {
       <App />
     )
 
-  return <LocaleProvider>{view}</LocaleProvider>
+  const ask = page !== 'waitlist' && page !== 'confirm'
+
+  return (
+    <LocaleProvider>
+      {view}
+      <WeekendAsk active={ask} />
+    </LocaleProvider>
+  )
 }

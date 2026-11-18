@@ -105,6 +105,13 @@ export type Messages = {
     gold: string
     goldHint: string
   }
+  fxAsk: {
+    question: string
+    yes: string
+    no: string
+    close: string
+    fail: string
+  }
   plans: {
     badge: string
     bannerTitle: string
@@ -481,6 +488,15 @@ export type Messages = {
     tabInterests: string
     tabPlans: string
     tabHero: string
+    tabWeekend: string
+    weekendTitle: string
+    weekendLead: string
+    weekendYes: string
+    weekendNo: string
+    weekendEmpty: string
+    weekendTotal: string
+    weekendChart: string
+    weekendAnswer: string
     heroTitle: string
     heroLead: string
     heroTitleTr: string

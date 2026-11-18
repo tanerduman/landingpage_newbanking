@@ -78,6 +78,8 @@ type Store = {
   savePlanCatalog(catalog: PlanCatalog): Promise<PlanCatalog>
   getHeroCopy(): Promise<HeroCopy>
   saveHeroCopy(copy: HeroCopy): Promise<HeroCopy>
+  saveWeekendFx(answer: WeekendFxAnswer): Promise<WeekendFxRow>
+  weekendFxStats(): Promise<WeekendFxStats>
   createAdminSession(input: AdminSessionInput): Promise<void>
   readAdminSession(idHash: string, passwordHash: string): Promise<{ user: string } | null>
   deleteAdminSession(idHash: string): Promise<void>
@@ -126,6 +128,20 @@ type InterestRecord = {
   updatedAt: string
 }
 
+export type WeekendFxAnswer = 'yes' | 'no'
+
+export type WeekendFxRow = {
+  id: string
+  answer: WeekendFxAnswer
+  createdAt: string
+}
+
+export type WeekendFxStats = {
+  yes: number
+  no: number
+  recent: WeekendFxRow[]
+}
+
 type Memory = {
   visitors: Map<string, { firstSeen: string; lastSeen: string; scope: VisitScope }>
   sessions: Map<string, { visitorId: string; createdAt: string; scope: VisitScope }>
@@ -135,6 +151,7 @@ type Memory = {
   sectors: SectorDef[]
   planCatalog: PlanCatalog | null
   heroCopy: HeroCopy | null
+  weekendFx: WeekendFxRow[]
   adminSessions: Map<string, AdminSessionRecord>
   rates: Map<string, RateBucket>
 }
@@ -268,6 +285,17 @@ function statsFromMemory(data: Memory, scope: VisitScope): VisitStats {
   return { unique, views, lastVisit, scope }
 }
 
+function weekendStats(rows: WeekendFxRow[]): WeekendFxStats {
+  let yes = 0
+  let no = 0
+  for (const row of rows) {
+    if (row.answer === 'yes') yes += 1
+    else no += 1
+  }
+  const recent = [...rows].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, 30)
+  return { yes, no, recent }
+}
+
 function memoryStore(): Store {
   const data: Memory = {
     visitors: new Map(),
@@ -278,6 +306,7 @@ function memoryStore(): Store {
     sectors: DEFAULT_SECTORS.map((sector, position) => ({ ...sector, position })),
     planCatalog: null,
     heroCopy: null,
+    weekendFx: [],
     adminSessions: new Map(),
     rates: new Map(),
   }
@@ -532,6 +561,14 @@ function memoryStore(): Store {
       data.heroCopy = copy
       return copy
     },
+    async saveWeekendFx(answer) {
+      const row: WeekendFxRow = { id: randomUUID(), answer, createdAt: new Date().toISOString() }
+      data.weekendFx.push(row)
+      return row
+    },
+    async weekendFxStats() {
+      return weekendStats(data.weekendFx)
+    },
     async createAdminSession(input) {
       data.adminSessions.set(input.idHash, {
         user: input.user,
@@ -651,6 +688,12 @@ CREATE TABLE IF NOT EXISTS hero_copy (
   payload TEXT NOT NULL,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS weekend_fx (
+  id TEXT PRIMARY KEY,
+  answer TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS weekend_fx_created_at_idx ON weekend_fx (created_at DESC);
 CREATE TABLE IF NOT EXISTS app_meta (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -1268,6 +1311,40 @@ function postgresStore(url: string): Store {
         [JSON.stringify(copy)],
       )
       return copy
+    },
+    async saveWeekendFx(answer) {
+      await ensure()
+      const id = randomUUID()
+      const result = await pool.query<{ id: string; answer: string; created_at: Date }>(
+        `INSERT INTO weekend_fx (id, answer) VALUES ($1, $2) RETURNING id, answer, created_at`,
+        [id, answer],
+      )
+      const row = result.rows[0]
+      return { id: row.id, answer: row.answer === 'no' ? 'no' : 'yes', createdAt: row.created_at.toISOString() }
+    },
+    async weekendFxStats() {
+      await ensure()
+      const counts = await pool.query<{ answer: string; n: number }>(
+        `SELECT answer, COUNT(*)::int AS n FROM weekend_fx GROUP BY answer`,
+      )
+      const recent = await pool.query<{ id: string; answer: string; created_at: Date }>(
+        `SELECT id, answer, created_at FROM weekend_fx ORDER BY created_at DESC LIMIT 30`,
+      )
+      let yes = 0
+      let no = 0
+      for (const row of counts.rows) {
+        if (row.answer === 'yes') yes = row.n
+        if (row.answer === 'no') no = row.n
+      }
+      return {
+        yes,
+        no,
+        recent: recent.rows.map((row) => ({
+          id: row.id,
+          answer: row.answer === 'no' ? 'no' as const : 'yes' as const,
+          createdAt: row.created_at.toISOString(),
+        })),
+      }
     },
     async createAdminSession(input) {
       await ensure()
