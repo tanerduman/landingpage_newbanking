@@ -8,6 +8,7 @@ import HowDeck from './HowDeck.tsx'
 import { defaultHeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, type HeroCopy } from './heroCopy.ts'
 import HeroFilm from './HeroFilm.tsx'
+import { loadHeroFilm } from './heroFilm.ts'
 import LogoMark from './LogoMark.tsx'
 
 function CardBrand() {
@@ -25,6 +26,17 @@ export default function App() {
   const [modal, setModal] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [hero, setHero] = useState<HeroCopy | null>(cachedHeroCopy)
+  const [filmUrl, setFilmUrl] = useState<string | null | undefined>(undefined)
+
+  useEffect(() => {
+    let live = true
+    void loadHeroFilm().then((url) => {
+      if (live) setFilmUrl(url)
+    })
+    return () => {
+      live = false
+    }
+  }, [])
 
   useEffect(() => {
     if (hero) return
@@ -137,7 +149,7 @@ export default function App() {
         </div>
 
         <div className="wrap hero-film-row">
-          <HeroFilm />
+          <HeroFilm src={filmUrl} />
         </div>
 
         <section className="section how" id="how">

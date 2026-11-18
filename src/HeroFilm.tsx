@@ -10,7 +10,22 @@ function filmClock(ms: number) {
   return `0:${String(seconds).padStart(2, '0')}`
 }
 
-export default function HeroFilm() {
+export default function HeroFilm({ src }: { src?: string | null }) {
+  if (src) return <FilmVideo src={src} />
+  if (src === undefined) return <div className="hero-film hero-film-pending" aria-hidden="true" />
+  return <SampleFilm />
+}
+
+function FilmVideo({ src }: { src: string }) {
+  const { t } = useI18n()
+  return (
+    <div className="hero-film is-video">
+      <video src={src} controls playsInline preload="metadata" aria-label={t.hero.film.play} />
+    </div>
+  )
+}
+
+function SampleFilm() {
   const { t } = useI18n()
   const copy = t.hero.film
   const [run, setRun] = useState<'idle' | 'play' | 'done'>('idle')

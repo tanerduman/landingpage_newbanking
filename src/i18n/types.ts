@@ -539,6 +539,17 @@ export type Messages = {
     heroTitleEn: string
     heroLeadTr: string
     heroLeadEn: string
+    filmTitle: string
+    filmLead: string
+    filmPick: string
+    filmUpload: string
+    filmUploading: string
+    filmReady: string
+    filmEmpty: string
+    filmNeed: string
+    filmType: string
+    filmBig: string
+    filmFail: string
     planTitle: string
     planLead: string
     planShowPrices: string
