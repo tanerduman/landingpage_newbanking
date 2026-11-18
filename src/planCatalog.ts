@@ -12,7 +12,9 @@ function isText(value: unknown): value is { tr: string; en: string } {
 
 function normalize(value: unknown): PlanCatalog | null {
   if (!value || typeof value !== 'object') return null
-  const data = value as { prices?: unknown; rows?: unknown }
+  const data = value as { showPrices?: unknown; prices?: unknown; rows?: unknown }
+  const showPrices = data.showPrices === undefined ? true : data.showPrices
+  if (typeof showPrices !== 'boolean') return null
   if (!data.prices || typeof data.prices !== 'object' || !Array.isArray(data.rows)) return null
   const prices = data.prices as Record<string, unknown>
   for (const id of PLAN_IDS) {
@@ -30,7 +32,7 @@ function normalize(value: unknown): PlanCatalog | null {
     rows.push(row)
   }
   if (!rows.length) return null
-  return { prices: prices as PlanCatalog['prices'], rows }
+  return { showPrices, prices: prices as PlanCatalog['prices'], rows }
 }
 
 export async function fetchPlanCatalog(): Promise<PlanCatalog | null> {

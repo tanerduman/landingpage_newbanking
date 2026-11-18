@@ -26,7 +26,9 @@ function columns(value: unknown, max: number): Record<PlanColumn, PlanText> | nu
 
 export function validatePlanCatalog(body: unknown): PlanCatalog | string {
   if (!body || typeof body !== 'object') return 'invalid'
-  const data = body as { prices?: unknown; rows?: unknown }
+  const data = body as { showPrices?: unknown; prices?: unknown; rows?: unknown }
+  const showPrices = data.showPrices === undefined ? true : data.showPrices
+  if (typeof showPrices !== 'boolean') return 'invalid'
   const prices = columns(data.prices, 24)
   if (!prices) return 'invalid'
   if (!Array.isArray(data.rows) || data.rows.length < 1 || data.rows.length > 40) return 'invalid'
@@ -46,5 +48,5 @@ export function validatePlanCatalog(body: unknown): PlanCatalog | string {
     seen.add(id)
     rows.push({ id, group: row.group as PlanGroup, labelTr, labelEn, values })
   }
-  return { prices, rows }
+  return { showPrices, prices, rows }
 }

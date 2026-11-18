@@ -3737,6 +3737,10 @@ td.row-action {
 
 .rev-plan h2 {
   font-size: 22px;
+  margin: 0 0 14px;
+}
+
+.rev-plan:has(.rev-price) h2 {
   margin: 0 0 6px;
 }
 
@@ -4661,6 +4665,36 @@ td.row-action {
     align-items: stretch;
     flex-direction: column;
   }
+}
+
+.plan-show-prices {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 18px;
+  max-width: 560px;
+}
+
+.plan-show-prices input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--lime);
+}
+
+.plan-show-prices span {
+  display: grid;
+  gap: 4px;
+}
+
+.plan-show-prices strong {
+  font-size: 16px;
+}
+
+.plan-show-prices em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: 14px;
 }
 
 .plan-editor-title {

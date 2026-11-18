@@ -328,6 +328,7 @@ export type Messages = {
     kicker: string
     title: string
     lead: string
+    leadHidden: string
     choose: string
     groupBank: string
     groupTravel: string
@@ -486,6 +487,8 @@ export type Messages = {
     tabPlans: string
     planTitle: string
     planLead: string
+    planShowPrices: string
+    planShowPricesLead: string
     planPrice: string
     planRows: string
     planLabelTr: string

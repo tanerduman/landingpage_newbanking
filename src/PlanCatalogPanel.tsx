@@ -52,6 +52,7 @@ export default function PlanCatalogPanel() {
 
   async function onSave() {
     const ready: PlanCatalog = {
+      showPrices: catalog.showPrices,
       prices: catalog.prices,
       rows: catalog.rows.map((row) => ({
         ...row,
@@ -96,6 +97,18 @@ export default function PlanCatalogPanel() {
       </div>
       {note && <p className="plan-editor-note">{note}</p>}
       {error && <p className="waitlist-action-error">{error}</p>}
+
+      <label className="plan-show-prices">
+        <input
+          type="checkbox"
+          checked={catalog.showPrices}
+          onChange={(event) => patch({ ...catalog, showPrices: event.target.checked })}
+        />
+        <span>
+          <strong>{t.waitlist.planShowPrices}</strong>
+          <em>{t.waitlist.planShowPricesLead}</em>
+        </span>
+      </label>
 
       <h2 className="plan-editor-title">{t.waitlist.planPrice}</h2>
       <div className="plan-price-grid">

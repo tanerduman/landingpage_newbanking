@@ -13,6 +13,7 @@ export type PlanContentRow = {
 }
 
 export type PlanCatalog = {
+  showPrices: boolean
   prices: Record<PlanColumn, PlanText>
   rows: PlanContentRow[]
 }
@@ -44,6 +45,7 @@ function row(
 
 export function defaultPlanCatalog(): PlanCatalog {
   return {
+    showPrices: true,
     prices: {
       account: same('0 ₺'),
       standard: same('149 ₺'),
