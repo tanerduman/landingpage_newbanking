@@ -45,6 +45,8 @@ export type Messages = {
       play: string
       pause: string
       replay: string
+      unmute: string
+      mute: string
       duration: string
       rate: string
       bands: { name: string; value: string }[]

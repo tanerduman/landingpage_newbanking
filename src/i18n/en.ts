@@ -46,6 +46,8 @@ export const en: Messages = {
       play: 'Play film',
       pause: 'Pause',
       replay: 'Play again',
+      unmute: 'Unmute',
+      mute: 'Mute',
       duration: '0:12',
       rate: '%34',
       bands: [

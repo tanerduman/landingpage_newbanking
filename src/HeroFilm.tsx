@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import LogoMark from './LogoMark.tsx'
 
@@ -19,18 +20,40 @@ export default function HeroFilm({ src }: { src?: string | null }) {
 function FilmVideo({ src }: { src: string }) {
   const { t } = useI18n()
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [muted, setMuted] = useState(true)
+  const [dock, setDock] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
+    setDock(video.closest('.billboard'))
+    const sync = () => setMuted(video.muted || video.volume === 0)
+    video.addEventListener('volumechange', sync)
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       video.pause()
-      return
+      return () => video.removeEventListener('volumechange', sync)
     }
     video.muted = true
     const pending = video.play()
     if (pending) pending.catch(() => {})
+    return () => video.removeEventListener('volumechange', sync)
   }, [src])
+
+  function toggleSound() {
+    const video = videoRef.current
+    if (!video) return
+    const opening = video.muted || video.volume === 0
+    video.muted = !opening
+    if (opening && video.volume === 0) video.volume = 1
+    setMuted(!opening)
+  }
+
+  const sound = (
+    <button type="button" className="film-sound" onClick={toggleSound}>
+      {muted ? <MutedIcon /> : <SoundIcon />}
+      {muted ? t.hero.film.unmute : t.hero.film.mute}
+    </button>
+  )
 
   return (
     <div className="hero-film is-video">
@@ -44,7 +67,28 @@ function FilmVideo({ src }: { src: string }) {
         preload="auto"
         aria-label={t.hero.film.play}
       />
+      {dock ? createPortal(sound, dock) : null}
     </div>
+  )
+}
+
+function MutedIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4.5 10v4h3.1L12 18.2V5.8L7.6 10H4.5z" />
+      <path d="M16 9.2 20.8 15" />
+      <path d="M20.8 9.2 16 15" />
+    </svg>
+  )
+}
+
+function SoundIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4.5 10v4h3.1L12 18.2V5.8L7.6 10H4.5z" />
+      <path d="M15.5 9.2a3.4 3.4 0 0 1 0 5.6" />
+      <path d="M17.8 7a6.2 6.2 0 0 1 0 10" />
+    </svg>
   )
 }
 

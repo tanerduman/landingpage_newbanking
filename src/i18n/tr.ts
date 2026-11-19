@@ -46,6 +46,8 @@ export const tr: Messages = {
       play: 'Filmi oynat',
       pause: 'Durdur',
       replay: 'Yeniden oynat',
+      unmute: 'Sesi aç',
+      mute: 'Sesi kapat',
       duration: '0:12',
       rate: '%34',
       bands: [
