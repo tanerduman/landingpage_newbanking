@@ -4,6 +4,11 @@ import { PLAN_IDS, type PlanCatalog, type PlanColumn, type PlanContentRow, type 
 export type { PlanCatalog, PlanColumn, PlanContentRow, PlanGroup }
 export { PLAN_IDS }
 
+function hintOf(value: unknown): string {
+  if (typeof value !== 'string') return ''
+  return value.replace(/\r\n/g, '\n').trim().slice(0, 400)
+}
+
 function isText(value: unknown): value is { tr: string; en: string } {
   if (!value || typeof value !== 'object') return false
   const row = value as { tr?: unknown; en?: unknown }
@@ -29,7 +34,15 @@ function normalize(value: unknown): PlanCatalog | null {
     for (const id of PLAN_IDS) {
       if (!isText(row.values?.[id])) return null
     }
-    rows.push(row)
+    rows.push({
+      id: row.id,
+      group: row.group,
+      labelTr: row.labelTr.trim(),
+      labelEn: row.labelEn.trim(),
+      hintTr: hintOf(row.hintTr),
+      hintEn: hintOf(row.hintEn),
+      values: row.values,
+    })
   }
   if (!rows.length) return null
   return { showPrices, prices: prices as PlanCatalog['prices'], rows }
@@ -57,6 +70,14 @@ export function cachedPlanCatalog(): PlanCatalog | null {
 }
 
 let shared: Promise<PlanCatalog | null> | null = null
+
+export function planHint(row: PlanContentRow, locale: 'tr' | 'en', builtIn: Record<string, string>) {
+  const own = (locale === 'en' ? row.hintEn : row.hintTr).trim()
+  if (own) return own
+  const other = (locale === 'en' ? row.hintTr : row.hintEn).trim()
+  if (other) return other
+  return builtIn[row.id] ?? ''
+}
 
 export function loadPlanCatalog(): Promise<PlanCatalog | null> {
   const cached = cachedPlanCatalog()

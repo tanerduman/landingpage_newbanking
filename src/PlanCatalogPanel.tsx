@@ -14,6 +14,8 @@ function blankRow() {
     group: 'bank' as PlanGroup,
     labelTr: '',
     labelEn: '',
+    hintTr: '',
+    hintEn: '',
     values: { account: empty, standard: { ...empty }, plus: { ...empty }, premium: { ...empty } },
   }
 }
@@ -61,6 +63,8 @@ export default function PlanCatalogPanel() {
         ...row,
         labelTr: row.labelTr.trim(),
         labelEn: row.labelEn.trim(),
+        hintTr: row.hintTr.trim(),
+        hintEn: row.hintEn.trim(),
         values: {
           account: { tr: row.values.account.tr.trim() || '—', en: row.values.account.en.trim() || '—' },
           standard: { tr: row.values.standard.tr.trim() || '—', en: row.values.standard.en.trim() || '—' },
@@ -199,6 +203,33 @@ export default function PlanCatalogPanel() {
               >
                 {t.waitlist.planDelete}
               </button>
+              <label className="plan-hint-field">
+                {t.waitlist.planHintTr}
+                <textarea
+                  rows={3}
+                  maxLength={400}
+                  value={row.hintTr}
+                  onChange={(event) => {
+                    const hintTr = event.target.value
+                    const rows = catalog.rows.map((item, itemIndex) => (itemIndex === index ? { ...item, hintTr } : item))
+                    patch({ ...catalog, rows })
+                  }}
+                />
+              </label>
+              <label className="plan-hint-field">
+                {t.waitlist.planHintEn}
+                <textarea
+                  rows={3}
+                  maxLength={400}
+                  value={row.hintEn}
+                  onChange={(event) => {
+                    const hintEn = event.target.value
+                    const rows = catalog.rows.map((item, itemIndex) => (itemIndex === index ? { ...item, hintEn } : item))
+                    patch({ ...catalog, rows })
+                  }}
+                />
+              </label>
+              <p className="plan-hint-note">{t.waitlist.planHintLead}</p>
             </div>
             <div className="plan-value-grid">
               {PLAN_IDS.map((id) => (

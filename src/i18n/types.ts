@@ -562,6 +562,9 @@ export type Messages = {
     planRows: string
     planLabelTr: string
     planLabelEn: string
+    planHintTr: string
+    planHintEn: string
+    planHintLead: string
     planAdd: string
     planSave: string
     planSaved: string

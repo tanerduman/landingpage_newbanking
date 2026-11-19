@@ -12,6 +12,14 @@ function text(value: unknown, max: number): PlanText | null {
   return { tr, en }
 }
 
+function hint(value: unknown): string | null {
+  if (value === undefined || value === null) return ''
+  if (typeof value !== 'string') return null
+  const text = value.replace(/\r\n/g, '\n').trim()
+  if (text.length > 400) return null
+  return text
+}
+
 function columns(value: unknown, max: number): Record<PlanColumn, PlanText> | null {
   if (!value || typeof value !== 'object') return null
   const source = value as Record<string, unknown>
@@ -36,17 +44,20 @@ export function validatePlanCatalog(body: unknown): PlanCatalog | string {
   const seen = new Set<string>()
   for (const item of data.rows) {
     if (!item || typeof item !== 'object') return 'invalid'
-    const row = item as { id?: unknown; group?: unknown; labelTr?: unknown; labelEn?: unknown; values?: unknown }
+    const row = item as { id?: unknown; group?: unknown; labelTr?: unknown; labelEn?: unknown; hintTr?: unknown; hintEn?: unknown; values?: unknown }
     const id = typeof row.id === 'string' ? row.id.trim() : ''
     if (!ID_RE.test(id) || seen.has(id)) return 'invalid'
     if (typeof row.group !== 'string' || !GROUPS.has(row.group as PlanGroup)) return 'invalid'
     const labelTr = typeof row.labelTr === 'string' ? row.labelTr.trim() : ''
     const labelEn = typeof row.labelEn === 'string' ? row.labelEn.trim() : ''
     if (labelTr.length < 1 || labelTr.length > 80 || labelEn.length < 1 || labelEn.length > 80) return 'invalid'
+    const hintTr = hint(row.hintTr)
+    const hintEn = hint(row.hintEn)
+    if (hintTr === null || hintEn === null) return 'invalid'
     const values = columns(row.values, 80)
     if (!values) return 'invalid'
     seen.add(id)
-    rows.push({ id, group: row.group as PlanGroup, labelTr, labelEn, values })
+    rows.push({ id, group: row.group as PlanGroup, labelTr, labelEn, hintTr, hintEn, values })
   }
   return { showPrices, prices, rows }
 }
