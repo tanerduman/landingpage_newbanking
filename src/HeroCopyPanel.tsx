@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Spinner from './Spinner.tsx'
-import { defaultHeroCopy, type HeroCopy } from './heroCopyData.ts'
+import { DEFAULT_FILM_OPACITY, defaultHeroCopy, type HeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, saveHeroCopy } from './heroCopy.ts'
 import { loadHeroFilm, uploadHeroFilm } from './heroFilm.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -49,6 +49,7 @@ export default function HeroCopyPanel() {
     const ready: HeroCopy = {
       title: { tr: copy.title.tr.trim(), en: copy.title.en.trim() },
       lead: { tr: copy.lead.tr.trim(), en: copy.lead.en.trim() },
+      filmOpacity: copy.filmOpacity,
     }
     setBusy(true)
     setError('')
@@ -101,6 +102,26 @@ export default function HeroCopyPanel() {
           {t.waitlist.heroLeadEn}
           <textarea rows={7} maxLength={900} value={copy.lead.en} onChange={(event) => update('lead', 'en', event.target.value)} />
         </label>
+        <label htmlFor="hero-film-opacity">
+          <span className="hero-opacity-label">
+            <span>{t.waitlist.filmOpacity}</span>
+            <b>{Math.round(copy.filmOpacity * 100)}%</b>
+          </span>
+          <input
+            id="hero-film-opacity"
+            type="range"
+            min={0}
+            max={100}
+            step={1}
+            value={Math.round(copy.filmOpacity * 100)}
+            onChange={(event) => {
+              setNote('')
+              const next = Number(event.target.value) / 100
+              setCopy((current) => (current ? { ...current, filmOpacity: next } : current))
+            }}
+          />
+          <span className="hero-opacity-hint">{t.waitlist.filmOpacityHint}</span>
+        </label>
       </div>
       )}
       <form
@@ -149,7 +170,16 @@ export default function HeroCopyPanel() {
         {filmName && <p className="hero-film-state">{filmName}</p>}
         {filmNote && <p className="plan-editor-note">{filmNote}</p>}
         {filmError && <p className="waitlist-action-error">{filmError}</p>}
-        {filmUrl && <video className="hero-film-preview" src={filmUrl} controls playsInline preload="metadata" />}
+        {filmUrl && (
+          <video
+            className="hero-film-preview"
+            src={filmUrl}
+            style={{ opacity: copy?.filmOpacity ?? DEFAULT_FILM_OPACITY }}
+            controls
+            playsInline
+            preload="metadata"
+          />
+        )}
         <button type="submit" className="btn btn-solid" disabled={filmBusy} aria-busy={filmBusy}>
           {filmBusy ? <Spinner /> : null}
           {filmBusy ? t.waitlist.filmUploading : t.waitlist.filmUpload}

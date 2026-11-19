@@ -845,6 +845,8 @@ export const tr: Messages = {
     heroTitleEn: 'İngilizce başlık',
     heroLeadTr: 'Türkçe alt metin',
     heroLeadEn: 'İngilizce alt metin',
+    filmOpacity: 'Video opaklığı',
+    filmOpacityHint: '0 görünmez, 100 dolu. Kaydet ana sayfadaki videoya yazar.',
     filmTitle: 'Reklam videosu.',
     filmLead: 'Bu video, ana sayfadaki örnek filmin yerine geçer. mp4, webm veya mov. En fazla 150 MB.',
     filmPick: 'Video seç',

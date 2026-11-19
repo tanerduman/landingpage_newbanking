@@ -1,5 +1,5 @@
 import { apiFetch, readApiJson } from './api.ts'
-import { type HeroCopy, type HeroText } from './heroCopyData.ts'
+import { filmOpacityOf, type HeroCopy, type HeroText } from './heroCopyData.ts'
 
 export type { HeroCopy, HeroText }
 
@@ -15,11 +15,11 @@ function pair(value: unknown, max: number): HeroText | null {
 
 export function normalizeHeroCopy(value: unknown): HeroCopy | null {
   if (!value || typeof value !== 'object') return null
-  const data = value as { title?: unknown; lead?: unknown }
+  const data = value as { title?: unknown; lead?: unknown; filmOpacity?: unknown }
   const title = pair(data.title, 240)
   const lead = pair(data.lead, 900)
   if (!title || !lead) return null
-  return { title, lead }
+  return { title, lead, filmOpacity: filmOpacityOf(data.filmOpacity) }
 }
 
 export async function fetchHeroCopy(): Promise<HeroCopy | null> {

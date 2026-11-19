@@ -539,6 +539,8 @@ export type Messages = {
     heroTitleEn: string
     heroLeadTr: string
     heroLeadEn: string
+    filmOpacity: string
+    filmOpacityHint: string
     filmTitle: string
     filmLead: string
     filmPick: string

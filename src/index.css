@@ -5618,3 +5618,26 @@ td.row-action {
   font: inherit;
   line-height: 1.45;
 }
+
+.hero-opacity-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.hero-opacity-label b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.hero-copy-form input[type='range'] {
+  width: 100%;
+  accent-color: var(--lime);
+  cursor: pointer;
+}
+
+.hero-opacity-hint {
+  color: var(--muted);
+  font-size: 12px;
+}

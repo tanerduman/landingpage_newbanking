@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { withBase } from './base.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { type SignupIntent } from './waitlist'
 import HowDeck from './HowDeck.tsx'
-import { defaultHeroCopy } from './heroCopyData.ts'
+import { DEFAULT_FILM_OPACITY, defaultHeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, type HeroCopy } from './heroCopy.ts'
 import HeroFilm from './HeroFilm.tsx'
 import { loadHeroFilm } from './heroFilm.ts'
@@ -53,7 +53,10 @@ export default function App() {
       <SiteHeader onRequest={openAccount} />
 
       <main id="top">
-        <section className="billboard">
+        <section
+          className="billboard"
+          style={{ '--film-opacity': String(hero?.filmOpacity ?? DEFAULT_FILM_OPACITY) } as CSSProperties}
+        >
           <div className="billboard-media">
             <HeroFilm src={filmUrl} />
           </div>
