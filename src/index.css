@@ -398,6 +398,7 @@ img {
 }
 
 .billboard {
+  --film-opacity: 0.8;
   position: relative;
   overflow: hidden;
 }
@@ -415,6 +416,10 @@ img {
   border-radius: 0;
   object-fit: cover;
   object-position: 72% center;
+}
+
+.billboard-media .hero-film {
+  opacity: var(--film-opacity);
 }
 
 .billboard::after {
