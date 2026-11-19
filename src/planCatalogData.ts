@@ -9,6 +9,8 @@ export type PlanContentRow = {
   group: PlanGroup
   labelTr: string
   labelEn: string
+  hintTr: string
+  hintEn: string
   values: Record<PlanColumn, PlanText>
 }
 
@@ -34,6 +36,8 @@ function row(
     group,
     labelTr,
     labelEn,
+    hintTr: '',
+    hintEn: '',
     values: {
       account: values[0],
       standard: values[1],

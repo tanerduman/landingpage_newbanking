@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { planColumns, type PlanColumnId } from './plans.ts'
 import { defaultPlanCatalog } from './planCatalogData.ts'
-import { cachedPlanCatalog, loadPlanCatalog, type PlanCatalog } from './planCatalog.ts'
+import { cachedPlanCatalog, loadPlanCatalog, planHint, type PlanCatalog } from './planCatalog.ts'
 import { SignupModal, SignupToast } from './SignupModal.tsx'
 import SiteHeader from './SiteHeader.tsx'
 import type { SignupIntent } from './waitlist'
@@ -245,7 +245,7 @@ export default function ComparePage() {
                           <Icon name={rowIcons[row.id] ?? groupIcon[row.group]} />
                         </span>
                         <span>{locale === 'en' ? row.labelEn : row.labelTr}</span>
-                        {hints[row.id] && (
+                        {planHint(row, locale, hints) && (
                           <button
                             type="button"
                             className="rev-info"
@@ -275,9 +275,9 @@ export default function ComparePage() {
                             i
                           </button>
                         )}
-                        {openHint === row.id && hints[row.id] && (
+                        {openHint === row.id && planHint(row, locale, hints) && (
                           <span className="rev-hint" id={`hint-${row.id}`} role="tooltip">
-                            {hints[row.id]}
+                            {planHint(row, locale, hints)}
                           </span>
                         )}
                       </div>
