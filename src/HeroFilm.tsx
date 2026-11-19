@@ -85,8 +85,11 @@ function FilmVideo({ src }: { src: string }) {
         muted
         playsInline
         controls
+        controlsList="nofullscreen nodownload noplaybackrate noremoteplayback"
+        disablePictureInPicture
         preload="auto"
         aria-label={t.hero.film.play}
+        onContextMenu={(event) => event.preventDefault()}
       />
       {dock ? createPortal(sound, dock) : null}
     </div>

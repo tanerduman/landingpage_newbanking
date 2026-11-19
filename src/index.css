@@ -481,7 +481,9 @@ img {
 
 .billboard-media video::-webkit-media-controls-mute-button,
 .billboard-media video::-webkit-media-controls-volume-slider,
-.billboard-media video::-webkit-media-controls-volume-control-container {
+.billboard-media video::-webkit-media-controls-volume-control-container,
+.billboard-media video::-webkit-media-controls-fullscreen-button,
+.billboard-media video::-webkit-media-controls-overflow-button {
   display: none !important;
 }
 
