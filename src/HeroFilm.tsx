@@ -28,15 +28,36 @@ function FilmVideo({ src }: { src: string }) {
     if (!video) return
     setDock(video.closest('.billboard'))
     const sync = () => setMuted(video.muted || video.volume === 0)
+    const replay = () => {
+      video.muted = true
+      setMuted(true)
+      const play = () => {
+        const pending = video.play()
+        if (pending) pending.catch(() => {})
+      }
+      if (video.currentTime < 0.05) {
+        play()
+        return
+      }
+      video.addEventListener('seeked', play, { once: true })
+      video.currentTime = 0
+    }
     video.addEventListener('volumechange', sync)
+    video.addEventListener('ended', replay)
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       video.pause()
-      return () => video.removeEventListener('volumechange', sync)
+      return () => {
+        video.removeEventListener('volumechange', sync)
+        video.removeEventListener('ended', replay)
+      }
     }
     video.muted = true
     const pending = video.play()
     if (pending) pending.catch(() => {})
-    return () => video.removeEventListener('volumechange', sync)
+    return () => {
+      video.removeEventListener('volumechange', sync)
+      video.removeEventListener('ended', replay)
+    }
   }, [src])
 
   function toggleSound() {
