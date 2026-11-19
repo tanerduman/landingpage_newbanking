@@ -397,12 +397,113 @@ img {
   border-radius: 12px;
 }
 
+.billboard {
+  position: relative;
+  overflow: hidden;
+}
+
+.billboard-media {
+  position: absolute;
+  inset: 0;
+}
+
+.billboard-media .hero-film,
+.billboard-media .hero-film.is-video video {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  object-fit: cover;
+  object-position: 72% center;
+}
+
+.billboard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #070708 0%, rgba(7, 7, 8, 0.9) 22%, rgba(7, 7, 8, 0.34) 42%, transparent 58%),
+    linear-gradient(180deg, rgba(7, 7, 8, 0.35) 0%, transparent 18%, transparent 64%, #070708 100%);
+}
+
+.billboard > .hero {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  min-height: min(72vh, 680px);
+  padding: 64px 0 88px;
+  pointer-events: none;
+}
+
+.billboard > .hero > div {
+  max-width: 540px;
+  pointer-events: auto;
+}
+
+.billboard-media .film-top,
+.billboard-media .film-bottom {
+  display: none;
+}
+
+.billboard-media .hero-film .film-scene {
+  justify-content: center;
+  padding: 0 8vw 0 52%;
+}
+
+.billboard-media .film-scene.brand {
+  background:
+    radial-gradient(circle at 78% 46%, rgba(216, 255, 74, 0.34), transparent 32%),
+    linear-gradient(90deg, #070708 0%, #10140c 40%, #1a2410 100%);
+}
+
 .hero {
   padding: 36px 0 40px;
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: 48px;
   align-items: center;
+}
+
+@media (max-width: 980px) {
+  .billboard-media {
+    position: relative;
+    height: 56.25vw;
+    min-height: 200px;
+  }
+
+  .billboard::after {
+    display: none;
+  }
+
+  .billboard-media::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 42%;
+    background: linear-gradient(180deg, transparent, #070708);
+    pointer-events: none;
+  }
+
+  .billboard > .hero {
+    min-height: 0;
+    padding: 8px 0 36px;
+    align-items: flex-start;
+  }
+
+  .billboard-media .hero-film .film-scene {
+    justify-content: flex-end;
+    padding: 36px 16px 62px;
+  }
+
+  .billboard-media .film-top,
+  .billboard-media .film-bottom {
+    display: flex;
+  }
 }
 
 .eyebrow {

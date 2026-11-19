@@ -53,8 +53,12 @@ export default function App() {
       <SiteHeader onRequest={openAccount} />
 
       <main id="top">
-        <div className="wrap hero">
-          <div>
+        <section className="billboard">
+          <div className="billboard-media">
+            <HeroFilm src={filmUrl} />
+          </div>
+          <div className="wrap hero">
+            <div>
             <p className="hero-kicker">
               <span className="dot" /> {t.hero.eyebrow}
             </p>
@@ -82,12 +86,9 @@ export default function App() {
               </a>
             </div>
             <p className="hero-note">{t.hero.note}</p>
+            </div>
           </div>
-
-          <div className="stage">
-            <HeroFilm src={filmUrl} />
-          </div>
-        </div>
+        </section>
 
         <section className="section how" id="how">
           <div className="wrap">
