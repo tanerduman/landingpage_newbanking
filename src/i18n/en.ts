@@ -845,6 +845,8 @@ export const en: Messages = {
     heroTitleEn: 'English headline',
     heroLeadTr: 'Turkish paragraph',
     heroLeadEn: 'English paragraph',
+    filmOpacity: 'Video opacity',
+    filmOpacityHint: '0 is invisible, 100 is solid. Save writes it to the video on the home page.',
     filmTitle: 'Ad video.',
     filmLead: 'This video replaces the sample film on the home page. mp4, webm, or mov. 150 MB at most.',
     filmPick: 'Choose a video',
