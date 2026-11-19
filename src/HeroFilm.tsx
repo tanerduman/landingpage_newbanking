@@ -18,9 +18,32 @@ export default function HeroFilm({ src }: { src?: string | null }) {
 
 function FilmVideo({ src }: { src: string }) {
   const { t } = useI18n()
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      video.pause()
+      return
+    }
+    video.muted = true
+    const pending = video.play()
+    if (pending) pending.catch(() => {})
+  }, [src])
+
   return (
     <div className="hero-film is-video">
-      <video src={src} controls playsInline preload="metadata" aria-label={t.hero.film.play} />
+      <video
+        ref={videoRef}
+        src={src}
+        autoPlay
+        muted
+        playsInline
+        controls
+        preload="auto"
+        aria-label={t.hero.film.play}
+      />
     </div>
   )
 }
