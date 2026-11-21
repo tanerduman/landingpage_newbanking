@@ -851,7 +851,38 @@ h3 {
   margin-top: 36px;
   display: grid;
   gap: 14px;
-  max-width: 640px;
+  max-width: 720px;
+}
+
+.hero-film-slots {
+  display: grid;
+  gap: 14px;
+}
+
+.hero-film-slot {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.hero-film-slot.is-live {
+  border-color: rgba(216, 255, 74, 0.85);
+}
+
+.hero-film-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-weight: 650;
+}
+
+.hero-film-pick input {
+  accent-color: #d8ff4a;
+  width: 18px;
+  height: 18px;
 }
 
 .hero-film-admin h2 {

@@ -2,10 +2,17 @@ export type HeroText = { tr: string; en: string }
 
 export const DEFAULT_FILM_OPACITY = 0.8
 
+export type FilmSlot = 1 | 2
+
 export type HeroCopy = {
   title: HeroText
   lead: HeroText
   filmOpacity: number
+  filmSlot: FilmSlot
+}
+
+export function filmSlotOf(value: unknown): FilmSlot {
+  return value === 2 || value === '2' ? 2 : 1
 }
 
 export function filmOpacityOf(value: unknown): number {
@@ -26,5 +33,6 @@ export function defaultHeroCopy(): HeroCopy {
       en: 'Next-generation banking that puts transfers, investing and shopping in one wallet, without surprise fees or hidden commission. The monthly plan you choose opens overnight interest on demand balances, a spread that narrows with the plan, automatic offers, and a live representative who does not keep you waiting. For now we only take requests.',
     },
     filmOpacity: DEFAULT_FILM_OPACITY,
+    filmSlot: 1,
   }
 }

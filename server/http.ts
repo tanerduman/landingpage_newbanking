@@ -27,7 +27,7 @@ import {
 import { validatePlanCatalog } from './planCatalog.ts'
 import { validateHeroCopy } from './heroCopy.ts'
 import { validatePopupCatalog } from './popupCopy.ts'
-import { currentFilmUrl, filmEventType, receiveFilmUpload } from './film.ts'
+import { listFilmSlots, pickFilmUrl, filmEventType, receiveFilmUpload } from './film.ts'
 import type { HandleUploadBody } from '@vercel/blob/client'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
@@ -242,7 +242,9 @@ async function handleWaitlist(request: Request) {
   }
   if (request.method === 'GET' && new URL(request.url).searchParams.get('film') === '1') {
     if (await overLimit(`film:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
-    return json({ url: await currentFilmUrl() }, 200, request)
+    const copy = await store.getHeroCopy()
+    const slots = await listFilmSlots()
+    return json({ url: pickFilmUrl(slots, copy.filmSlot), slot: copy.filmSlot, slots }, 200, request)
   }
   if (request.method === 'GET' && new URL(request.url).searchParams.get('hero') === '1') {
     if (await overLimit(`hero:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)

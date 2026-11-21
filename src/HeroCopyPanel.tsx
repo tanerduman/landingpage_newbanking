@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import Spinner from './Spinner.tsx'
-import { DEFAULT_FILM_OPACITY, defaultHeroCopy, type HeroCopy } from './heroCopyData.ts'
+import { DEFAULT_FILM_OPACITY, defaultHeroCopy, type FilmSlot, type HeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, saveHeroCopy } from './heroCopy.ts'
-import { loadHeroFilm, uploadHeroFilm } from './heroFilm.ts'
+import { loadHeroFilms, uploadHeroFilm } from './heroFilm.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { messages, readLocale } from './i18n/index.ts'
 
@@ -12,16 +12,13 @@ export default function HeroCopyPanel() {
   const [busy, setBusy] = useState(false)
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
-  const [filmUrl, setFilmUrl] = useState<string | null>(null)
-  const [filmBusy, setFilmBusy] = useState(false)
-  const [filmNote, setFilmNote] = useState('')
-  const [filmError, setFilmError] = useState('')
-  const [filmName, setFilmName] = useState('')
+  const [films, setFilms] = useState<{ 1: string | null; 2: string | null }>({ 1: null, 2: null })
+  const [slotBusy, setSlotBusy] = useState(false)
 
   useEffect(() => {
     let live = true
-    void loadHeroFilm().then((url) => {
-      if (live) setFilmUrl(url)
+    void loadHeroFilms().then((next) => {
+      if (live) setFilms(next.slots)
     })
     return () => {
       live = false
@@ -50,6 +47,7 @@ export default function HeroCopyPanel() {
       title: { tr: copy.title.tr.trim(), en: copy.title.en.trim() },
       lead: { tr: copy.lead.tr.trim(), en: copy.lead.en.trim() },
       filmOpacity: copy.filmOpacity,
+      filmSlot: copy.filmSlot,
     }
     setBusy(true)
     setError('')
@@ -124,36 +122,99 @@ export default function HeroCopyPanel() {
         </label>
       </div>
       )}
-      <form
-        className="hero-film-admin"
-        onSubmit={(event) => {
-          event.preventDefault()
-          const input = event.currentTarget.elements.namedItem('film')
-          const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined
-          if (!file) {
-            setFilmError(t.waitlist.filmNeed)
-            return
-          }
-          setFilmBusy(true)
-          setFilmError('')
-          setFilmNote('')
-          void uploadHeroFilm(file)
-            .then((url) => {
-              setFilmUrl(url)
-              setFilmNote(t.waitlist.filmReady)
-            })
-            .catch((err: unknown) => {
-              const code = err instanceof Error ? err.message : ''
-              setFilmError(code === 'film_type' ? t.waitlist.filmType : code === 'film_big' ? t.waitlist.filmBig : t.waitlist.filmFail)
-            })
-            .finally(() => setFilmBusy(false))
-        }}
-      >
+      <section className="hero-film-admin">
         <div>
           <h2>{t.waitlist.filmTitle}</h2>
           <p>{t.waitlist.filmLead}</p>
-          <p className="hero-film-state">{filmUrl ? t.waitlist.filmReady : t.waitlist.filmEmpty}</p>
         </div>
+        <div className="hero-film-slots" role="radiogroup" aria-label={t.waitlist.filmChoose}>
+          {([1, 2] as const).map((slot) => (
+            <FilmSlotCard
+              key={slot}
+              slot={slot}
+              url={films[slot]}
+              live={copy?.filmSlot === slot}
+              opacity={copy?.filmOpacity ?? DEFAULT_FILM_OPACITY}
+              choosing={slotBusy}
+              disabled={!copy}
+              onChoose={() => {
+                if (!copy || copy.filmSlot === slot) return
+                const previous = copy
+                const next = { ...copy, filmSlot: slot }
+                setCopy(next)
+                setSlotBusy(true)
+                void saveHeroCopy(next)
+                  .then((saved) => setCopy(saved))
+                  .catch(() => setCopy(previous))
+                  .finally(() => setSlotBusy(false))
+              }}
+              onUploaded={(url) => setFilms((current) => ({ ...current, [slot]: url }))}
+            />
+          ))}
+        </div>
+      </section>
+    </>
+  )
+}
+
+function FilmSlotCard({
+  slot,
+  url,
+  live,
+  opacity,
+  choosing,
+  disabled,
+  onChoose,
+  onUploaded,
+}: {
+  slot: FilmSlot
+  url: string | null
+  live: boolean
+  opacity: number
+  choosing: boolean
+  disabled: boolean
+  onChoose: () => void
+  onUploaded: (url: string) => void
+}) {
+  const { t } = useI18n()
+  const [busy, setBusy] = useState(false)
+  const [name, setName] = useState('')
+  const [note, setNote] = useState('')
+  const [error, setError] = useState('')
+  const label = slot === 1 ? t.waitlist.filmSlot1 : t.waitlist.filmSlot2
+
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const input = event.currentTarget.elements.namedItem('film')
+    const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined
+    if (!file) {
+      setError(t.waitlist.filmNeed)
+      return
+    }
+    setBusy(true)
+    setError('')
+    setNote('')
+    void uploadHeroFilm(file, slot)
+      .then((next) => {
+        onUploaded(next)
+        setNote(t.waitlist.filmStored)
+      })
+      .catch((err: unknown) => {
+        const code = err instanceof Error ? err.message : ''
+        setError(code === 'film_type' ? t.waitlist.filmType : code === 'film_big' ? t.waitlist.filmBig : t.waitlist.filmFail)
+      })
+      .finally(() => setBusy(false))
+  }
+
+  return (
+    <article className={live ? 'hero-film-slot is-live' : 'hero-film-slot'}>
+      <label className="hero-film-pick">
+        <input type="radio" name="film-slot" checked={live} disabled={disabled || choosing} onChange={onChoose} />
+        {label}
+      </label>
+      <p className="hero-film-state">{url ? (live ? t.waitlist.filmReady : t.waitlist.filmStored) : t.waitlist.filmEmpty}</p>
+      {live && !url && slot === 2 && <p>{t.waitlist.filmSlotFallback}</p>}
+      <form onSubmit={onSubmit}>
         <label className="hero-film-file">
           {t.waitlist.filmPick}
           <input
@@ -161,30 +222,21 @@ export default function HeroCopyPanel() {
             type="file"
             accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov"
             onChange={(event) => {
-              setFilmName(event.target.files?.[0]?.name || '')
-              setFilmError('')
-              setFilmNote('')
+              setName(event.target.files?.[0]?.name || '')
+              setError('')
+              setNote('')
             }}
           />
         </label>
-        {filmName && <p className="hero-film-state">{filmName}</p>}
-        {filmNote && <p className="plan-editor-note">{filmNote}</p>}
-        {filmError && <p className="waitlist-action-error">{filmError}</p>}
-        {filmUrl && (
-          <video
-            className="hero-film-preview"
-            src={filmUrl}
-            style={{ opacity: copy?.filmOpacity ?? DEFAULT_FILM_OPACITY }}
-            controls
-            playsInline
-            preload="metadata"
-          />
-        )}
-        <button type="submit" className="btn btn-solid" disabled={filmBusy} aria-busy={filmBusy}>
-          {filmBusy ? <Spinner /> : null}
-          {filmBusy ? t.waitlist.filmUploading : t.waitlist.filmUpload}
+        {name && <p className="hero-film-state">{name}</p>}
+        {note && <p className="plan-editor-note">{note}</p>}
+        {error && <p className="waitlist-action-error">{error}</p>}
+        <button type="submit" className="btn btn-solid" disabled={busy} aria-busy={busy}>
+          {busy ? <Spinner /> : null}
+          {busy ? t.waitlist.filmUploading : t.waitlist.filmUpload}
         </button>
       </form>
-    </>
+      {url && <video className="hero-film-preview" src={url} style={{ opacity }} controls playsInline preload="metadata" />}
+    </article>
   )
 }
