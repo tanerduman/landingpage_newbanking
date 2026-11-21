@@ -1,5 +1,5 @@
-import { list } from '@vercel/blob'
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
+import { issueSignedToken, list } from '@vercel/blob'
+import { handleUploadPresigned, type HandleUploadPresignedBody } from '@vercel/blob/client'
 
 const FILM_PATH = /^hero\/(?:reklam|film2)\.(mp4|webm|mov)$/
 const SLOT_1 = /^hero\/reklam\.(mp4|webm|mov)$/i
@@ -73,25 +73,41 @@ export async function listFilmSlots(): Promise<FilmSlots> {
   }
 }
 
+const FILM_EVENTS = new Set(['blob.generate-client-token', 'blob.generate-presigned-url', 'blob.upload-completed'])
+
 export function filmEventType(value: unknown) {
   if (!value || typeof value !== 'object' || !('type' in value)) return null
   const type = (value as { type?: unknown }).type
-  if (type === 'blob.generate-client-token' || type === 'blob.upload-completed') return type
-  return null
+  return typeof type === 'string' && FILM_EVENTS.has(type) ? type : null
 }
 
-export async function receiveFilmUpload(body: HandleUploadBody, request: Request, allowed: () => Promise<boolean>) {
-  return handleUpload({
-    body,
+function presignedFilmBody(body: unknown): HandleUploadPresignedBody {
+  const record = body as { type?: string; payload?: HandleUploadPresignedBody['payload'] }
+  if (record.type !== 'blob.generate-client-token') return body as HandleUploadPresignedBody
+  return { type: 'blob.generate-presigned-url', payload: record.payload } as HandleUploadPresignedBody
+}
+
+export async function receiveFilmUpload(body: unknown, request: Request, allowed: () => Promise<boolean>) {
+  return handleUploadPresigned({
+    body: presignedFilmBody(body),
     request,
-    onBeforeGenerateToken: async (pathname) => {
+    getSignedToken: async (pathname) => {
       if (!(await allowed())) throw new Error('unauthorized')
       if (!FILM_PATH.test(pathname)) throw new Error('film_type')
-      return {
+      const token = await issueSignedToken({
+        pathname,
+        operations: ['put'],
         allowedContentTypes: FILM_TYPES,
         maximumSizeInBytes: FILM_BYTES,
-        addRandomSuffix: false,
-        allowOverwrite: true,
+      })
+      return {
+        token,
+        urlOptions: {
+          allowedContentTypes: FILM_TYPES,
+          maximumSizeInBytes: FILM_BYTES,
+          addRandomSuffix: false,
+          allowOverwrite: true,
+        },
       }
     },
     onUploadCompleted: async () => {

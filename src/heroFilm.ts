@@ -80,8 +80,8 @@ export async function uploadHeroFilm(file: File, slot: 1 | 2 = 1) {
   const pathname = contentType ? filmPath(file, slot) : null
   if (!contentType || !pathname) throw new Error('film_type')
   if (filmTooBig(file)) throw new Error('film_big')
-  const { upload } = await import('@vercel/blob/client')
-  const blob = await upload(pathname, file, {
+  const { uploadPresigned } = await import('@vercel/blob/client')
+  const blob = await uploadPresigned(pathname, file, {
     access: 'public',
     handleUploadUrl: '/api/waitlist',
     contentType,

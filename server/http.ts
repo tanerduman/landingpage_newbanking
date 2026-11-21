@@ -28,7 +28,6 @@ import { validatePlanCatalog } from './planCatalog.ts'
 import { validateHeroCopy } from './heroCopy.ts'
 import { validatePopupCatalog } from './popupCopy.ts'
 import { listFilmSlots, pickFilmUrl, filmEventType, receiveFilmUpload } from './film.ts'
-import type { HandleUploadBody } from '@vercel/blob/client'
 
 const PROD_ORIGINS = new Set(['https://www.getaure.org', 'https://getaure.org'])
 const LOCAL_ORIGINS = new Set([
@@ -556,16 +555,20 @@ async function routeFilmUpload(request: Request, path: string) {
   }
   const type = filmEventType(body)
   if (!type) return null
-  if (type === 'blob.generate-client-token') {
+  if (type === 'blob.generate-client-token' || type === 'blob.generate-presigned-url') {
     const denied = await rejectBot(request, path)
     if (denied) return denied
     if (!(await adminPresent(request))) return fail(request, 'unauthorized', 401)
   }
   try {
-    const result = await receiveFilmUpload(body as HandleUploadBody, request, () => adminPresent(request))
+    const result = await receiveFilmUpload(body, request, () => adminPresent(request))
     return json(result, 200, request)
-  } catch {
-    return json({ error: 'film_type' }, 400, request)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : ''
+    if (message === 'unauthorized') return json({ error: 'unauthorized' }, 401, request)
+    if (message === 'film_type') return json({ error: 'film_type' }, 400, request)
+    if (message && !/vercel_blob|eyJ/i.test(message)) console.error('film upload', message.slice(0, 160))
+    return json({ error: 'film_fail' }, 400, request)
   }
 }
 
