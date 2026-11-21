@@ -1,12 +1,16 @@
 import { list } from '@vercel/blob'
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 
-const FILM_PATH = /^hero\/reklam\.(mp4|webm|mov)$/
+const FILM_PATH = /^hero\/reklam(-2)?\.(mp4|webm|mov)$/
+const SLOT_1 = /^hero\/reklam\.(mp4|webm|mov)$/i
+const SLOT_2 = /^hero\/reklam-2\.(mp4|webm|mov)$/i
 const FILM_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
 const FILM_BYTES = 150 * 1024 * 1024
 const CACHE_MS = 5_000
 
-let cached: { at: number; url: string | null } | null = null
+export type FilmSlots = { 1: string | null; 2: string | null }
+
+let cached: { at: number; slots: FilmSlots } | null = null
 
 export function clearFilmCache() {
   cached = null
@@ -28,23 +32,35 @@ function publicFilmUrl(value: string) {
   }
 }
 
-export async function currentFilmUrl() {
-  if (cached && Date.now() - cached.at < CACHE_MS) return cached.url
+function newestUrl(blobs: { pathname: string; url: string; uploadedAt: Date }[]) {
+  const newest = [...blobs].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0]
+  return newest ? publicFilmUrl(newest.url) : null
+}
+
+export function pickFilmUrl(slots: FilmSlots, slot: 1 | 2) {
+  if (slot === 2 && slots[2]) return slots[2]
+  return slots[1]
+}
+
+export async function listFilmSlots(): Promise<FilmSlots> {
+  if (cached && Date.now() - cached.at < CACHE_MS) return cached.slots
+  const empty: FilmSlots = { 1: null, 2: null }
   if (!process.env.BLOB_STORE_ID && !process.env.BLOB_READ_WRITE_TOKEN) {
-    cached = { at: Date.now(), url: null }
-    return null
+    cached = { at: Date.now(), slots: empty }
+    return empty
   }
   try {
     const { blobs } = await list({ limit: 50 })
     const videos = blobs.filter(videoBlob)
-    const preferred = videos.find((blob) => blob.pathname.startsWith('hero/reklam.'))
-    const newest = [...videos].sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime())[0]
-    const url = (preferred && publicFilmUrl(preferred.url)) || (newest && publicFilmUrl(newest.url)) || null
-    cached = { at: Date.now(), url }
-    return url
+    const first = newestUrl(videos.filter((blob) => SLOT_1.test(blob.pathname)))
+    const second = newestUrl(videos.filter((blob) => SLOT_2.test(blob.pathname)))
+    const other = newestUrl(videos.filter((blob) => !SLOT_1.test(blob.pathname) && !SLOT_2.test(blob.pathname)))
+    const slots: FilmSlots = { 1: first || other, 2: second }
+    cached = { at: Date.now(), slots }
+    return slots
   } catch {
-    cached = { at: Date.now(), url: null }
-    return null
+    cached = { at: Date.now(), slots: empty }
+    return empty
   }
 }
 

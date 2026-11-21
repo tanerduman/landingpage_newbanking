@@ -545,6 +545,11 @@ export type Messages = {
     filmOpacityHint: string
     filmTitle: string
     filmLead: string
+    filmChoose: string
+    filmSlot1: string
+    filmSlot2: string
+    filmStored: string
+    filmSlotFallback: string
     filmPick: string
     filmUpload: string
     filmUploading: string
