@@ -1,10 +1,19 @@
 import { list } from '@vercel/blob'
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 
-const FILM_PATH = /^hero\/reklam(-2)?\.(mp4|webm|mov)$/
+const FILM_PATH = /^hero\/(?:reklam|film2)\.(mp4|webm|mov)$/
 const SLOT_1 = /^hero\/reklam\.(mp4|webm|mov)$/i
-const SLOT_2 = /^hero\/reklam-2\.(mp4|webm|mov)$/i
-const FILM_TYPES = ['video/mp4', 'video/webm', 'video/quicktime']
+const SLOT_2 = /^hero\/(?:film2|reklam-2)\.(mp4|webm|mov)$/i
+const FILM_TYPES = [
+  'video/mp4',
+  'video/webm',
+  'video/quicktime',
+  'video/x-m4v',
+  'video/x-quicktime',
+  'video/mov',
+  'application/mp4',
+  'application/octet-stream',
+]
 const FILM_BYTES = 150 * 1024 * 1024
 const CACHE_MS = 5_000
 

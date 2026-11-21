@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import Spinner from './Spinner.tsx'
 import { DEFAULT_FILM_OPACITY, defaultHeroCopy, type FilmSlot, type HeroCopy } from './heroCopyData.ts'
 import { cachedHeroCopy, loadHeroCopy, saveHeroCopy } from './heroCopy.ts'
-import { loadHeroFilms, uploadHeroFilm } from './heroFilm.ts'
+import { filmErrorCode, loadHeroFilms, uploadHeroFilm } from './heroFilm.ts'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { messages, readLocale } from './i18n/index.ts'
 
@@ -200,7 +200,7 @@ function FilmSlotCard({
         setNote(t.waitlist.filmStored)
       })
       .catch((err: unknown) => {
-        const code = err instanceof Error ? err.message : ''
+        const code = filmErrorCode(err)
         setError(code === 'film_type' ? t.waitlist.filmType : code === 'film_big' ? t.waitlist.filmBig : t.waitlist.filmFail)
       })
       .finally(() => setBusy(false))

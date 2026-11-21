@@ -2,14 +2,33 @@ import { apiFetch, readApiJson } from './api.ts'
 
 const FILM_BYTES = 150 * 1024 * 1024
 
-export function filmPath(file: File, slot: 1 | 2 = 1) {
+export function filmContentType(file: File) {
   const name = file.name.toLowerCase()
-  const type = file.type
-  const stem = slot === 2 ? 'hero/reklam-2' : 'hero/reklam'
-  if (type === 'video/mp4' || name.endsWith('.mp4')) return `${stem}.mp4`
-  if (type === 'video/webm' || name.endsWith('.webm')) return `${stem}.webm`
-  if (type === 'video/quicktime' || name.endsWith('.mov')) return `${stem}.mov`
+  const type = file.type.toLowerCase()
+  if (type === 'video/mp4' || type === 'video/x-m4v' || type === 'application/mp4' || name.endsWith('.mp4') || name.endsWith('.m4v')) {
+    return 'video/mp4'
+  }
+  if (type === 'video/webm' || name.endsWith('.webm')) return 'video/webm'
+  if (type === 'video/quicktime' || type === 'video/x-quicktime' || type === 'video/mov' || name.endsWith('.mov')) {
+    return 'video/quicktime'
+  }
   return null
+}
+
+export function filmPath(file: File, slot: 1 | 2 = 1) {
+  const contentType = filmContentType(file)
+  if (!contentType) return null
+  const stem = slot === 2 ? 'hero/film2' : 'hero/reklam'
+  if (contentType === 'video/mp4') return `${stem}.mp4`
+  if (contentType === 'video/webm') return `${stem}.webm`
+  return `${stem}.mov`
+}
+
+export function filmErrorCode(err: unknown) {
+  const message = err instanceof Error ? err.message : ''
+  if (message === 'film_type' || message.includes('Content type')) return 'film_type'
+  if (message === 'film_big' || message.toLowerCase().includes('too large') || message.includes('greater than')) return 'film_big'
+  return 'film_fail'
 }
 
 export function filmTooBig(file: File) {
@@ -57,14 +76,15 @@ export async function loadHeroFilm() {
 }
 
 export async function uploadHeroFilm(file: File, slot: 1 | 2 = 1) {
-  const pathname = filmPath(file, slot)
-  if (!pathname) throw new Error('film_type')
+  const contentType = filmContentType(file)
+  const pathname = contentType ? filmPath(file, slot) : null
+  if (!contentType || !pathname) throw new Error('film_type')
   if (filmTooBig(file)) throw new Error('film_big')
   const { upload } = await import('@vercel/blob/client')
   const blob = await upload(pathname, file, {
     access: 'public',
     handleUploadUrl: '/api/waitlist',
-    contentType: file.type || undefined,
+    contentType,
   })
   const url = publicFilmUrl(blob.url)
   if (!url) throw new Error('film_fail')
