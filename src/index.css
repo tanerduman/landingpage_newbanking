@@ -5712,8 +5712,36 @@ td.row-action {
 }
 
 .nav-links.is-wide {
-  gap: 12px;
-  font-size: 14px;
+  gap: 10px;
+  font-size: 13.5px;
+}
+
+.fit-main {
+  padding: 48px 0 72px;
+}
+
+.fit-main h1 {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  letter-spacing: -0.045em;
+  line-height: 0.98;
+  margin: 10px 0 14px;
+  max-width: 16ch;
+}
+
+.fit-lead {
+  max-width: 62ch;
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.simulator-result {
+  margin: 0 0 16px;
+  color: #111;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 22px;
+  letter-spacing: -0.03em;
 }
 
 .investors-main {

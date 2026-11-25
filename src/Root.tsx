@@ -5,6 +5,7 @@ import InvestorsPage from './InvestorsPage.tsx'
 import CampaignsPage from './CampaignsPage.tsx'
 import PartnersPage from './PartnersPage.tsx'
 import CalcPage from './CalcPage.tsx'
+import FitPage from './FitPage.tsx'
 import ComparePage from './ComparePage.tsx'
 import ConfirmPage from './ConfirmPage.tsx'
 import SupportPage from './SupportPage.tsx'
@@ -16,6 +17,7 @@ import {
   isCampaignsLocation,
   isPartnersLocation,
   isCalcLocation,
+  isFitLocation,
   isCompareLocation,
   isConfirmLocation,
   isSupportLocation,
@@ -29,6 +31,7 @@ function pageFromLocation() {
   if (isSupportLocation()) return 'support'
   if (isCompareLocation()) return 'compare'
   if (isCalcLocation()) return 'calc'
+  if (isFitLocation()) return 'fit'
   if (isBlogLocation()) return 'blog'
   if (isInvestorsLocation()) return 'investors'
   if (isCampaignsLocation()) return 'campaigns'
@@ -75,6 +78,8 @@ export default function Root() {
       <ComparePage />
     ) : page === 'calc' ? (
       <CalcPage />
+    ) : page === 'fit' ? (
+      <FitPage />
     ) : page === 'blog' ? (
       <BlogPage />
     ) : page === 'investors' ? (

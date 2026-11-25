@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch, readApiJson } from './api.ts'
 import { withBase } from './base.ts'
+import { cachedFitOpen, loadFitOpen } from './fitGate.ts'
 import { cachedInvestorsOpen, loadInvestorsOpen } from './investorsGate.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
@@ -24,7 +25,7 @@ export default function SiteHeader({
   active,
   onRequest,
 }: {
-  active?: 'partners' | 'compare' | 'calc' | 'support' | 'blog' | 'investors'
+  active?: 'partners' | 'compare' | 'calc' | 'fit' | 'support' | 'blog' | 'investors'
   onRequest: () => void
 }) {
   const { t, locale } = useI18n()
@@ -33,6 +34,7 @@ export default function SiteHeader({
   const [fx, setFx] = useState<FxQuote[]>([])
   const [gold, setGold] = useState(0)
   const [investorsOpen, setInvestorsOpen] = useState(cachedInvestorsOpen() === true)
+  const [fitOpen, setFitOpen] = useState(cachedFitOpen() === true)
   const howHref = active ? withBase('#how') : '#how'
 
   useEffect(() => {
@@ -48,6 +50,9 @@ export default function SiteHeader({
     void loadQuotes()
     void loadInvestorsOpen().then((open) => {
       if (!cancelled) setInvestorsOpen(open)
+    })
+    void loadFitOpen().then((open) => {
+      if (!cancelled) setFitOpen(open)
     })
     return () => {
       cancelled = true
@@ -72,7 +77,7 @@ export default function SiteHeader({
           <LogoMark />
           AURE
         </a>
-        <nav className={`nav-links${investorsOpen ? ' is-wide' : ''}`}>
+        <nav className={`nav-links${investorsOpen || fitOpen ? ' is-wide' : ''}`}>
           <a href={howHref}>{t.nav.how}</a>
           <a href={withBase('karsilastir')} aria-current={active === 'compare' ? 'page' : undefined}>
             {t.nav.plans}
@@ -80,6 +85,11 @@ export default function SiteHeader({
           <a href={withBase('hesaplama')} aria-current={active === 'calc' ? 'page' : undefined}>
             {t.nav.calc}
           </a>
+          {fitOpen && (
+            <a href={withBase('uygun-paket')} aria-current={active === 'fit' ? 'page' : undefined}>
+              {t.nav.fit}
+            </a>
+          )}
           <a href={withBase('isbirlikleri')} aria-current={active === 'partners' ? 'page' : undefined}>
             {t.nav.partners}
           </a>
@@ -150,6 +160,11 @@ export default function SiteHeader({
         <a href={withBase('hesaplama')} onClick={() => setMenu(false)} aria-current={active === 'calc' ? 'page' : undefined}>
           {t.nav.calc}
         </a>
+        {fitOpen && (
+          <a href={withBase('uygun-paket')} onClick={() => setMenu(false)} aria-current={active === 'fit' ? 'page' : undefined}>
+            {t.nav.fit}
+          </a>
+        )}
         <a href={withBase('isbirlikleri')} onClick={() => setMenu(false)} aria-current={active === 'partners' ? 'page' : undefined}>
           {t.nav.partners}
         </a>
