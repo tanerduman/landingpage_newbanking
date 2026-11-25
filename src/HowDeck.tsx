@@ -145,7 +145,7 @@ export default function HowDeck() {
       </div>
       <div className="how-split">
         <div key={`visual-${index}`} className={`how-visual${motion === 'none' ? '' : ` is-${motion}`}`} aria-hidden="true">
-          <HowVisual index={index} names={names} tr={tr} asks={t.how.asks} />
+          <HowVisual index={index} names={names} tr={tr} asks={t.how.asks} sectors={t.how.brandSectors} />
         </div>
         <div key={`slide-${index}`} className={`how-slide${motion === 'none' ? '' : ` is-${motion}`}`} aria-live="off">
           {index === 0 && (
@@ -250,9 +250,9 @@ export default function HowDeck() {
                 </div>
                 {(
                   [
-                    ['Migros', '—', pct('2'), pct('4'), pct('7')],
-                    ['Divan', '—', '—', pct('10'), pct('15')],
-                    ['Setur', '—', '—', tr ? '%5 tur' : '5% tours', tr ? '%10 tur + otel' : '10% tours + hotel'],
+                    [t.how.brandSectors[0], '—', pct('2'), pct('4'), pct('7')],
+                    [t.how.brandSectors[1], '—', '—', pct('10'), pct('15')],
+                    [t.how.brandSectors[2], '—', '—', tr ? '%5 tur' : '5% tours', tr ? '%10 tur + otel' : '10% tours + hotel'],
                   ] as const
                 ).map(([brand, temel, standard, plus, premium]) => (
                   <div key={brand} className="how-brand-row">

@@ -10,11 +10,13 @@ export default function HowVisual({
   names,
   tr,
   asks,
+  sectors,
 }: {
   index: number
   names: Names
   tr: boolean
   asks: { title: string }[]
+  sectors: [string, string, string]
 }) {
   const pct = (value: string) => (tr ? `%${value}` : `${value}%`)
   if (index === 0) {
@@ -100,20 +102,20 @@ export default function HowVisual({
             <path d="M10 18h28l-3 18H13L10 18z" />
             <path d="M18 18v-3a6 6 0 0 1 12 0v3" />
           </svg>
-          <strong>Migros</strong>
+          <strong>{sectors[0]}</strong>
         </article>
         <article>
           <svg viewBox="0 0 48 48" aria-hidden="true">
             <path d="M12 18h18v16a6 6 0 0 1-6 6h-6a6 6 0 0 1-6-6V18z" />
             <path d="M30 22h6a5 5 0 0 1 0 10h-6" />
           </svg>
-          <strong>Divan</strong>
+          <strong>{sectors[1]}</strong>
         </article>
         <article>
           <svg viewBox="0 0 48 48" aria-hidden="true">
             <path d="M6 24h18l8-8h6l-6 8h10l4 4H32l6 8h-6l-6-8H14l-4 6H6l3-6z" />
           </svg>
-          <strong>Setur</strong>
+          <strong>{sectors[2]}</strong>
         </article>
       </div>
     )

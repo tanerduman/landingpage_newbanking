@@ -80,6 +80,7 @@ export type Messages = {
     brandTitle: string
     brandLead: string
     brandNote: string
+    brandSectors: [string, string, string]
     askTitle: string
     askLead: string
     askNote: string
