@@ -109,7 +109,7 @@ export type Messages = {
     title: string
     lead: string
     note: string
-    items: { id: string; category: string; name: string; body: string; meta: string }[]
+    items: { id: string; name: string; body: string; meta: string }[]
   }
   fx: {
     eyebrow: string
