@@ -116,6 +116,12 @@ function isPlanCatalogWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'planCatalog' in value && (value as { planCatalog?: unknown }).planCatalog === true)
 }
 
+function isFitWrite(value: unknown) {
+  if (!value || typeof value !== 'object') return false
+  const data = value as { fitOpen?: unknown }
+  return typeof data.fitOpen === 'boolean' && Object.keys(data).length === 1
+}
+
 function isInvestorsWrite(value: unknown) {
   if (!value || typeof value !== 'object') return false
   const data = value as { investorsOpen?: unknown }
@@ -241,6 +247,10 @@ async function handleVisits(request: Request) {
 
 async function handleWaitlist(request: Request) {
   const store = getStore()
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('fit') === '1') {
+    if (await overLimit(`fit:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ open: await store.getFitOpen() }, 200, request)
+  }
   if (request.method === 'GET' && new URL(request.url).searchParams.get('investors') === '1') {
     if (await overLimit(`investors:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
     return json({ open: await store.getInvestorsOpen() }, 200, request)
@@ -282,6 +292,11 @@ async function handleWaitlist(request: Request) {
     if (denied) return denied
     const parsed = await readJson(request, 40_000)
     if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    if (isFitWrite(parsed.value)) {
+      if (await overLimit(`fit:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
+      const open = await store.setFitOpen((parsed.value as { fitOpen: boolean }).fitOpen)
+      return json({ open }, 200, request)
+    }
     if (isInvestorsWrite(parsed.value)) {
       if (await overLimit(`investors:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
       const open = await store.setInvestorsOpen((parsed.value as { investorsOpen: boolean }).investorsOpen)

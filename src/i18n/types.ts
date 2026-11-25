@@ -11,6 +11,7 @@ export type Messages = {
     app: string
     compare: string
     calc: string
+    fit: string
     campaigns: string
     partners: string
     support: string
@@ -466,6 +467,14 @@ export type Messages = {
     linkedin: string
     slides: { kicker: string; title: string; body: string; points: string[] }[]
   }
+  fit: {
+    kicker: string
+    title: string
+    lead: string
+    result: string
+    closedTitle: string
+    closedLead: string
+  }
   waitlist: {
     export: string
     kicker: string
@@ -631,6 +640,14 @@ export type Messages = {
     investorsClose: string
     investorsPreview: string
     investorsSaving: string
+    fitTitle: string
+    fitLead: string
+    fitOn: string
+    fitOff: string
+    fitOpen: string
+    fitClose: string
+    fitPreview: string
+    fitSaving: string
   }
   errors: Record<string, string>
 }

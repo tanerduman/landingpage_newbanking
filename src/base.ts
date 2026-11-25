@@ -21,6 +21,11 @@ export function isWaitlistHash(hash = window.location.hash) {
   return value === '/waitlist' || value === 'waitlist'
 }
 
+export function isFitHash(hash = window.location.hash) {
+  const value = hashValue(hash)
+  return value === '/uygun-paket' || value === 'uygun-paket' || value === '/fit' || value === 'fit'
+}
+
 export function isCalcHash(hash = window.location.hash) {
   const value = hashValue(hash)
   return value === '/hesaplama' || value === 'hesaplama' || value === '/calculate' || value === 'calculate'
@@ -68,6 +73,11 @@ export function isPartnersHash(hash = window.location.hash) {
 
 export function isWaitlistLocation() {
   return pathPage() === 'waitlist' || isWaitlistHash()
+}
+
+export function isFitLocation() {
+  const page = pathPage()
+  return page === 'uygun-paket' || page === 'fit' || isFitHash()
 }
 
 export function isCalcLocation() {

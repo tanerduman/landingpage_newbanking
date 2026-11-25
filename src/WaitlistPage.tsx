@@ -28,6 +28,7 @@ import { fetchSupport, deleteSupportEntry, markSupportRead, type SupportEntry, t
 import SupportPie from './SupportPie.tsx'
 import WaitlistPie from './WaitlistPie.tsx'
 import LogoMark from './LogoMark.tsx'
+import FitSwitch from './FitSwitch.tsx'
 import InvestorsSwitch from './InvestorsSwitch.tsx'
 
 type Filter = 'all' | SignupIntent
@@ -393,6 +394,7 @@ export default function WaitlistPage() {
         ) : (
           <>
         <InvestorsSwitch />
+        <FitSwitch />
         <div className="admin-tabs" role="tablist" aria-label={t.waitlist.tabsLabel}>
           <button
             type="button"
