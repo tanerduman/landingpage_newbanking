@@ -28,6 +28,7 @@ import { fetchSupport, deleteSupportEntry, markSupportRead, type SupportEntry, t
 import SupportPie from './SupportPie.tsx'
 import WaitlistPie from './WaitlistPie.tsx'
 import LogoMark from './LogoMark.tsx'
+import InvestorsSwitch from './InvestorsSwitch.tsx'
 
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
@@ -391,6 +392,7 @@ export default function WaitlistPage() {
           </div>
         ) : (
           <>
+        <InvestorsSwitch />
         <div className="admin-tabs" role="tablist" aria-label={t.waitlist.tabsLabel}>
           <button
             type="button"

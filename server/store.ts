@@ -80,6 +80,8 @@ type Store = {
   savePlanCatalog(catalog: PlanCatalog): Promise<PlanCatalog>
   getHeroCopy(): Promise<HeroCopy>
   saveHeroCopy(copy: HeroCopy): Promise<HeroCopy>
+  getInvestorsOpen(): Promise<boolean>
+  setInvestorsOpen(open: boolean): Promise<boolean>
   getPopups(): Promise<SitePopup[]>
   savePopups(popups: SitePopup[]): Promise<SitePopup[]>
   popupStats(): Promise<PopupStat[]>
@@ -171,6 +173,7 @@ type Memory = {
   sectors: SectorDef[]
   planCatalog: PlanCatalog | null
   heroCopy: HeroCopy | null
+  investorsOpen: boolean
   popups: SitePopup[] | null
   popupSeen: PopupSeenRow[]
   adminSessions: Map<string, AdminSessionRecord>
@@ -316,6 +319,7 @@ function memoryStore(): Store {
     sectors: DEFAULT_SECTORS.map((sector, position) => ({ ...sector, position })),
     planCatalog: null,
     heroCopy: null,
+    investorsOpen: false,
     popups: null,
     popupSeen: [],
     adminSessions: new Map(),
@@ -571,6 +575,13 @@ function memoryStore(): Store {
     async saveHeroCopy(copy) {
       data.heroCopy = copy
       return copy
+    },
+    async getInvestorsOpen() {
+      return data.investorsOpen
+    },
+    async setInvestorsOpen(open) {
+      data.investorsOpen = open
+      return open
     },
     async getPopups() {
       return popupCatalog(data.popups)
@@ -1361,6 +1372,20 @@ function postgresStore(url: string): Store {
         [JSON.stringify(copy)],
       )
       return copy
+    },
+    async getInvestorsOpen() {
+      await ensure()
+      const result = await pool.query<{ value: string }>(`SELECT value FROM app_meta WHERE key = 'investors_open'`)
+      return result.rows[0]?.value === '1'
+    },
+    async setInvestorsOpen(open) {
+      await ensure()
+      await pool.query(
+        `INSERT INTO app_meta (key, value) VALUES ('investors_open', $1)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+        [open ? '1' : '0'],
+      )
+      return open
     },
     async getPopups() {
       await ensure()

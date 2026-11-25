@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch, readApiJson } from './api.ts'
 import { withBase } from './base.ts'
+import { cachedInvestorsOpen, loadInvestorsOpen } from './investorsGate.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatFx, formatGram } from './i18n/format.ts'
@@ -23,7 +24,7 @@ export default function SiteHeader({
   active,
   onRequest,
 }: {
-  active?: 'partners' | 'compare' | 'calc' | 'support' | 'blog'
+  active?: 'partners' | 'compare' | 'calc' | 'support' | 'blog' | 'investors'
   onRequest: () => void
 }) {
   const { t, locale } = useI18n()
@@ -31,6 +32,7 @@ export default function SiteHeader({
   const [ribbonOpen, setRibbonOpen] = useState(readRibbonOpen)
   const [fx, setFx] = useState<FxQuote[]>([])
   const [gold, setGold] = useState(0)
+  const [investorsOpen, setInvestorsOpen] = useState(cachedInvestorsOpen() === true)
   const howHref = active ? withBase('#how') : '#how'
 
   useEffect(() => {
@@ -44,6 +46,9 @@ export default function SiteHeader({
       if (goldRes?.ok && metal?.source === 'collectapi' && metal.gramTry) setGold(metal.gramTry)
     }
     void loadQuotes()
+    void loadInvestorsOpen().then((open) => {
+      if (!cancelled) setInvestorsOpen(open)
+    })
     return () => {
       cancelled = true
     }
@@ -67,7 +72,7 @@ export default function SiteHeader({
           <LogoMark />
           AURE
         </a>
-        <nav className="nav-links">
+        <nav className={`nav-links${investorsOpen ? ' is-wide' : ''}`}>
           <a href={howHref}>{t.nav.how}</a>
           <a href={withBase('karsilastir')} aria-current={active === 'compare' ? 'page' : undefined}>
             {t.nav.plans}
@@ -85,6 +90,11 @@ export default function SiteHeader({
             {t.nav.blog}
             <span className="nav-new">{t.nav.newPage}</span>
           </a>
+          {investorsOpen && (
+            <a href={withBase('yatirimci')} aria-current={active === 'investors' ? 'page' : undefined}>
+              {t.nav.investors}
+            </a>
+          )}
         </nav>
         <div className="nav-cta">
           <LangSwitch />
@@ -150,6 +160,11 @@ export default function SiteHeader({
           {t.nav.blog}
           <span className="nav-new">{t.nav.newPage}</span>
         </a>
+        {investorsOpen && (
+          <a href={withBase('yatirimci')} onClick={() => setMenu(false)} aria-current={active === 'investors' ? 'page' : undefined}>
+            {t.nav.investors}
+          </a>
+        )}
         <button
           type="button"
           className="linkish"

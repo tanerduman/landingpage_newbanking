@@ -46,6 +46,16 @@ export function isBlogHash(hash = window.location.hash) {
   return value === '/blog' || value === 'blog'
 }
 
+export function isInvestorsHash(hash = window.location.hash) {
+  const value = hashValue(hash)
+  return (
+    value === '/yatirimci' ||
+    value === 'yatirimci' ||
+    value === '/investors' ||
+    value === 'investors'
+  )
+}
+
 export function isPartnersHash(hash = window.location.hash) {
   const value = hashValue(hash)
   return (
@@ -82,6 +92,11 @@ export function isCampaignsLocation() {
 
 export function isBlogLocation() {
   return pathPage() === 'blog' || isBlogHash()
+}
+
+export function isInvestorsLocation() {
+  const page = pathPage()
+  return page === 'yatirimci' || page === 'investors' || isInvestorsHash()
 }
 
 export function isPartnersLocation() {
