@@ -15,6 +15,7 @@ export type Messages = {
     partners: string
     support: string
     blog: string
+    investors: string
     newPage: string
     faq: string
     seePlans: string
@@ -453,6 +454,18 @@ export type Messages = {
     needEmail: string
     needMessage: string
   }
+  investors: {
+    kicker: string
+    closedTitle: string
+    closedLead: string
+    deckLabel: string
+    prev: string
+    next: string
+    position: string
+    disclaimer: string
+    linkedin: string
+    slides: { kicker: string; title: string; body: string; points: string[] }[]
+  }
   waitlist: {
     export: string
     kicker: string
@@ -610,6 +623,14 @@ export type Messages = {
     delete: string
     deleteConfirm: string
     deleting: string
+    investorsTitle: string
+    investorsLead: string
+    investorsOn: string
+    investorsOff: string
+    investorsOpen: string
+    investorsClose: string
+    investorsPreview: string
+    investorsSaving: string
   }
   errors: Record<string, string>
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import App from './App.tsx'
 import BlogPage from './BlogPage.tsx'
+import InvestorsPage from './InvestorsPage.tsx'
 import CampaignsPage from './CampaignsPage.tsx'
 import PartnersPage from './PartnersPage.tsx'
 import CalcPage from './CalcPage.tsx'
@@ -11,6 +12,7 @@ import WaitlistPage from './WaitlistPage.tsx'
 import { LocaleProvider } from './i18n/LocaleContext.tsx'
 import {
   isBlogLocation,
+  isInvestorsLocation,
   isCampaignsLocation,
   isPartnersLocation,
   isCalcLocation,
@@ -28,6 +30,7 @@ function pageFromLocation() {
   if (isCompareLocation()) return 'compare'
   if (isCalcLocation()) return 'calc'
   if (isBlogLocation()) return 'blog'
+  if (isInvestorsLocation()) return 'investors'
   if (isCampaignsLocation()) return 'campaigns'
   if (isPartnersLocation()) return 'partners'
   if (isConfirmLocation()) return 'confirm'
@@ -74,6 +77,8 @@ export default function Root() {
       <CalcPage />
     ) : page === 'blog' ? (
       <BlogPage />
+    ) : page === 'investors' ? (
+      <InvestorsPage />
     ) : page === 'campaigns' ? (
       <CampaignsPage />
     ) : page === 'partners' ? (
