@@ -154,7 +154,7 @@ export const en: Messages = {
   partners: {
     kicker: 'Unlocks with your card',
     title: 'Brand partnerships.',
-    lead: 'From groceries to online learning, the perks that come with your plan. No prices. For now we only take requests.',
+    lead: 'From groceries to a magazine, the perks that come with your plan. No prices. For now we only take requests.',
     note: 'We are not opening accounts yet. Your request joins the waitlist.',
     closedTitle: 'This page is not published.',
     closedLead: 'Partnerships are closed. The page is hidden from the menu too.',
@@ -193,6 +193,18 @@ export const en: Messages = {
         id: 'trendyol',
         name: 'Shopping',
         body: 'A brand perk at checkout.',
+        meta: 'Unlocks with your plan',
+      },
+      {
+        id: 'claude',
+        name: 'AI',
+        body: 'A Claude subscription unlocks with your plan.',
+        meta: 'Unlocks with your plan',
+      },
+      {
+        id: 'hbr',
+        name: 'Magazine',
+        body: 'A Harvard Business Review magazine subscription.',
         meta: 'Unlocks with your plan',
       },
       {

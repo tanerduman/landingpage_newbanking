@@ -154,7 +154,7 @@ export const tr: Messages = {
   partners: {
     kicker: 'Kartınla açılır',
     title: 'Marka işbirlikleri.',
-    lead: 'Marketten eğitime, paketinle gelen ayrıcalıklar. Fiyat yok. Şimdilik yalnızca talep alıyoruz.',
+    lead: 'Marketten dergiye, paketinle gelen ayrıcalıklar. Fiyat yok. Şimdilik yalnızca talep alıyoruz.',
     note: 'Şimdilik hesap açmıyoruz. Talebin bekleme listesine yazılır.',
     closedTitle: 'Bu sayfa şu an yayında değil.',
     closedLead: 'Marka işbirlikleri kapalı. Menüde de görünmez.',
@@ -193,6 +193,18 @@ export const tr: Messages = {
         id: 'trendyol',
         name: 'Alışveriş',
         body: 'Sepette marka ayrıcalığı.',
+        meta: 'Paketinle açılır',
+      },
+      {
+        id: 'claude',
+        name: 'Yapay zeka',
+        body: 'Claude aboneliği paketinle açılır.',
+        meta: 'Paketinle açılır',
+      },
+      {
+        id: 'hbr',
+        name: 'Dergi',
+        body: 'Harvard Business Review dergi aboneliği.',
         meta: 'Paketinle açılır',
       },
       {
