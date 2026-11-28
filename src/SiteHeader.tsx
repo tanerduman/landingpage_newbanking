@@ -3,6 +3,7 @@ import { apiFetch, readApiJson } from './api.ts'
 import { withBase } from './base.ts'
 import { cachedFitOpen, loadFitOpen } from './fitGate.ts'
 import { cachedInvestorsOpen, loadInvestorsOpen } from './investorsGate.ts'
+import { cachedPartnersOpen, loadPartnersOpen } from './partnersGate.ts'
 import LangSwitch from './LangSwitch.tsx'
 import { useI18n } from './i18n/LocaleContext.tsx'
 import { formatFx, formatGram } from './i18n/format.ts'
@@ -35,6 +36,7 @@ export default function SiteHeader({
   const [gold, setGold] = useState(0)
   const [investorsOpen, setInvestorsOpen] = useState(cachedInvestorsOpen() === true)
   const [fitOpen, setFitOpen] = useState(cachedFitOpen() === true)
+  const [partnersOpen, setPartnersOpen] = useState(cachedPartnersOpen() !== false)
   const howHref = active ? withBase('#how') : '#how'
 
   useEffect(() => {
@@ -53,6 +55,9 @@ export default function SiteHeader({
     })
     void loadFitOpen().then((open) => {
       if (!cancelled) setFitOpen(open)
+    })
+    void loadPartnersOpen().then((open) => {
+      if (!cancelled) setPartnersOpen(open)
     })
     return () => {
       cancelled = true
@@ -90,9 +95,11 @@ export default function SiteHeader({
               {t.nav.fit}
             </a>
           )}
-          <a href={withBase('isbirlikleri')} aria-current={active === 'partners' ? 'page' : undefined}>
-            {t.nav.partners}
-          </a>
+          {partnersOpen && (
+            <a href={withBase('isbirlikleri')} aria-current={active === 'partners' ? 'page' : undefined}>
+              {t.nav.partners}
+            </a>
+          )}
           <a href={withBase('support')} aria-current={active === 'support' ? 'page' : undefined}>
             {t.nav.support}
           </a>
@@ -165,9 +172,11 @@ export default function SiteHeader({
             {t.nav.fit}
           </a>
         )}
-        <a href={withBase('isbirlikleri')} onClick={() => setMenu(false)} aria-current={active === 'partners' ? 'page' : undefined}>
-          {t.nav.partners}
-        </a>
+        {partnersOpen && (
+          <a href={withBase('isbirlikleri')} onClick={() => setMenu(false)} aria-current={active === 'partners' ? 'page' : undefined}>
+            {t.nav.partners}
+          </a>
+        )}
         <a href={withBase('support')} onClick={() => setMenu(false)} aria-current={active === 'support' ? 'page' : undefined}>
           {t.nav.support}
         </a>

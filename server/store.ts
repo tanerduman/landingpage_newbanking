@@ -84,6 +84,8 @@ type Store = {
   setInvestorsOpen(open: boolean): Promise<boolean>
   getFitOpen(): Promise<boolean>
   setFitOpen(open: boolean): Promise<boolean>
+  getPartnersOpen(): Promise<boolean>
+  setPartnersOpen(open: boolean): Promise<boolean>
   getPopups(): Promise<SitePopup[]>
   savePopups(popups: SitePopup[]): Promise<SitePopup[]>
   popupStats(): Promise<PopupStat[]>
@@ -177,6 +179,7 @@ type Memory = {
   heroCopy: HeroCopy | null
   investorsOpen: boolean
   fitOpen: boolean
+  partnersOpen: boolean
   popups: SitePopup[] | null
   popupSeen: PopupSeenRow[]
   adminSessions: Map<string, AdminSessionRecord>
@@ -324,6 +327,7 @@ function memoryStore(): Store {
     heroCopy: null,
     investorsOpen: false,
     fitOpen: false,
+    partnersOpen: true,
     popups: null,
     popupSeen: [],
     adminSessions: new Map(),
@@ -592,6 +596,13 @@ function memoryStore(): Store {
     },
     async setFitOpen(open) {
       data.fitOpen = open
+      return open
+    },
+    async getPartnersOpen() {
+      return data.partnersOpen
+    },
+    async setPartnersOpen(open) {
+      data.partnersOpen = open
       return open
     },
     async getPopups() {
@@ -1407,6 +1418,22 @@ function postgresStore(url: string): Store {
       await ensure()
       await pool.query(
         `INSERT INTO app_meta (key, value) VALUES ('fit_open', $1)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+        [open ? '1' : '0'],
+      )
+      return open
+    },
+    async getPartnersOpen() {
+      await ensure()
+      const result = await pool.query<{ value: string }>(`SELECT value FROM app_meta WHERE key = 'partners_open'`)
+      const value = result.rows[0]?.value
+      if (value == null) return true
+      return value === '1'
+    },
+    async setPartnersOpen(open) {
+      await ensure()
+      await pool.query(
+        `INSERT INTO app_meta (key, value) VALUES ('partners_open', $1)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
         [open ? '1' : '0'],
       )
