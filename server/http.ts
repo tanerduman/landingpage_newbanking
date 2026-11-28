@@ -116,6 +116,12 @@ function isPlanCatalogWrite(value: unknown) {
   return Boolean(value && typeof value === 'object' && 'planCatalog' in value && (value as { planCatalog?: unknown }).planCatalog === true)
 }
 
+function isPartnersWrite(value: unknown) {
+  if (!value || typeof value !== 'object') return false
+  const data = value as { partnersOpen?: unknown }
+  return typeof data.partnersOpen === 'boolean' && Object.keys(data).length === 1
+}
+
 function isFitWrite(value: unknown) {
   if (!value || typeof value !== 'object') return false
   const data = value as { fitOpen?: unknown }
@@ -247,6 +253,10 @@ async function handleVisits(request: Request) {
 
 async function handleWaitlist(request: Request) {
   const store = getStore()
+  if (request.method === 'GET' && new URL(request.url).searchParams.get('partners') === '1') {
+    if (await overLimit(`partners:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
+    return json({ open: await store.getPartnersOpen() }, 200, request)
+  }
   if (request.method === 'GET' && new URL(request.url).searchParams.get('fit') === '1') {
     if (await overLimit(`fit:list:${clientKey(request)}`, 120, 60_000)) return fail(request, 'too_many', 429)
     return json({ open: await store.getFitOpen() }, 200, request)
@@ -292,6 +302,11 @@ async function handleWaitlist(request: Request) {
     if (denied) return denied
     const parsed = await readJson(request, 40_000)
     if ('error' in parsed && parsed.error) return fail(request, parsed.error, 400)
+    if (isPartnersWrite(parsed.value)) {
+      if (await overLimit(`partners:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
+      const open = await store.setPartnersOpen((parsed.value as { partnersOpen: boolean }).partnersOpen)
+      return json({ open }, 200, request)
+    }
     if (isFitWrite(parsed.value)) {
       if (await overLimit(`fit:write:${clientKey(request)}`, 30, 60_000)) return fail(request, 'too_many', 429)
       const open = await store.setFitOpen((parsed.value as { fitOpen: boolean }).fitOpen)

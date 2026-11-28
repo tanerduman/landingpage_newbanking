@@ -156,6 +156,8 @@ export const tr: Messages = {
     title: 'Marka işbirlikleri.',
     lead: 'Marketten eğitime, paketinle gelen ayrıcalıklar. Fiyat yok. Şimdilik yalnızca talep alıyoruz.',
     note: 'Şimdilik hesap açmıyoruz. Talebin bekleme listesine yazılır.',
+    closedTitle: 'Bu sayfa şu an yayında değil.',
+    closedLead: 'Marka işbirlikleri kapalı. Menüde de görünmez.',
     items: [
       {
         id: 'migros',
@@ -990,6 +992,14 @@ export const tr: Messages = {
     fitClose: 'Kapat',
     fitPreview: 'Sayfayı gör',
     fitSaving: 'Kaydediliyor',
+    partnersTitle: 'Marka işbirlikleri',
+    partnersLead: 'Kapalıyken menüde görünmez ve sayfa logoları göstermez. Açıkken /isbirlikleri yayındadır.',
+    partnersOn: 'Sayfa yayında.',
+    partnersOff: 'Sayfa kapalı.',
+    partnersOpen: 'Aç',
+    partnersClose: 'Kapat',
+    partnersPreview: 'Sayfayı gör',
+    partnersSaving: 'Kaydediliyor',
   },
   errors: {
     too_big: 'İstek çok büyük.',

@@ -156,6 +156,8 @@ export const en: Messages = {
     title: 'Brand partnerships.',
     lead: 'From groceries to online learning, the perks that come with your plan. No prices. For now we only take requests.',
     note: 'We are not opening accounts yet. Your request joins the waitlist.',
+    closedTitle: 'This page is not published.',
+    closedLead: 'Partnerships are closed. The page is hidden from the menu too.',
     items: [
       {
         id: 'migros',
@@ -990,6 +992,14 @@ export const en: Messages = {
     fitClose: 'Close',
     fitPreview: 'View the page',
     fitSaving: 'Saving',
+    partnersTitle: 'Partnerships',
+    partnersLead: 'While closed, it stays out of the menu and the page shows no logos. Opening it publishes /isbirlikleri.',
+    partnersOn: 'Page is published.',
+    partnersOff: 'Page is closed.',
+    partnersOpen: 'Open',
+    partnersClose: 'Close',
+    partnersPreview: 'View the page',
+    partnersSaving: 'Saving',
   },
   errors: {
     too_big: 'Request too large.',

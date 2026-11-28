@@ -30,6 +30,7 @@ import WaitlistPie from './WaitlistPie.tsx'
 import LogoMark from './LogoMark.tsx'
 import FitSwitch from './FitSwitch.tsx'
 import InvestorsSwitch from './InvestorsSwitch.tsx'
+import PartnersSwitch from './PartnersSwitch.tsx'
 
 type Filter = 'all' | SignupIntent
 type CycleFilter = 'all' | BillingCycle
@@ -395,6 +396,7 @@ export default function WaitlistPage() {
           <>
         <InvestorsSwitch />
         <FitSwitch />
+        <PartnersSwitch />
         <div className="admin-tabs" role="tablist" aria-label={t.waitlist.tabsLabel}>
           <button
             type="button"

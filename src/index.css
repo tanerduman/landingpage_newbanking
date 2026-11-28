@@ -2330,34 +2330,96 @@ button.hero-film:focus-visible {
 
 .partner-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .partner-card {
   background: var(--bg-elev);
   border: 1px solid var(--line);
   border-radius: 22px;
-  padding: 22px 20px 20px;
-  min-height: 180px;
+  padding: 12px 12px 20px;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
 }
 
+.partner-card:last-child {
+  grid-column: 1 / -1;
+}
+
+.partner-card:last-child .partner-logo {
+  min-height: 220px;
+}
+
+.partner-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 196px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  padding: 28px 32px;
+  background: #fff;
+}
+
+.partner-logo img {
+  width: 88%;
+  height: auto;
+  max-height: 148px;
+  object-fit: contain;
+}
+
+.partner-logo-setur,
+.partner-logo-neo {
+  background: #111111;
+}
+
+.partner-logo-koctas img,
+.partner-logo-divan img {
+  width: auto;
+  height: 168px;
+  max-width: 86%;
+  max-height: none;
+}
+
+.partner-logo-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.2%;
+  width: 92%;
+}
+
+.partner-logo-pair img {
+  width: auto;
+  height: 72px;
+  max-height: none;
+}
+
+.partner-logo-pair img:first-child {
+  height: 72px;
+}
+
+.partner-card:last-child .partner-logo-pair img,
+.partner-card:last-child .partner-logo-pair img:first-child {
+  height: 96px;
+}
+
 .partner-card h2 {
   font-size: 26px;
-  margin: 0 0 8px;
+  margin: 0 8px 8px;
   letter-spacing: -0.03em;
 }
 
 .partner-card p {
-  margin: 0;
+  margin: 0 8px;
   color: var(--muted);
   line-height: 1.45;
 }
 
 .partner-meta {
-  margin-top: auto;
+  margin: auto 8px 0;
   padding-top: 14px;
   color: var(--text);
   font-size: 13px;
@@ -4852,6 +4914,33 @@ td.row-action {
 
   .partner-grid {
     grid-template-columns: 1fr;
+  }
+
+  .partner-card,
+  .partner-card:last-child {
+    grid-column: auto;
+  }
+
+  .partner-logo {
+    min-height: 168px;
+    padding: 22px 18px;
+  }
+
+  .partner-logo img,
+  .partner-logo-koctas img,
+  .partner-logo-divan img {
+    width: 92%;
+    height: auto;
+    max-height: 132px;
+  }
+
+  .partner-logo-pair img,
+  .partner-logo-pair img:first-child,
+  .partner-card:last-child .partner-logo-pair img,
+  .partner-card:last-child .partner-logo-pair img:first-child {
+    width: auto;
+    height: 34px;
+    max-height: none;
   }
 
   .nav-rate {

@@ -112,6 +112,8 @@ export type Messages = {
     title: string
     lead: string
     note: string
+    closedTitle: string
+    closedLead: string
     items: { id: string; name: string; body: string; meta: string }[]
   }
   fx: {
@@ -648,6 +650,14 @@ export type Messages = {
     fitClose: string
     fitPreview: string
     fitSaving: string
+    partnersTitle: string
+    partnersLead: string
+    partnersOn: string
+    partnersOff: string
+    partnersOpen: string
+    partnersClose: string
+    partnersPreview: string
+    partnersSaving: string
   }
   errors: Record<string, string>
 }
