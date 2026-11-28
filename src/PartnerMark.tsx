@@ -7,6 +7,8 @@ const logos: Record<string, { src: string; alt: string }> = {
   koctas: { src: 'partners/koctas.png', alt: 'Koçtaş' },
   uber: { src: 'partners/uber-eats.svg', alt: 'Uber Eats' },
   trendyol: { src: 'partners/trendyol.svg', alt: 'Trendyol' },
+  claude: { src: 'partners/claude.svg', alt: 'Claude' },
+  hbr: { src: 'partners/hbr.svg', alt: 'Harvard Business Review' },
 }
 
 export default function PartnerMark({ id }: { id: string }) {

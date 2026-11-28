@@ -2376,7 +2376,8 @@ button.hero-film:focus-visible {
 }
 
 .partner-logo-koctas img,
-.partner-logo-divan img {
+.partner-logo-divan img,
+.partner-logo-hbr img {
   width: auto;
   height: 168px;
   max-width: 86%;
@@ -4928,7 +4929,8 @@ td.row-action {
 
   .partner-logo img,
   .partner-logo-koctas img,
-  .partner-logo-divan img {
+  .partner-logo-divan img,
+  .partner-logo-hbr img {
     width: 92%;
     height: auto;
     max-height: 132px;
